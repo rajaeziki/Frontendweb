@@ -27,8 +27,7 @@ import {
   Target
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import { useState, useEffect, useCallback } from "react";
-import ReactMarkdown from "react-markdown";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -47,6 +46,8 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // Types pour les données
 interface WebData {
@@ -157,6 +158,9 @@ export default function Diagnosis() {
   const [documents, setDocuments] = useState<DocumentContent[]>([]);
   const [enableWebSearch, setEnableWebSearch] = useState(true);
   const [expandedSections, setExpandedSections] = useState<string[]>(['general', 'demographics', 'infrastructure']);
+  
+  // Ref pour l'iframe
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const { register, handleSubmit, watch, setValue } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -236,6 +240,85 @@ export default function Diagnosis() {
     }
     
     setDocuments((prev) => [...prev, ...newDocuments]);
+  };
+
+  // Fonction pour télécharger en PDF en capturant l'iframe
+  const downloadPDF = async () => {
+    if (!iframeRef.current) return;
+    
+    try {
+      toast({
+        title: "Préparation du PDF",
+        description: "Génération du document en cours...",
+      });
+      
+      // Accéder au contenu de l'iframe
+      const iframeDocument = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
+      if (!iframeDocument) {
+        throw new Error("Impossible d'accéder au contenu de l'iframe");
+      }
+      
+      // Capturer le corps du document de l'iframe
+      const iframeBody = iframeDocument.body;
+      
+      const canvas = await html2canvas(iframeBody, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        windowWidth: 1200,
+        onclone: (clonedDoc) => {
+          // S'assurer que le fond est blanc
+          const body = clonedDoc.querySelector('body');
+          if (body) {
+            body.style.background = '#ffffff';
+          }
+        }
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Créer le PDF en format A4
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const imgWidth = 210; // Largeur A4 en mm
+      const pageHeight = 297; // Hauteur A4 en mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      // Ajouter la première page
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+      heightLeft -= pageHeight;
+      
+      // Ajouter des pages supplémentaires si nécessaire
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+        heightLeft -= pageHeight;
+      }
+      
+      // Sauvegarder le PDF
+      pdf.save(`Diagnostic_${watchCity?.replace(/\s+/g, '_') || 'ville'}.pdf`);
+      
+      toast({
+        title: "Succès !",
+        description: "Le PDF a été généré avec succès.",
+      });
+    } catch (error) {
+      console.error('Erreur lors de la génération du PDF:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le PDF.",
+        variant: "destructive",
+      });
+    }
   };
 
  const generateReportContent = async (data: FormData) => {
@@ -1615,18 +1698,6 @@ export default function Diagnosis() {
     );
   };
 
-  const downloadReport = () => {
-    if (!generatedContent) return;
-    
-    const element = document.createElement("a");
-    const file = new Blob([generatedContent], { type: 'text/plain' });
-    element.href = URL.createObjectURL(file);
-    element.download = `Diagnostic_${watchCity?.replace(/\s+/g, '_')}.txt`;
-    document.body.appendChild(element);
-    element.click();
-    element.remove();
-  };
-
   return (
     <LayoutShell>
       <div className="max-w-7xl mx-auto pb-12">
@@ -2210,6 +2281,7 @@ export default function Diagnosis() {
             </form>
           </TabsContent>
 
+          {/* SOLUTION FINALE: Iframe avec capture PDF */}
           <TabsContent value="result">
             <Card className="border-t-4 border-t-secondary">
               <CardHeader className="bg-slate-50 border-b border-border/50">
@@ -2223,13 +2295,9 @@ export default function Diagnosis() {
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" onClick={downloadReport}>
+                    <Button variant="outline" onClick={downloadPDF}>
                       <Download className="w-4 h-4 mr-2" />
-                      Télécharger (.txt)
-                    </Button>
-                    <Button variant="outline" onClick={() => globalThis.print()}>
-                      <FileText className="w-4 h-4 mr-2" />
-                      Imprimer
+                      Télécharger PDF
                     </Button>
                   </div>
                 </div>
@@ -2237,7 +2305,29 @@ export default function Diagnosis() {
               <CardContent className="p-8">
                 {generatedContent ? (
                   <div className="prose prose-lg max-w-none">
-                    <ReactMarkdown>{generatedContent}</ReactMarkdown>
+                    {/* Iframe pour l'affichage avec isolation CSS */}
+                    <iframe
+                      ref={iframeRef}
+                      srcDoc={generatedContent}
+                      title="Rapport Diagnostic"
+                      className="w-full border-0"
+                      style={{ 
+                        minHeight: "1200px", 
+                        height: "auto",
+                        width: "100%"
+                      }}
+                      sandbox="allow-same-origin allow-forms allow-scripts"
+                      onLoad={() => {
+                        // Optionnel: ajuster la hauteur de l'iframe après chargement
+                        if (iframeRef.current) {
+                          const iframeDoc = iframeRef.current.contentDocument;
+                          if (iframeDoc) {
+                            const height = iframeDoc.body.scrollHeight;
+                            iframeRef.current.style.height = height + 'px';
+                          }
+                        }
+                      }}
+                    />
 
                     {/* Graphiques interactifs */}
                     <div className="mt-12 space-y-8">
