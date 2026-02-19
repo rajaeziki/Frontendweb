@@ -243,120 +243,158 @@ export default function Diagnosis() {
   };
 
   // Fonction pour télécharger en PDF en capturant l'iframe
-  const downloadPDF = async () => {
-    if (!iframeRef.current) return;
+ const downloadPDF = async () => {
+  if (!iframeRef.current) return;
+  
+  try {
+    toast({
+      title: "Préparation du PDF",
+      description: "Génération du document en cours...",
+    });
     
-    try {
-      toast({
-        title: "Préparation du PDF",
-        description: "Génération du document en cours...",
-      });
-      
-      // Accéder au contenu de l'iframe
-      const iframeDocument = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
-      if (!iframeDocument) {
-        throw new Error("Impossible d'accéder au contenu de l'iframe");
-      }
-      
-      // Capturer le corps du document de l'iframe
-      const iframeBody = iframeDocument.body;
-      
-      const canvas = await html2canvas(iframeBody, {
+    const iframeDocument = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
+    if (!iframeDocument) {
+      throw new Error("Impossible d'accéder au contenu de l'iframe");
+    }
+    
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    const imgWidth = 210; // Largeur A4 en mm
+    const pageHeight = 297; // Hauteur A4 en mm
+    
+    // 1. Capturer la page de garde SÉPARÉMENT
+    const coverElement = iframeDocument.querySelector('.cover-page');
+    if (coverElement) {
+      const coverCanvas = await html2canvas(coverElement as HTMLElement, {
         scale: 2,
+        backgroundColor: '#ffffff',
         logging: false,
         useCORS: true,
         allowTaint: false,
-        backgroundColor: '#ffffff',
-        windowWidth: 1200,
-        onclone: (clonedDoc) => {
-          // S'assurer que le fond est blanc
-          const body = clonedDoc.querySelector('body');
-          if (body) {
-            body.style.background = '#ffffff';
-          }
-        }
       });
       
-      const imgData = canvas.toDataURL('image/png');
+      const coverImgData = coverCanvas.toDataURL('image/png');
+      const coverImgHeight = (coverCanvas.height * imgWidth) / coverCanvas.width;
       
-      // Créer le PDF en format A4
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      const imgWidth = 210; // Largeur A4 en mm
-      const pageHeight = 297; // Hauteur A4 en mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-      
-      // Ajouter la première page
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-      heightLeft -= pageHeight;
-      
-      // Ajouter des pages supplémentaires si nécessaire
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
+      // Ajouter la page de garde sur sa propre page
+      pdf.addImage(coverImgData, 'PNG', 0, 0, imgWidth, coverImgHeight, undefined, 'FAST');
+    }
+    
+    // 2. Capturer le reste du document (sans la page de garde)
+    // Créer un clone du body
+    const bodyClone = iframeDocument.body.cloneNode(true) as HTMLElement;
+    
+    // Supprimer la page de garde du clone
+    const coverInClone = bodyClone.querySelector('.cover-page');
+    if (coverInClone) {
+      coverInClone.remove();
+    }
+    
+    // Supprimer les éléments page-break qui pourraient causer des problèmes
+    const pageBreaks = bodyClone.querySelectorAll('.page-break');
+    pageBreaks.forEach(el => el.remove());
+    
+    // Créer un conteneur temporaire
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '0';
+    tempContainer.style.width = '1200px';
+    tempContainer.style.background = '#ffffff';
+    tempContainer.appendChild(bodyClone);
+    document.body.appendChild(tempContainer);
+    
+    const contentCanvas = await html2canvas(tempContainer, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      logging: false,
+      useCORS: true,
+      allowTaint: false,
+      windowWidth: 1200,
+    });
+    
+    // Nettoyer
+    document.body.removeChild(tempContainer);
+    
+    const contentImgData = contentCanvas.toDataURL('image/png');
+    const contentImgHeight = (contentCanvas.height * imgWidth) / contentCanvas.width;
+    
+    // Ajouter une nouvelle page pour le contenu
+    pdf.addPage();
+    
+    // Ajouter le contenu sur plusieurs pages si nécessaire
+    let heightLeft = contentImgHeight;
+    let position = 0;
+    let firstPage = true;
+    
+    while (heightLeft > 0) {
+      if (!firstPage) {
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-        heightLeft -= pageHeight;
       }
       
-      // Sauvegarder le PDF
-      pdf.save(`Diagnostic_${watchCity?.replace(/\s+/g, '_') || 'ville'}.pdf`);
+      pdf.addImage(contentImgData, 'PNG', 0, position, imgWidth, contentImgHeight, undefined, 'FAST');
       
-      toast({
-        title: "Succès !",
-        description: "Le PDF a été généré avec succès.",
-      });
-    } catch (error) {
-      console.error('Erreur lors de la génération du PDF:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de générer le PDF.",
-        variant: "destructive",
-      });
+      heightLeft -= pageHeight;
+      position -= pageHeight;
+      firstPage = false;
     }
-  };
-
- const generateReportContent = async (data: FormData) => {
-  setIsGenerating(true);
-  
-  try {
-    // Simuler la génération IA
-    await new Promise(resolve => setTimeout(resolve, 3000));
     
-    const formatNumber = (num: string | undefined) => {
-      return num ? Number.parseInt(num, 10).toLocaleString('fr-FR') : 'Non spécifié';
-    };
+    // Sauvegarder le PDF
+    pdf.save(`Diagnostic_${watchCity?.replace(/\s+/g, '_') || 'ville'}.pdf`);
+    
+    toast({
+      title: "Succès !",
+      description: "Le PDF a été généré avec succès.",
+    });
+  } catch (error) {
+    console.error('Erreur lors de la génération du PDF:', error);
+    toast({
+      title: "Erreur",
+      description: "Impossible de générer le PDF.",
+      variant: "destructive",
+    });
+  }
+};
+  const generateReportContent = async (data: FormData) => {
+    setIsGenerating(true);
+    
+    try {
+      // Simuler la génération IA
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      const formatNumber = (num: string | undefined) => {
+        return num ? Number.parseInt(num, 10).toLocaleString('fr-FR') : 'Non spécifié';
+      };
 
-    const formatPercent = (num: string | undefined) => {
-      return num ? `${num}%` : 'Non spécifié';
-    };
+      const formatPercent = (num: string | undefined) => {
+        return num ? `${num}%` : 'Non spécifié';
+      };
 
-    const formatCurrency = (num: string | undefined) => {
-      return num ? `${Number.parseInt(num, 10).toLocaleString('fr-FR')} USD` : 'Non spécifié';
-    };
+      const formatCurrency = (num: string | undefined) => {
+        return num ? `${Number.parseInt(num, 10).toLocaleString('fr-FR')} USD` : 'Non spécifié';
+      };
 
-    const calculateGap = (current: string | undefined, target: number) => {
-      return current ? (target - Number.parseInt(current, 10)).toString() : 'N/A';
-    };
+      const calculateGap = (current: string | undefined, target: number) => {
+        return current ? (target - Number.parseInt(current, 10)).toString() : 'N/A';
+      };
 
-    const getScoreColor = (value: number) => {
-      if (value >= 70) return '🟢';
-      if (value >= 40) return '🟡';
-      return '🔴';
-    };
+      const getScoreColor = (value: number) => {
+        if (value >= 70) return '🟢';
+        if (value >= 40) return '🟡';
+        return '🔴';
+      };
 
-    const getScoreText = (value: number) => {
-      if (value >= 70) return 'Bon';
-      if (value >= 40) return 'Moyen';
-      return 'Critique';
-    };
+      const getScoreText = (value: number) => {
+        if (value >= 70) return 'Bon';
+        if (value >= 40) return 'Moyen';
+        return 'Critique';
+      };
 
-    const mockReport = `
+      const mockReport = `
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -419,21 +457,22 @@ export default function Diagnosis() {
       margin: 1.5rem 0 1rem 0;
     }
 
-    /* Page de garde */
+    /* PAGE DE GARDE ULTRA COMPACTE */
     .cover-page {
       text-align: center;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
       background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-      border-radius: 30px;
-      padding: 60px 40px;
-      margin-bottom: 40px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      border-radius: 20px;
+      padding: 15px 10px !important;
+      margin-bottom: 15px !important;
+      box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.15);
       position: relative;
       overflow: hidden;
+      min-height: auto !important;
+      height: auto !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
     }
 
     .cover-page::before {
@@ -442,60 +481,73 @@ export default function Diagnosis() {
       top: 0;
       left: 0;
       right: 0;
-      height: 10px;
+      height: 4px;
       background: linear-gradient(90deg, #1e3a5f, #fbbf24, #10b981);
     }
 
     .cover-page h1 {
-      font-size: 4rem;
-      border: none;
-      margin-bottom: 1rem;
+      font-size: 1.8rem !important;
+      border: none !important;
+      margin: 2px 0 !important;
+      padding: 0 !important;
       background: linear-gradient(135deg, #1e3a5f, #2d4a7a);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      line-height: 1.2;
     }
 
     .cover-page .city-name {
-      font-size: 4.5rem;
+      font-size: 2.2rem !important;
       font-weight: 800;
       color: #fbbf24;
-      margin: 20px 0;
+      margin: 5px 0 !important;
       text-transform: uppercase;
-      letter-spacing: 8px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      line-height: 1.2;
+    }
+
+    .cover-page .country-name {
+      font-size: 1.2rem !important;
+      color: #4a5568;
+      margin: 2px 0 5px 0 !important;
+      font-weight: 400;
     }
 
     .cover-page .date {
-      font-size: 1.3rem;
+      font-size: 0.9rem !important;
       color: #64748b;
-      margin: 20px 0;
-      padding: 10px 30px;
+      margin: 8px 0 !important;
+      padding: 4px 15px !important;
       background: white;
-      border-radius: 50px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border-radius: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      display: inline-block;
     }
 
     .cover-page .institution {
-      font-size: 1.2rem;
+      font-size: 0.85rem !important;
       color: #334155;
-      margin-top: 40px;
-      padding: 20px 40px;
+      margin-top: 8px !important;
+      padding: 8px 20px !important;
       background: rgba(255,255,255,0.9);
-      border-radius: 15px;
+      border-radius: 12px;
       border: 1px solid #e2e8f0;
+      width: fit-content;
     }
 
     .logo-container {
-      margin: 30px 0;
-      padding: 20px;
+      margin: 8px 0 !important;
+      padding: 5px !important;
       background: white;
-      border-radius: 15px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      display: inline-block;
     }
 
     .logo-container img {
-      max-width: 200px;
+      max-width: 100px !important;
       height: auto;
     }
 
@@ -946,16 +998,16 @@ export default function Diagnosis() {
 </head>
 <body>
 
-  <!-- PAGE DE GARDE -->
+  <!-- PAGE DE GARDE ULTRA COMPACTE -->
   <div class="cover-page">
-    <h1>RAPPORT DE DIAGNOSTIC URBAINT</h1>
+    <h1>RAPPORT DE DIAGNOSTIC</h1>
     <h1>INTELLIGENT</h1>
     
     <div class="city-name">${data.city?.toUpperCase() || 'VILLE'}</div>
-    <div style="font-size: 2rem; color: #4a5568; margin-bottom: 30px;">${data.country || 'PAYS'}</div>
+    <div class="country-name">${data.country || 'PAYS'}</div>
     
     <div class="date">
-      📅 Généré le ${new Date().toLocaleDateString('fr-FR', {
+      📅 ${new Date().toLocaleDateString('fr-FR', {
         day: 'numeric',
         month: 'long',
         year: 'numeric'
@@ -963,7 +1015,7 @@ export default function Diagnosis() {
     </div>
     
     <div class="logo-container">
-      <img src="https://via.placeholder.com/200x80/1e3a5f/ffffff?text=CUS+UM6P" alt="Logo CUS UM6P">
+      <img src="https://via.placeholder.com/100x35/1e3a5f/ffffff?text=CUS+UM6P" alt="Logo CUS UM6P">
     </div>
     
     <div class="institution">
