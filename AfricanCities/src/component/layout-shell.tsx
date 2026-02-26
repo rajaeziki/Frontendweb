@@ -1,6 +1,8 @@
 import { Link, useLocation } from "wouter";
 import logo from "../assets/logo.jpeg";
 import { Button } from "../component/ui/button";
+import { v4 as uuidv4 } from "uuid";
+import { useEffect } from "react";
 import { 
   MessageSquare, 
   FileText, 
@@ -124,13 +126,43 @@ const Sidebar = ({ location, navItems }: { readonly location: string; readonly n
 export function LayoutShell({ children }: Readonly<LayoutShellProps>) {
   const [location] = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
+    
   const navItems = [
     { href: "/", label: "Tableau de Bord", icon: LayoutDashboard },
     { href: "/chat", label: "Assistant Urbain", icon: MessageSquare },
     { href: "/diagnosis", label: "Diagnostic", icon: FileText },
   ] as const;
+ // ✅ Hooks déplacés à l'intérieur du composant
+  useEffect(() => {
+    let userId = localStorage.getItem("urban_user_id");
 
+    if (!userId) {
+      userId = uuidv4();
+      localStorage.setItem("urban_user_id", userId);
+    }
+  }, []);
+
+  useEffect(() => {
+  const incrementCounter = (key: string) => {
+    const storedValue = localStorage.getItem(key);
+    let count = 1; // Valeur par défaut
+    
+    if (storedValue !== null) {
+      count = parseInt(storedValue) + 1;
+    }
+    
+    localStorage.setItem(key, count.toString());
+  };
+
+  if (location === "/diagnosis") {
+    incrementCounter("diagnosis_count");
+  }
+
+  if (location === "/chat") {
+    incrementCounter("coach_count");
+  }
+
+}, [location]);
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50/80">
       <div className="flex">

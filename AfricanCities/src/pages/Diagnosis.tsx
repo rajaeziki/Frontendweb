@@ -1013,10 +1013,7 @@ export default function Diagnosis() {
         year: 'numeric'
       })}
     </div>
-    
-    <div class="logo-container">
-      <img src="https://via.placeholder.com/100x35/1e3a5f/ffffff?text=CUS+UM6P" alt="Logo CUS UM6P">
-    </div>
+   
     
     <div class="institution">
       <strong>Centre of Urban Systems - UM6P</strong><br>

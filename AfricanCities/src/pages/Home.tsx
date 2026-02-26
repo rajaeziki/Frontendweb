@@ -2,6 +2,8 @@ import { LayoutShell } from "../component/layout-shell";
 import { Button } from "../component/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../component/ui/card";
 import { useUrbanReports } from "../hooks/use-urban-report";
+import { useEffect } from "react";
+import { useLocation } from "wouter";
 import { 
   MessageSquare, 
   FileText, 
@@ -20,7 +22,29 @@ import { motion } from "framer-motion";
 
 export default function Home() {
   const { data: reports, isLoading } = useUrbanReports();
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+  let userId = localStorage.getItem("urban_user_id");
 
+  if (!userId) {
+    userId = crypto.randomUUID();
+    localStorage.setItem("urban_user_id", userId);
+  }
+}, []);
+const handleDiagnosisAccess = () => {
+  const count = parseInt(localStorage.getItem("diagnosis_count") || "0");
+
+  localStorage.setItem("diagnosis_count", (count + 1).toString());
+
+
+};
+const handleCoachAccess = () => {
+  const count = parseInt(localStorage.getItem("coach_count") || "0");
+
+  localStorage.setItem("coach_count", (count + 1).toString());
+
+  
+};
   // Helper function to render the reports section content
   const renderReportsContent = () => {
     if (isLoading) {
@@ -88,6 +112,7 @@ export default function Home() {
             Créer un rapport
           </Button>
         </Link>
+        
       </div>
     );
   };
@@ -103,7 +128,7 @@ export default function Home() {
                 <Building2 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">AfricanCities Ai Service</h1>
+                <h1 className="text-2xl font-bold text-gray-800">AfricanCities AI Services</h1>
                 <p className="text-sm text-gray-500 tracking-wide">CENTRE OF URBAN SYSTEMS</p>
               </div>
             </div>
@@ -135,7 +160,7 @@ export default function Home() {
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
-              Centre of Urban Systems - UM6P
+              Centre des Systèmes Urbains - UM6P
             </h1>
             
             <p className="text-gray-300 text-lg mb-8 leading-relaxed">
@@ -144,17 +169,23 @@ export default function Home() {
             
             <div className="flex flex-wrap gap-4">
               <Link href="/diagnosis">
-                <Button size="lg" className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold shadow-lg shadow-amber-500/30 border-0 px-8">
-                  <Plus className="w-5 h-5 mr-2" />
-                  Nouveau Diagnostic
-                </Button>
-              </Link>
-              <Link href="/chat">
-                <Button size="lg" variant="outline" className="border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white/30 backdrop-blur-sm px-8">
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  Ouvrir l'Assistant
-                </Button>
-              </Link>
+  <Button 
+    
+    size="lg" 
+    className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold shadow-lg shadow-amber-500/30 border-0 px-8"
+  >
+    <Plus className="w-5 h-5 mr-2" />
+    Nouveau Diagnostic
+  </Button>
+</Link>
+              <Link 
+  href="/chat"
+
+  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white/30 backdrop-blur-sm px-8 h-11"
+>
+  <MessageSquare className="w-5 h-5 mr-2" />
+  Ouvrir l'Assistant
+</Link>
             </div>
           </div>
 
