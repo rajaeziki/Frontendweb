@@ -495,7 +495,7 @@ export default function Diagnosis() {
   const [documents, setDocuments] = useState<DocumentContent[]>([]);
   const [enableWebSearch, setEnableWebSearch] = useState(true);
   const [enableWorldBank, setEnableWorldBank] = useState(true);
-  const [enableSDG, setEnableSDG] = useState(true); // Ajout de SDG
+  const [enableSDG, setEnableSDG] = useState(true);
   const [expandedSections, setExpandedSections] = useState<string[]>(['society', 'habitat', 'infrastructure']);
   const [activeDimension, setActiveDimension] = useState('society');
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
@@ -633,7 +633,6 @@ export default function Diagnosis() {
   const watchCountry = watch("country");
 
   const fetchWebData = useCallback(async (city: string, country: string) => {
-    // Simuler une recherche Wikipedia enrichie avec SDG
     const mockWikiData = {
       wikipedia_info: {
         title: `${city}, ${country}`,
@@ -690,7 +689,6 @@ export default function Diagnosis() {
     }
   }, [watchCity, watchCountry, enableWebSearch, fetchWebData]);
 
-  // Fonction pour détecter le type de fichier
   const getFileType = (file: File): 'pdf' | 'image' | 'excel' | 'geojson' | null => {
     if (file.type === 'application/pdf') return 'pdf';
     if (file.type.startsWith('image/')) return 'image';
@@ -700,7 +698,6 @@ export default function Diagnosis() {
     return null;
   };
 
-  // Fonction pour extraire les données d'un fichier Excel
   const extractExcelData = async (file: File): Promise<any> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -729,7 +726,6 @@ export default function Diagnosis() {
     });
   };
 
-  // Fonction pour extraire les données d'un fichier GeoJSON
   const extractGeoJSONData = async (file: File): Promise<any> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -756,7 +752,6 @@ export default function Diagnosis() {
     });
   };
 
-  // Fonction pour créer une preview d'image
   const createImagePreview = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -768,7 +763,6 @@ export default function Diagnosis() {
     });
   };
 
-  // Fonction pour extraire les métadonnées d'une image
   const getImageMetadata = (file: File): Promise<any> => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -792,7 +786,6 @@ export default function Diagnosis() {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       
-      // Vérifier la taille
       if (file.size > MAX_FILE_SIZE) {
         toast({
           title: "Fichier trop volumineux",
@@ -812,7 +805,6 @@ export default function Diagnosis() {
         continue;
       }
 
-      // Simuler la progression
       setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
       
       try {
@@ -821,11 +813,10 @@ export default function Diagnosis() {
         let preview = undefined;
         let metadata: any = { size: file.size };
 
-        // Traiter selon le type
         switch (fileType) {
           case 'pdf':
             content = `Document PDF: ${file.name}`;
-            metadata.pages = Math.floor(Math.random() * 50) + 5; // Simulation
+            metadata.pages = Math.floor(Math.random() * 50) + 5;
             break;
           
           case 'image':
@@ -859,7 +850,6 @@ export default function Diagnosis() {
             break;
         }
 
-        // Simuler la progression
         for (let progress = 0; progress <= 100; progress += 10) {
           await new Promise(resolve => setTimeout(resolve, 30));
           setUploadProgress(prev => ({ ...prev, [file.name]: progress }));
@@ -897,13 +887,11 @@ export default function Diagnosis() {
     
     setDocuments((prev) => [...prev, ...newDocuments]);
     
-    // Réinitialiser l'input file
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
-  // Fonction pour supprimer un document
   const removeDocument = (filename: string) => {
     setDocuments(prev => prev.filter(doc => doc.filename !== filename));
     toast({
@@ -930,7 +918,6 @@ export default function Diagnosis() {
       const imgWidth = 210;
       const pageHeight = 297;
       
-      // Capturer la page de garde
       const coverElement = reportContentRef.current.querySelector('.cover-page');
       if (coverElement) {
         const coverCanvas = await html2canvas(coverElement as HTMLElement, {
@@ -947,7 +934,6 @@ export default function Diagnosis() {
         pdf.addImage(coverImgData, 'PNG', 0, 0, imgWidth, coverImgHeight, undefined, 'FAST');
       }
       
-      // Cloner le contenu pour ne pas affecter l'affichage
       const contentClone = reportContentRef.current.cloneNode(true) as HTMLElement;
       
       const coverInClone = contentClone.querySelector('.cover-page');
@@ -982,7 +968,6 @@ export default function Diagnosis() {
       const contentImgHeight = (contentCanvas.height * imgWidth) / contentCanvas.width;
       
       if (coverElement) {
-        // Si on a déjà une page de garde, on ajoute la suite après
         let heightLeft = contentImgHeight;
         let position = 0;
         let firstPage = true;
@@ -999,7 +984,6 @@ export default function Diagnosis() {
           firstPage = false;
         }
       } else {
-        // Sinon, on commence par la première page
         pdf.addImage(contentImgData, 'PNG', 0, 0, imgWidth, contentImgHeight, undefined, 'FAST');
         
         let heightLeft = contentImgHeight - pageHeight;
@@ -1042,7 +1026,6 @@ export default function Diagnosis() {
   };
 
   const calculateDimensionScore = (data: FormData, dimension: string): number => {
-    // Logique pour calculer le score par dimension
     const values: number[] = [];
     
     switch(dimension) {
@@ -1112,7 +1095,6 @@ export default function Diagnosis() {
         break;
     }
     
-    // Normaliser les valeurs
     if (dimension === 'society' && data.crime_rate) {
       const crimeVal = Number(data.crime_rate);
       if (!isNaN(crimeVal)) {
@@ -1171,7 +1153,6 @@ export default function Diagnosis() {
 
       const radarData = generateRadarData(data);
 
-      // Compter les documents par type
       const docCount = {
         pdf: documents.filter(d => d.type === 'pdf').length,
         image: documents.filter(d => d.type === 'image').length,
@@ -1183,1006 +1164,231 @@ export default function Diagnosis() {
 
       const currentYear = new Date().getFullYear();
 
+      // Version simplifiée du rapport sans styles qui cassent la mise en page
       const mockReport = `
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rapport Diagnostic Urbain Complet - ${data.city}</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      line-height: 1.6;
-      color: #1e293b;
-      background: #f8fafc;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-
-    h1, h2, h3, h4 {
-      font-family: 'Playfair Display', serif;
-      color: #1e3a5f;
-      margin-bottom: 1.5rem;
-      font-weight: 600;
-    }
-
-    h1 {
-      font-size: 2.8rem;
-      text-align: center;
-      color: #1e3a5f;
-      border-bottom: 4px solid #fbbf24;
-      padding-bottom: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    h2 {
-      font-size: 2.2rem;
-      border-left: 6px solid #fbbf24;
-      padding-left: 1.5rem;
-      margin: 2.5rem 0 1.5rem 0;
-      background: linear-gradient(to right, #f8fafc, transparent);
-    }
-
-    h3 {
-      font-size: 1.6rem;
-      color: #2d3e5f;
-      margin: 2rem 0 1rem 0;
-    }
-
-    h4 {
-      font-size: 1.3rem;
-      color: #4a5568;
-      margin: 1.5rem 0 1rem 0;
-    }
-
-    /* PAGE DE GARDE */
-    .cover-page {
-      text-align: center;
-      background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-      border-radius: 20px;
-      padding: 40px 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.15);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cover-page::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: linear-gradient(90deg, #1e3a5f, #fbbf24, #10b981, #8b5cf6);
-    }
-
-    .cover-page h1 {
-      font-size: 3rem;
-      border: none;
-      margin: 20px 0;
-      background: linear-gradient(135deg, #1e3a5f, #2d4a7a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .cover-page .city-name {
-      font-size: 4rem;
-      font-weight: 800;
-      color: #fbbf24;
-      margin: 20px 0;
-      text-transform: uppercase;
-      letter-spacing: 4px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .cover-page .country-name {
-      font-size: 2rem;
-      color: #4a5568;
-      margin: 10px 0;
-      font-weight: 400;
-    }
-
-    .cover-page .date {
-      font-size: 1.2rem;
-      color: #64748b;
-      margin: 20px 0;
-      padding: 10px 30px;
-      background: white;
-      border-radius: 40px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      display: inline-block;
-    }
-
-    .cover-page .institution {
-      font-size: 1.1rem;
-      color: #334155;
-      margin-top: 30px;
-      padding: 15px 30px;
-      background: rgba(255,255,255,0.9);
-      border-radius: 15px;
-      border: 1px solid #e2e8f0;
-    }
-
-    .cover-page .stats-overview {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      margin: 30px 0;
-    }
-
-    .cover-page .stat-item {
-      text-align: center;
-    }
-
-    .cover-page .stat-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #1e3a5f;
-    }
-
-    .cover-page .stat-label {
-      color: #64748b;
-      font-size: 0.9rem;
-    }
-
-    .doc-stats {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin: 20px 0;
-      flex-wrap: wrap;
-    }
-
-    .doc-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: white;
-      border-radius: 30px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      font-size: 0.9rem;
-    }
-
-    .doc-badge.pdf { border-left: 4px solid #ef4444; }
-    .doc-badge.image { border-left: 4px solid #10b981; }
-    .doc-badge.excel { border-left: 4px solid #3b82f6; }
-    .doc-badge.geojson { border-left: 4px solid #8b5cf6; }
-    .doc-badge.manual { border-left: 4px solid #f59e0b; }
-
-    .badge-high {
-      background: #dcfce7;
-      color: #059669;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .badge-medium {
-      background: #fef9c3;
-      color: #ca8a04;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .badge-low {
-      background: #fee2e2;
-      color: #dc2626;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .dimension-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 25px;
-      margin: 30px 0;
-    }
-
-    .dimension-card {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-      transition: transform 0.3s;
-      margin: 30px 0;
-    }
-
-    .dimension-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .dimension-header {
-      padding: 20px;
-      background: linear-gradient(135deg, #1e3a5f, #2d4a7a);
-      color: white;
-    }
-
-    .dimension-header h3 {
-      color: white;
-      margin: 0;
-      font-size: 1.4rem;
-    }
-
-    .dimension-body {
-      padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 15px;
-    }
-
-    .indicator-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
-      background: #f8fafc;
-      border-radius: 8px;
-      border-left: 3px solid #e2e8f0;
-    }
-
-    .indicator-name {
-      color: #475569;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .indicator-value {
-      font-weight: 600;
-      color: #1e3a5f;
-      font-size: 1rem;
-    }
-
-    .summary-table {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      margin: 20px 0;
-    }
-
-    .summary-table table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .summary-table th {
-      background: #1e3a5f;
-      color: white;
-      padding: 15px;
-      text-align: left;
-    }
-
-    .summary-table td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .summary-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .image-gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin: 20px 0;
-    }
-
-    .image-preview {
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .image-preview img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-    }
-
-    .image-preview .caption {
-      padding: 8px;
-      background: #f8fafc;
-      font-size: 0.8rem;
-      text-align: center;
-    }
-
-    .chart-container {
-      background: white;
-      border-radius: 16px;
-      padding: 30px;
-      margin: 30px 0;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-    }
-
-    .score-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin: 20px 0;
-    }
-
-    .score-card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }
-
-    .score-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #1e3a5f;
-    }
-
-    .score-label {
-      color: #64748b;
-      font-size: 0.9rem;
-      margin-top: 5px;
-    }
-
-    .sdg-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
-      margin: 20px 0;
-    }
-
-    .sdg-item {
-      background: white;
-      border-radius: 12px;
-      padding: 15px;
-      text-align: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }
-
-    .sdg-number {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #1e3a5f;
-    }
-
-    .sdg-progress {
-      margin-top: 10px;
-      height: 6px;
-      background: #e2e8f0;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .sdg-progress-bar {
-      height: 100%;
-      background: #fbbf24;
-      border-radius: 3px;
-    }
-
-    .sources-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-      margin: 20px 0;
-    }
-
-    .source-card {
-      background: white;
-      border-radius: 12px;
-      padding: 15px;
-      border-left: 4px solid #fbbf24;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }
-
-    .source-name {
-      font-weight: 600;
-      color: #1e3a5f;
-      margin-bottom: 5px;
-    }
-
-    .source-data {
-      font-size: 0.9rem;
-      color: #64748b;
-    }
-
-    .footer {
-      margin-top: 60px;
-      padding: 40px;
-      text-align: center;
-      background: linear-gradient(135deg, #1e3a5f, #2d4a7a);
-      border-radius: 20px;
-      color: white;
-    }
-
-    .page-break {
-      page-break-after: always;
-      margin: 40px 0;
-    }
-
-    @media print {
-      .page-break {
-        page-break-after: always;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <!-- PAGE DE GARDE -->
-  <div class="cover-page">
-    <h1>RAPPORT DE DIAGNOSTIC URBAIN</h1>
-    <h1>COMPLET</h1>
-    
-    <div class="city-name">${data.city?.toUpperCase() || 'VILLE'}</div>
-    <div class="country-name">${data.country || 'PAYS'}</div>
-    
-    <div class="stats-overview">
-      <div class="stat-item">
-        <div class="stat-value">${data.population_total ? Number(data.population_total).toLocaleString('fr-FR') : '1.2M'}</div>
-        <div class="stat-label">Habitants</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value">${data.area_km2 ? data.area_km2 : '1040'} km²</div>
-        <div class="stat-label">Superficie</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value">${data.urban_density ? data.urban_density : '1200'}</div>
-        <div class="stat-label">hab/km²</div>
-      </div>
-    </div>
-    
-    <div class="date">
-      📅 ${new Date().toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      })}
-    </div>
-
-    <!-- Statistiques des documents -->
-    <div class="doc-stats">
-      ${docCount.pdf > 0 ? `<span class="doc-badge pdf">📄 PDF: ${docCount.pdf}</span>` : ''}
-      ${docCount.image > 0 ? `<span class="doc-badge image">🖼️ Images: ${docCount.image}</span>` : ''}
-      ${docCount.excel > 0 ? `<span class="doc-badge excel">📊 Excel: ${docCount.excel}</span>` : ''}
-      ${docCount.geojson > 0 ? `<span class="doc-badge geojson">🗺️ GeoJSON: ${docCount.geojson}</span>` : ''}
-    </div>
-    
-    <div class="institution">
-      <strong>Centre of Urban Systems - UM6P</strong><br>
-      <span style="color: #fbbf24;">AfricanCities IA Services</span><br>
-      <small>Avec le soutien de la Banque Mondiale et des Nations Unies (SDG)</small>
-    </div>
-  </div>
-
-  <div class="page-break"></div>
-
-  <!-- RÉSUMÉ EXÉCUTIF -->
-  <h2>RÉSUMÉ EXÉCUTIF</h2>
-  
-  <div style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin: 20px 0;">
-    <p style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
-      Le diagnostic urbain complet de <strong>${data.city}</strong> a été réalisé sur la base de <strong>plus de 80 indicateurs</strong> répartis en 7 dimensions clés du développement urbain durable. Cette analyse multidimensionnelle a été enrichie par <strong>${documents.length} documents</strong> de sources variées et intègre les données de la Banque Mondiale et les Objectifs de Développement Durable (SDG).
-    </p>
-    
-    <div class="score-grid">
-      <div class="score-card">
-        <div class="score-value">${calculateDimensionScore(data, 'society')}</div>
-        <div class="score-label">Score Société</div>
-      </div>
-      <div class="score-card">
-        <div class="score-value">${calculateDimensionScore(data, 'habitat')}</div>
-        <div class="score-label">Score Habitat</div>
-      </div>
-      <div class="score-card">
-        <div class="score-value">${calculateDimensionScore(data, 'spatial')}</div>
-        <div class="score-label">Score Spatial</div>
-      </div>
-      <div class="score-card">
-        <div class="score-value">${calculateDimensionScore(data, 'infrastructure')}</div>
-        <div class="score-label">Score Infrastructure</div>
-      </div>
-      <div class="score-card">
-        <div class="score-value">${calculateDimensionScore(data, 'environment')}</div>
-        <div class="score-label">Score Environnement</div>
-      </div>
-      <div class="score-card">
-        <div class="score-value">${calculateDimensionScore(data, 'governance')}</div>
-        <div class="score-label">Score Gouvernance</div>
-      </div>
-      <div class="score-card">
-        <div class="score-value">${calculateDimensionScore(data, 'economy')}</div>
-        <div class="score-label">Score Économie</div>
-      </div>
-    </div>
-
-    <div style="margin-top: 20px; padding: 20px; background: #f1f5f9; border-radius: 12px;">
-      <h4 style="margin: 0 0 10px 0;">Points clés du diagnostic :</h4>
-      <ul style="list-style-type: none; padding: 0;">
-        <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
-          <span style="color: #10b981;">✓</span>
-          <strong>Démographie :</strong> Population jeune (42% ont moins de 15 ans) avec un taux de croissance de 3.5% par an
-        </li>
-        <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
-          <span style="color: #fbbf24;">⚠</span>
-          <strong>Défis majeurs :</strong> Accès à l'eau potable (45%), habitat informel (40%), chômage des jeunes (35%)
-        </li>
-        <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
-          <span style="color: #3b82f6;">📊</span>
-          <strong>Opportunités :</strong> Transition numérique en cours, potentiel d'énergies renouvelables, jeunesse dynamique
-        </li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- SOURCES EXTERNES -->
-  <h2>SOURCES EXTERNES INTÉGRÉES</h2>
-  
-  <div class="sources-grid">
-    <div class="source-card">
-      <div class="source-name">🏦 Banque Mondiale</div>
-      <div class="source-data">
-        <div>PIB par habitant: $2,100</div>
-        <div>Taux de pauvreté: 31%</div>
-        <div>Population: 4.5M</div>
-      </div>
-    </div>
-    <div class="source-card">
-      <div class="source-name">🏛️ UN-Habitat</div>
-      <div class="source-data">
-        <div>Population urbaine: 52%</div>
-        <div>Population en bidonville: 35%</div>
-        <div>Indice de prospérité: 45</div>
-      </div>
-    </div>
-    <div class="source-card">
-      <div class="source-name">🌍 UNESCO</div>
-      <div class="source-data">
-        <div>Taux d'alphabétisation: 66%</div>
-        <div>Scolarisation primaire: 75%</div>
-        <div>Parité filles/garçons: 0.92</div>
-      </div>
-    </div>
-    <div class="source-card">
-      <div class="source-name">⚕️ OMS</div>
-      <div class="source-data">
-        <div>Espérance de vie: 65 ans</div>
-        <div>Médecins/10k: 2.5</div>
-        <div>Mortalité infantile: 45‰</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION SDG AJOUTÉE -->
-  <h2>OBJECTIFS DE DÉVELOPPEMENT DURABLE (SDG)</h2>
-  
-  <div class="chart-container">
-    <h3 style="margin-top: 0;">Progrès vers les SDG</h3>
-    
-    <div class="sdg-grid">
-      ${sdgData.map(item => `
-        <div class="sdg-item">
-          <div class="sdg-number">${item.goal}</div>
-          <div style="font-size: 0.9rem; margin: 5px 0;">Score: ${item.score}%</div>
-          <div class="sdg-progress">
-            <div class="sdg-progress-bar" style="width: ${item.score}%"></div>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  </div>
-
-  <div class="page-break"></div>
-
-  <!-- SYNTHÈSE PAR DIMENSION - TOUS LES INDICATEURS -->
-  <h2>ANALYSE DÉTAILLÉE PAR DIMENSION</h2>
-
-  <!-- Dimension 1: Société - TOUS LES INDICATEURS -->
-  <div class="dimension-card">
-    <div class="dimension-header" style="background: linear-gradient(135deg, #2563eb, #1e40af);">
-      <h3>👥 SOCIÉTÉ (20 indicateurs)</h3>
-    </div>
-    <div class="dimension-body">
-      <div class="indicator-item">
-        <span class="indicator-name">Taux de scolarisation primaire</span>
-        <span class="indicator-value">${formatPercent(data.primary_school_enrollment)}</span>
-        <span class="${getScoreClass(Number(data.primary_school_enrollment || '0'))}">${getScoreText(Number(data.primary_school_enrollment || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Taux de scolarisation secondaire</span>
-        <span class="indicator-value">${formatPercent(data.secondary_school_enrollment)}</span>
-        <span class="${getScoreClass(Number(data.secondary_school_enrollment || '0'))}">${getScoreText(Number(data.secondary_school_enrollment || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Taux de scolarisation supérieure</span>
-        <span class="indicator-value">${formatPercent(data.tertiary_enrollment)}</span>
-        <span class="${getScoreClass(Number(data.tertiary_enrollment || '0'))}">${getScoreText(Number(data.tertiary_enrollment || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Taux alphabétisation adultes</span>
-        <span class="indicator-value">${formatPercent(data.adult_literacy_rate)}</span>
-        <span class="${getScoreClass(Number(data.adult_literacy_rate || '0'))}">${getScoreText(Number(data.adult_literacy_rate || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Taux alphabétisation jeunes</span>
-        <span class="indicator-value">${formatPercent(data.youth_literacy_rate)}</span>
-        <span class="${getScoreClass(Number(data.youth_literacy_rate || '0'))}">${getScoreText(Number(data.youth_literacy_rate || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Indice de parité des genres</span>
-        <span class="indicator-value">${data.gender_parity_index || '0.92'}</span>
-        <span class="${Number(data.gender_parity_index || '0.92') >= 0.95 ? 'badge-high' : Number(data.gender_parity_index || '0.92') >= 0.85 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.gender_parity_index || '0.92') >= 0.95 ? 'Bon' : Number(data.gender_parity_index || '0.92') >= 0.85 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Taux de criminalité (pour 1000 hab.)</span>
-        <span class="indicator-value">${data.crime_rate || '15'}</span>
-        <span class="${Number(data.crime_rate || '15') <= 10 ? 'badge-high' : Number(data.crime_rate || '15') <= 20 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.crime_rate || '15') <= 10 ? 'Bon' : Number(data.crime_rate || '15') <= 20 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Perception de sécurité</span>
-        <span class="indicator-value">${formatPercent(data.safety_perception)}</span>
-        <span class="${getScoreClass(Number(data.safety_perception || '0'))}">${getScoreText(Number(data.safety_perception || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Accès aux soins de base</span>
-        <span class="indicator-value">${formatPercent(data.healthcare_access)}</span>
-        <span class="${getScoreClass(Number(data.healthcare_access || '0'))}">${getScoreText(Number(data.healthcare_access || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Médecins pour 10 000 hab.</span>
-        <span class="indicator-value">${data.doctors_per_10000 || '2.5'}</span>
-        <span class="${Number(data.doctors_per_10000 || '0') >= 5 ? 'badge-high' : Number(data.doctors_per_10000 || '0') >= 2 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.doctors_per_10000 || '0') >= 5 ? 'Bon' : Number(data.doctors_per_10000 || '0') >= 2 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Lits d'hôpital pour 10 000 hab.</span>
-        <span class="indicator-value">${data.hospital_beds_per_10000 || '8'}</span>
-        <span class="${Number(data.hospital_beds_per_10000 || '0') >= 20 ? 'badge-high' : Number(data.hospital_beds_per_10000 || '0') >= 10 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.hospital_beds_per_10000 || '0') >= 20 ? 'Bon' : Number(data.hospital_beds_per_10000 || '0') >= 10 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Espérance de vie (ans)</span>
-        <span class="indicator-value">${data.life_expectancy || '65'}</span>
-        <span class="${Number(data.life_expectancy || '0') >= 75 ? 'badge-high' : Number(data.life_expectancy || '0') >= 65 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.life_expectancy || '0') >= 75 ? 'Bon' : Number(data.life_expectancy || '0') >= 65 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Mortalité infantile (‰)</span>
-        <span class="indicator-value">${data.infant_mortality || '45'}</span>
-        <span class="${Number(data.infant_mortality || '100') <= 20 ? 'badge-high' : Number(data.infant_mortality || '100') <= 50 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.infant_mortality || '100') <= 20 ? 'Bon' : Number(data.infant_mortality || '100') <= 50 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Mortalité maternelle (pour 100k)</span>
-        <span class="indicator-value">${data.maternal_mortality || '320'}</span>
-        <span class="${Number(data.maternal_mortality || '1000') <= 100 ? 'badge-high' : Number(data.maternal_mortality || '1000') <= 300 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.maternal_mortality || '1000') <= 100 ? 'Bon' : Number(data.maternal_mortality || '1000') <= 300 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Taux vaccination DTP3 (%)</span>
-        <span class="indicator-value">${formatPercent(data.vaccination_rate)}</span>
-        <span class="${getScoreClass(Number(data.vaccination_rate || '0'))}">${getScoreText(Number(data.vaccination_rate || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Taux malnutrition infantile (%)</span>
-        <span class="indicator-value">${formatPercent(data.malnutrition_rate)}</span>
-        <span class="${Number(data.malnutrition_rate || '100') <= 10 ? 'badge-high' : Number(data.malnutrition_rate || '100') <= 20 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.malnutrition_rate || '100') <= 10 ? 'Bon' : Number(data.malnutrition_rate || '100') <= 20 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Taux pauvreté urbaine (%)</span>
-        <span class="indicator-value">${formatPercent(data.urban_poverty_rate)}</span>
-        <span class="${Number(data.urban_poverty_rate || '100') <= 15 ? 'badge-high' : Number(data.urban_poverty_rate || '100') <= 30 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.urban_poverty_rate || '100') <= 15 ? 'Bon' : Number(data.urban_poverty_rate || '100') <= 30 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Indice inclusion sociale (%)</span>
-        <span class="indicator-value">${formatPercent(data.social_inclusion_index)}</span>
-        <span class="${getScoreClass(Number(data.social_inclusion_index || '0'))}">${getScoreText(Number(data.social_inclusion_index || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Participation communautaire (%)</span>
-        <span class="indicator-value">${formatPercent(data.community_participation_rate)}</span>
-        <span class="${getScoreClass(Number(data.community_participation_rate || '0'))}">${getScoreText(Number(data.community_participation_rate || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Couverture protection sociale (%)</span>
-        <span class="indicator-value">${formatPercent(data.social_protection_coverage)}</span>
-        <span class="${getScoreClass(Number(data.social_protection_coverage || '0'))}">${getScoreText(Number(data.social_protection_coverage || '0'))}</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Dimension 2: Habitat - TOUS LES INDICATEURS -->
-  <div class="dimension-card">
-    <div class="dimension-header" style="background: linear-gradient(135deg, #059669, #047857);">
-      <h3>🏠 HABITAT (14 indicateurs)</h3>
-    </div>
-    <div class="dimension-body">
-      <div class="indicator-item">
-        <span class="indicator-name">Accès eau potable (%)</span>
-        <span class="indicator-value">${formatPercent(data.water_access)}</span>
-        <span class="${getScoreClass(Number(data.water_access || '0'))}">${getScoreText(Number(data.water_access || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Qualité de l'eau (%)</span>
-        <span class="indicator-value">${formatPercent(data.water_quality)}</span>
-        <span class="${getScoreClass(Number(data.water_quality || '0'))}">${getScoreText(Number(data.water_quality || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Accès électricité (%)</span>
-        <span class="indicator-value">${formatPercent(data.electricity_access)}</span>
-        <span class="${getScoreClass(Number(data.electricity_access || '0'))}">${getScoreText(Number(data.electricity_access || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Accès combustibles propres (%)</span>
-        <span class="indicator-value">${formatPercent(data.clean_cooking_fuels)}</span>
-        <span class="${getScoreClass(Number(data.clean_cooking_fuels || '0'))}">${getScoreText(Number(data.clean_cooking_fuels || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Indice surpeuplement (pers/pièce)</span>
-        <span class="indicator-value">${data.housing_overcrowding || '4.5'}</span>
-        <span class="${Number(data.housing_overcrowding || '10') <= 2 ? 'badge-high' : Number(data.housing_overcrowding || '10') <= 3.5 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.housing_overcrowding || '10') <= 2 ? 'Bon' : Number(data.housing_overcrowding || '10') <= 3.5 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Habitat informel (%)</span>
-        <span class="indicator-value">${formatPercent(data.informal_housing_percentage)}</span>
-        <span class="${Number(data.informal_housing_percentage || '100') <= 20 ? 'badge-high' : Number(data.informal_housing_percentage || '100') <= 40 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.informal_housing_percentage || '100') <= 20 ? 'Bon' : Number(data.informal_housing_percentage || '100') <= 40 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Coût logement (USD/m²)</span>
-        <span class="indicator-value">${formatCurrency(data.housing_cost_per_m2)}</span>
-        <span class="${Number(data.housing_cost_per_m2 || '1000') <= 300 ? 'badge-high' : Number(data.housing_cost_per_m2 || '1000') <= 600 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.housing_cost_per_m2 || '1000') <= 300 ? 'Bon' : Number(data.housing_cost_per_m2 || '1000') <= 600 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Taux accession propriété (%)</span>
-        <span class="indicator-value">${formatPercent(data.home_ownership_rate)}</span>
-        <span class="${getScoreClass(Number(data.home_ownership_rate || '0'))}">${getScoreText(Number(data.home_ownership_rate || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Accès assainissement amélioré (%)</span>
-        <span class="indicator-value">${formatPercent(data.sanitation_access)}</span>
-        <span class="${getScoreClass(Number(data.sanitation_access || '0'))}">${getScoreText(Number(data.sanitation_access || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Traitement eaux usées (%)</span>
-        <span class="indicator-value">${formatPercent(data.wastewater_treatment)}</span>
-        <span class="${getScoreClass(Number(data.wastewater_treatment || '0'))}">${getScoreText(Number(data.wastewater_treatment || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Taux sans-abrisme (%)</span>
-        <span class="indicator-value">${formatPercent(data.homelessness_rate)}</span>
-        <span class="${Number(data.homelessness_rate || '100') <= 1 ? 'badge-high' : Number(data.homelessness_rate || '100') <= 3 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.homelessness_rate || '100') <= 1 ? 'Bon' : Number(data.homelessness_rate || '100') <= 3 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Satisfaction logement (%)</span>
-        <span class="indicator-value">${formatPercent(data.housing_satisfaction_rate)}</span>
-        <span class="${getScoreClass(Number(data.housing_satisfaction_rate || '0'))}">${getScoreText(Number(data.housing_satisfaction_rate || '0'))}</span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Indice abordabilité logement</span>
-        <span class="indicator-value">${data.housing_affordability_index || '65'}</span>
-        <span class="${Number(data.housing_affordability_index || '0') >= 80 ? 'badge-high' : Number(data.housing_affordability_index || '0') >= 60 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.housing_affordability_index || '0') >= 80 ? 'Bon' : Number(data.housing_affordability_index || '0') >= 60 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-      <div class="indicator-item">
-        <span class="indicator-name">Population en bidonville (%)</span>
-        <span class="indicator-value">${formatPercent(data.slum_population_percentage)}</span>
-        <span class="${Number(data.slum_population_percentage || '100') <= 15 ? 'badge-high' : Number(data.slum_population_percentage || '100') <= 30 ? 'badge-medium' : 'badge-low'}">
-          ${Number(data.slum_population_percentage || '100') <= 15 ? 'Bon' : Number(data.slum_population_percentage || '100') <= 30 ? 'Moyen' : 'Critique'}
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ... Autres dimensions avec tous leurs indicateurs ... -->
-
-  <!-- SECTION DOCUMENTS ANALYSÉS -->
-  <h2>SOURCES DOCUMENTAIRES ANALYSÉES</h2>
-  
-  <div style="background: white; border-radius: 16px; padding: 25px; margin: 20px 0;">
-    <h3>Récapitulatif des documents</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
-      <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 12px;">
-        <div style="font-size: 2rem; color: #ef4444;">${docCount.pdf}</div>
-        <div>Documents PDF</div>
-      </div>
-      <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 12px;">
-        <div style="font-size: 2rem; color: #10b981;">${docCount.image}</div>
-        <div>Images</div>
-      </div>
-      <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 12px;">
-        <div style="font-size: 2rem; color: #3b82f6;">${docCount.excel}</div>
-        <div>Fichiers Excel</div>
-      </div>
-      <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 12px;">
-        <div style="font-size: 2rem; color: #8b5cf6;">${docCount.geojson}</div>
-        <div>Fichiers GeoJSON</div>
-      </div>
-    </div>
-
-    <!-- Liste des documents -->
-    <div style="margin-top: 30px;">
-      <h4>Détail des documents</h4>
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        ${documents.map(doc => `
-          <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8fafc; border-radius: 8px;">
-            <span style="font-size: 1.2rem;">
-              ${doc.type === 'pdf' ? '📄' : doc.type === 'image' ? '🖼️' : doc.type === 'excel' ? '📊' : doc.type === 'geojson' ? '🗺️' : '✏️'}
-            </span>
-            <span style="flex: 1;">${doc.filename}</span>
-            <span style="color: #64748b; font-size: 0.9rem;">
-              ${doc.type === 'pdf' ? 'PDF' : 
-                doc.type === 'image' ? 'Image' : 
-                doc.type === 'excel' ? 'Excel' : 
-                doc.type === 'geojson' ? 'GeoJSON' : 'Saisie manuelle'}
-            </span>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-
-    <!-- Gallery d'images si présentes -->
-    ${documents.filter(d => d.type === 'image' && d.preview).length > 0 ? `
-      <div style="margin-top: 30px;">
-        <h4>Aperçu des images</h4>
-        <div class="image-gallery">
-          ${documents.filter(d => d.type === 'image' && d.preview).map(doc => `
-            <div class="image-preview">
-              <img src="${doc.preview}" alt="${doc.filename}" />
-              <div class="caption">${doc.filename}</div>
+        <div class="report-container" style="font-family: system-ui, -apple-system, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px;">
+          <!-- PAGE DE GARDE -->
+          <div class="cover-page" style="text-align: center; background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); border-radius: 20px; padding: 40px 20px; margin-bottom: 30px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);">
+            <h1 style="font-size: 2.5rem; color: #1e3a5f; margin: 20px 0;">RAPPORT DE DIAGNOSTIC URBAIN COMPLET</h1>
+            <div style="font-size: 3rem; font-weight: 800; color: #fbbf24; margin: 20px 0;">${data.city?.toUpperCase() || 'VILLE'}</div>
+            <div style="font-size: 1.5rem; color: #4a5568; margin: 10px 0;">${data.country || 'PAYS'}</div>
+            
+            <div style="display: flex; justify-content: center; gap: 30px; margin: 30px 0;">
+              <div style="text-align: center;">
+                <div style="font-size: 2rem; font-weight: 700; color: #1e3a5f;">${data.population_total ? Number(data.population_total).toLocaleString('fr-FR') : '1.2M'}</div>
+                <div style="color: #64748b;">Habitants</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 2rem; font-weight: 700; color: #1e3a5f;">${data.area_km2 ? data.area_km2 : '1040'} km²</div>
+                <div style="color: #64748b;">Superficie</div>
+              </div>
             </div>
-          `).join('')}
+            
+            <div style="margin: 20px 0;">
+              📅 ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
+            
+            <div style="margin-top: 30px; padding: 15px 30px; background: rgba(255,255,255,0.9); border-radius: 15px; display: inline-block;">
+              <strong>Centre of Urban Systems - UM6P</strong><br>
+              <span style="color: #fbbf24;">AfricanCities IA Services</span>
+            </div>
+          </div>
+
+          <div style="page-break-after: always; margin: 40px 0;"></div>
+
+          <!-- RÉSUMÉ EXÉCUTIF -->
+          <h2 style="font-size: 2rem; color: #1e3a5f; border-left: 6px solid #fbbf24; padding-left: 1.5rem; margin: 2rem 0;">RÉSUMÉ EXÉCUTIF</h2>
+          
+          <div style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin: 20px 0;">
+            <p style="font-size: 1.1rem; line-height: 1.8;">
+              Le diagnostic urbain complet de <strong>${data.city}</strong> a été réalisé sur la base de <strong>plus de 80 indicateurs</strong> répartis en 7 dimensions clés du développement urbain durable. Cette analyse a été enrichie par <strong>${documents.length} documents</strong>.
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0;">
+              <div style="background: white; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="font-size: 1.8rem; font-weight: 700; color: #1e3a5f;">${calculateDimensionScore(data, 'society')}</div>
+                <div style="color: #64748b;">Société</div>
+              </div>
+              <div style="background: white; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="font-size: 1.8rem; font-weight: 700; color: #1e3a5f;">${calculateDimensionScore(data, 'habitat')}</div>
+                <div style="color: #64748b;">Habitat</div>
+              </div>
+              <div style="background: white; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="font-size: 1.8rem; font-weight: 700; color: #1e3a5f;">${calculateDimensionScore(data, 'infrastructure')}</div>
+                <div style="color: #64748b;">Infrastructure</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="page-break-after: always; margin: 40px 0;"></div>
+
+          <!-- ANALYSE PAR DIMENSION -->
+          <h2 style="font-size: 2rem; color: #1e3a5f; border-left: 6px solid #fbbf24; padding-left: 1.5rem; margin: 2rem 0;">ANALYSE PAR DIMENSION</h2>
+
+          <!-- Société -->
+          <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); margin: 30px 0;">
+            <div style="padding: 20px; background: linear-gradient(135deg, #2563eb, #1e40af); color: white;">
+              <h3 style="color: white; margin: 0; font-size: 1.4rem;">👥 SOCIÉTÉ (20 indicateurs)</h3>
+            </div>
+            <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;">
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Scolarisation primaire</span>
+                <span style="font-weight: 600;">${formatPercent(data.primary_school_enrollment)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Scolarisation secondaire</span>
+                <span style="font-weight: 600;">${formatPercent(data.secondary_school_enrollment)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Alphabétisation adultes</span>
+                <span style="font-weight: 600;">${formatPercent(data.adult_literacy_rate)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Espérance de vie</span>
+                <span style="font-weight: 600;">${data.life_expectancy || '65'} ans</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Habitat -->
+          <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); margin: 30px 0;">
+            <div style="padding: 20px; background: linear-gradient(135deg, #059669, #047857); color: white;">
+              <h3 style="color: white; margin: 0; font-size: 1.4rem;">🏠 HABITAT (14 indicateurs)</h3>
+            </div>
+            <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;">
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Accès eau potable</span>
+                <span style="font-weight: 600;">${formatPercent(data.water_access)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Accès électricité</span>
+                <span style="font-weight: 600;">${formatPercent(data.electricity_access)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Habitat informel</span>
+                <span style="font-weight: 600;">${formatPercent(data.informal_housing_percentage)}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Infrastructure -->
+          <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); margin: 30px 0;">
+            <div style="padding: 20px; background: linear-gradient(135deg, #f59e0b, #b45309); color: white;">
+              <h3 style="color: white; margin: 0; font-size: 1.4rem;">⚡ INFRASTRUCTURES (13 indicateurs)</h3>
+            </div>
+            <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;">
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Qualité des routes</span>
+                <span style="font-weight: 600;">${formatPercent(data.road_quality_percentage)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Accès Internet</span>
+                <span style="font-weight: 600;">${formatPercent(data.internet_access)}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Environnement -->
+          <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); margin: 30px 0;">
+            <div style="padding: 20px; background: linear-gradient(135deg, #10b981, #047857); color: white;">
+              <h3 style="color: white; margin: 0; font-size: 1.4rem;">🌳 ENVIRONNEMENT (14 indicateurs)</h3>
+            </div>
+            <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;">
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Qualité de l'air (PM2.5)</span>
+                <span style="font-weight: 600;">${data.air_quality_pm25 || '45'}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Collecte des déchets</span>
+                <span style="font-weight: 600;">${formatPercent(data.waste_collection_rate)}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gouvernance -->
+          <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); margin: 30px 0;">
+            <div style="padding: 20px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
+              <h3 style="color: white; margin: 0; font-size: 1.4rem;">⚖️ GOUVERNANCE (12 indicateurs)</h3>
+            </div>
+            <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;">
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Participation électorale</span>
+                <span style="font-weight: 600;">${formatPercent(data.voter_turnout)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Femmes au conseil</span>
+                <span style="font-weight: 600;">${formatPercent(data.women_in_council)}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Économie -->
+          <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); margin: 30px 0;">
+            <div style="padding: 20px; background: linear-gradient(135deg, #ec4899, #db2777); color: white;">
+              <h3 style="color: white; margin: 0; font-size: 1.4rem;">📈 ÉCONOMIE (15 indicateurs)</h3>
+            </div>
+            <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;">
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>Chômage urbain</span>
+                <span style="font-weight: 600;">${formatPercent(data.unemployment_rate)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8fafc; border-radius: 4px;">
+                <span>PIB par habitant</span>
+                <span style="font-weight: 600;">${formatCurrency(data.gdp_per_capita)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="page-break-after: always; margin: 40px 0;"></div>
+
+          <!-- SDG -->
+          <h2 style="font-size: 2rem; color: #1e3a5f; border-left: 6px solid #fbbf24; padding-left: 1.5rem; margin: 2rem 0;">OBJECTIFS DE DÉVELOPPEMENT DURABLE</h2>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 20px 0;">
+            ${sdgData.slice(0, 8).map(item => `
+              <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="font-weight: 700;">${item.goal}</div>
+                <div style="font-size: 0.9rem;">${item.score}%</div>
+                <div style="margin-top: 5px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                  <div style="height: 100%; width: ${item.score}%; background: #fbbf24;"></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Documents analysés -->
+          ${documents.length > 0 ? `
+            <h2 style="font-size: 2rem; color: #1e3a5f; border-left: 6px solid #fbbf24; padding-left: 1.5rem; margin: 2rem 0;">DOCUMENTS ANALYSÉS</h2>
+            <div style="background: white; border-radius: 16px; padding: 20px;">
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                  <div style="font-size: 1.5rem; color: #ef4444;">${docCount.pdf}</div>
+                  <div style="font-size: 0.8rem;">PDF</div>
+                </div>
+                <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                  <div style="font-size: 1.5rem; color: #10b981;">${docCount.image}</div>
+                  <div style="font-size: 0.8rem;">Images</div>
+                </div>
+                <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                  <div style="font-size: 1.5rem; color: #3b82f6;">${docCount.excel}</div>
+                  <div style="font-size: 0.8rem;">Excel</div>
+                </div>
+                <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                  <div style="font-size: 1.5rem; color: #8b5cf6;">${docCount.geojson}</div>
+                  <div style="font-size: 0.8rem;">GeoJSON</div>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Footer -->
+          <div style="margin-top: 60px; padding: 40px; text-align: center; background: linear-gradient(135deg, #1e3a5f, #2d4a7a); border-radius: 20px; color: white;">
+            <p style="font-size: 1.3rem; margin-bottom: 20px;"><strong>Rapport généré par AfricanCities IA Services</strong></p>
+            <p>Centre of Urban Systems - UM6P</p>
+            <p style="margin-top: 20px;">80+ indicateurs · 7 dimensions · 17 SDG · ${documents.length} documents analysés</p>
+            <p style="opacity: 0.7; margin-top: 20px;">© ${currentYear} - Tous droits réservés</p>
+          </div>
         </div>
-      </div>
-    ` : ''}
-  </div>
-
-  <!-- MATRICE DE SYNTHÈSE -->
-  <h2>MATRICE DE SYNTHÈSE STRATÉGIQUE</h2>
-  
-  <div class="summary-table">
-    <table>
-      <thead>
-        <tr>
-          <th>Dimension</th>
-          <th>Score</th>
-          <th>Priorité</th>
-          <th>Recommandations</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Société</strong></td>
-          <td>${calculateDimensionScore(data, 'society')} ${getScoreColor(calculateDimensionScore(data, 'society'))}</td>
-          <td>Haute</td>
-          <td>Renforcer l'accès à l'éducation et aux soins</td>
-        </tr>
-        <tr>
-          <td><strong>Habitat</strong></td>
-          <td>${calculateDimensionScore(data, 'habitat')} ${getScoreColor(calculateDimensionScore(data, 'habitat'))}</td>
-          <td>Critique</td>
-          <td>Programme d'amélioration des bidonvilles</td>
-        </tr>
-        <tr>
-          <td><strong>Spatial</strong></td>
-          <td>${calculateDimensionScore(data, 'spatial')} ${getScoreColor(calculateDimensionScore(data, 'spatial'))}</td>
-          <td>Moyenne</td>
-          <td>Planifier l'expansion urbaine</td>
-        </tr>
-        <tr>
-          <td><strong>Infrastructure</strong></td>
-          <td>${calculateDimensionScore(data, 'infrastructure')} ${getScoreColor(calculateDimensionScore(data, 'infrastructure'))}</td>
-          <td>Haute</td>
-          <td>Investir dans les réseaux de base</td>
-        </tr>
-        <tr>
-          <td><strong>Environnement</strong></td>
-          <td>${calculateDimensionScore(data, 'environment')} ${getScoreColor(calculateDimensionScore(data, 'environment'))}</td>
-          <td>Critique</td>
-          <td>Plan d'adaptation climatique</td>
-        </tr>
-        <tr>
-          <td><strong>Gouvernance</strong></td>
-          <td>${calculateDimensionScore(data, 'governance')} ${getScoreColor(calculateDimensionScore(data, 'governance'))}</td>
-          <td>Moyenne</td>
-          <td>Renforcer la participation citoyenne</td>
-        </tr>
-        <tr>
-          <td><strong>Économie</strong></td>
-          <td>${calculateDimensionScore(data, 'economy')} ${getScoreColor(calculateDimensionScore(data, 'economy'))}</td>
-          <td>Haute</td>
-          <td>Développer l'économie verte</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- RECOMMANDATIONS PRIORITAIRES -->
-  <h2>RECOMMANDATIONS PRIORITAIRES</h2>
-  
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0;">
-    <div style="background: linear-gradient(135deg, #1e3a5f, #2d4a7a); color: white; padding: 25px; border-radius: 16px;">
-      <h3 style="color: #fbbf24; margin-top: 0;">Court terme (0-2 ans)</h3>
-      <ul style="list-style-type: none; padding: 0;">
-        <li style="margin: 10px 0;">✓ Accès à l'eau potable dans tous les quartiers</li>
-        <li style="margin: 10px 0;">✓ Électrification des zones non desservies</li>
-        <li style="margin: 10px 0;">✓ Programme de vaccination élargi</li>
-        <li style="margin: 10px 0;">✓ Collecte des déchets systématique</li>
-      </ul>
-    </div>
-    
-    <div style="background: linear-gradient(135deg, #047857, #065f46); color: white; padding: 25px; border-radius: 16px;">
-      <h3 style="color: #fbbf24; margin-top: 0;">Moyen terme (2-5 ans)</h3>
-      <ul style="list-style-type: none; padding: 0;">
-        <li style="margin: 10px 0;">✓ Programme de logements sociaux</li>
-        <li style="margin: 10px 0;">✓ Réseau de transport public structurant</li>
-        <li style="margin: 10px 0;">✓ Centres de santé de proximité</li>
-        <li style="margin: 10px 0;">✓ Écoles secondaires dans tous les arrondissements</li>
-      </ul>
-    </div>
-    
-    <div style="background: linear-gradient(135deg, #b45309, #92400e); color: white; padding: 25px; border-radius: 16px;">
-      <h3 style="color: #fbbf24; margin-top: 0;">Long terme (5-10 ans)</h3>
-      <ul style="list-style-type: none; padding: 0;">
-        <li style="margin: 10px 0;">✓ Ville intelligente et durable</li>
-        <li style="margin: 10px 0;">✓ Énergies 100% renouvelables</li>
-        <li style="margin: 10px 0;">✓ Économie circulaire et emplois verts</li>
-        <li style="margin: 10px 0;">✓ Résilience climatique intégrée</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <div class="footer">
-    <p style="font-size: 1.3rem; margin-bottom: 20px;"><strong>Rapport généré par AfricanCities IA Services</strong></p>
-    <p>Centre of Urban Systems - UM6P</p>
-    <p style="margin-top: 20px;">80+ indicateurs · 7 dimensions · 17 SDG · ${documents.length} documents analysés</p>
-    
-    <hr style="border-color: rgba(255,255,255,0.2); margin: 30px 0;">
-    
-    <p style="opacity: 0.7;">Données intégrées: Banque Mondiale, Nations Unies (SDG), OMS, UNESCO, Wikipedia</p>
-    <p style="opacity: 0.5; font-size: 0.9rem;">© ${currentYear} - Tous droits réservés</p>
-    <p style="opacity: 0.5; font-size: 0.9rem;">Rapport confidentiel - Usage interne</p>
-  </div>
-
-</body>
-</html>
       `;
       
       setGeneratedContent(mockReport);
@@ -2190,7 +1396,7 @@ export default function Diagnosis() {
       
       toast({
         title: "Succès !",
-        description: `Rapport complet généré avec ${documents.length} documents analysés et intégration des sources externes.`,
+        description: `Rapport complet généré avec ${documents.length} documents analysés.`,
       });
     } catch (error) {
       console.error('Erreur lors de la génération:', error);
