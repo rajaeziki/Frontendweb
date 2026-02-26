@@ -129,7 +129,7 @@ const handleCoachAccess = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">AfricanCities AI Services</h1>
-                <p className="text-sm text-gray-500 tracking-wide">CENTRE OF URBAN SYSTEMS</p>
+                <p className="text-sm text-gray-500 tracking-wide">CENTER OF URBAN SYSTEMS</p>
               </div>
             </div>
           </div>

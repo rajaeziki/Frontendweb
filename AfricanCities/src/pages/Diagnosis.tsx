@@ -24,7 +24,30 @@ import {
   Info,
   ExternalLink,
   BarChart3,
-  Target
+  Target,
+  Scale,
+  Shield,
+  Wifi,
+  Droplets,
+  Sun,
+  Repeat,
+  Landmark,
+  Gauge,
+  Rocket,
+  GraduationCap,
+  Baby,
+  Home,
+  Map,
+  Fan,
+  Trash2,
+  CloudRain,
+  Sprout,
+  Vote,
+  TrendingUp,
+  PiggyBank,
+  Salad,
+  Church,
+  Bike
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -44,7 +67,12 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar
 } from 'recharts';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -65,7 +93,7 @@ interface DocumentContent {
   content: string;
 }
 
-// Schéma de formulaire étendu
+// Schéma de formulaire étendu avec tous les indicateurs
 const formSchema = z.object({
   // Informations générales
   city: z.string().min(1, "La ville est requise"),
@@ -73,40 +101,84 @@ const formSchema = z.object({
   region: z.string().optional(),
   diagnostic_date: z.string().optional(),
   
-  // Données démographiques
-  population: z.string().optional(),
-  growth_rate: z.string().optional(),
-  urban_area: z.string().optional(),
-  youth_percentage: z.string().optional(),
+  // SOCIETY (12 indicateurs)
+  primary_school_enrollment: z.string().optional(),
+  secondary_school_enrollment: z.string().optional(),
+  adult_literacy_rate: z.string().optional(),
+  crime_rate: z.string().optional(),
+  safety_perception: z.string().optional(),
+  healthcare_access: z.string().optional(),
+  doctors_per_10000: z.string().optional(),
+  life_expectancy: z.string().optional(),
+  infant_mortality: z.string().optional(),
+  vaccination_rate: z.string().optional(),
+  urban_poverty_rate: z.string().optional(),
+  social_inclusion_index: z.string().optional(),
+  community_participation_rate: z.string().optional(),
   
-  // Infrastructures
+  // HABITAT (8 indicateurs)
   water_access: z.string().optional(),
   electricity_access: z.string().optional(),
+  housing_overcrowding: z.string().optional(),
+  informal_housing_percentage: z.string().optional(),
+  housing_cost_per_m2: z.string().optional(),
+  home_ownership_rate: z.string().optional(),
   sanitation_access: z.string().optional(),
-  road_quality: z.string().optional(),
+  homelessness_rate: z.string().optional(),
+  housing_satisfaction_rate: z.string().optional(),
+  
+  // SPATIAL DEVELOPMENT (8 indicateurs)
+  urban_density: z.string().optional(),
+  green_space_per_capita: z.string().optional(),
+  public_transport_access: z.string().optional(),
+  home_work_distance: z.string().optional(),
+  urbanization_rate: z.string().optional(),
+  planned_vs_informal_ratio: z.string().optional(),
+  functional_mix_index: z.string().optional(),
+  sports_cultural_access: z.string().optional(),
+  
+  // INFRASTRUCTURE (8 indicateurs)
+  road_quality_percentage: z.string().optional(),
+  road_length_per_capita: z.string().optional(),
   internet_access: z.string().optional(),
+  mobile_penetration: z.string().optional(),
+  water_reliability: z.string().optional(),
+  electricity_reliability: z.string().optional(),
+  public_transport_capacity: z.string().optional(),
+  motorization_rate: z.string().optional(),
+  accessibility_pmr: z.string().optional(),
   
-  // Logement
-  housing_deficit: z.string().optional(),
-  informal_settlements: z.string().optional(),
-  housing_cost: z.string().optional(),
+  // ENVIRONMENT (9 indicateurs)
+  air_quality_pm25: z.string().optional(),
+  waste_collection_rate: z.string().optional(),
+  waste_recycling_rate: z.string().optional(),
+  sanitation_coverage: z.string().optional(),
+  climate_vulnerability_index: z.string().optional(),
+  heatwave_days_per_year: z.string().optional(),
+  renewable_energy_share: z.string().optional(),
+  urban_deforestation_rate: z.string().optional(),
+  climate_adaptation_plan: z.string().optional(),
   
-  // Économie
+  // GOVERNANCE (7 indicateurs)
+  corruption_index: z.string().optional(),
+  voter_turnout: z.string().optional(),
+  elected_council_exists: z.string().optional(),
+  public_service_satisfaction: z.string().optional(),
+  open_data_access: z.string().optional(),
+  political_stability_index: z.string().optional(),
+  citizen_initiatives_supported: z.string().optional(),
+  
+  // ECONOMY (10 indicateurs)
   unemployment_rate: z.string().optional(),
-  informal_economy: z.string().optional(),
-  gdp_per_capita: z.string().optional(),
-  
-  // Social
-  literacy_rate: z.string().optional(),
-  infant_mortality: z.string().optional(),
-  life_expectancy: z.string().optional(),
-  
-  // Environnement
-  climate_risks: z.array(z.string()).optional(),
-  green_spaces: z.string().optional(),
-  
-  // Transport
-  public_transport: z.string().optional(),
+  formal_employment_rate: z.string().optional(),
+  gdp_growth_rate: z.string().optional(),
+  fdi_attractiveness: z.string().optional(),
+  business_creation_rate: z.string().optional(),
+  income_per_capita: z.string().optional(),
+  microcredit_access_rate: z.string().optional(),
+  cost_of_living_index: z.string().optional(),
+  monetary_poverty_rate: z.string().optional(),
+  green_digital_economy_share: z.string().optional(),
   
   // Objectifs
   diagnostic_type: z.string().optional(),
@@ -137,7 +209,7 @@ const infrastructureData = [
   { category: 'Électricité', current: 42, target: 75 },
   { category: 'Assainissement', current: 25, target: 60 },
   { category: 'Routes', current: 60, target: 85 },
-  { category: 'Télécom', current: 78, target: 90 },
+  { category: 'Internet', current: 35, target: 90 },
 ];
 
 const housingData = [
@@ -147,7 +219,18 @@ const housingData = [
   { type: 'Précaire', value: 15 },
 ];
 
-const COLORS = ['#1e3a5f', '#fbbf24', '#10b981', '#ef4444', '#8b5cf6'];
+const COLORS = ['#1e3a5f', '#fbbf24', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
+
+// Configuration des dimensions pour l'organisation
+const dimensions = [
+  { id: 'society', name: 'Société', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', indicators: 12 },
+  { id: 'habitat', name: 'Habitat', icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50', indicators: 9 },
+  { id: 'spatial', name: 'Développement Spatial', icon: Map, color: 'text-purple-600', bg: 'bg-purple-50', indicators: 8 },
+  { id: 'infrastructure', name: 'Infrastructures', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50', indicators: 9 },
+  { id: 'environment', name: 'Environnement', icon: TreePine, color: 'text-green-600', bg: 'bg-green-50', indicators: 9 },
+  { id: 'governance', name: 'Gouvernance', icon: Scale, color: 'text-indigo-600', bg: 'bg-indigo-50', indicators: 7 },
+  { id: 'economy', name: 'Économie', icon: TrendingUp, color: 'text-rose-600', bg: 'bg-rose-50', indicators: 10 },
+];
 
 export default function Diagnosis() {
   const { toast } = useToast();
@@ -157,7 +240,8 @@ export default function Diagnosis() {
   const [webData, setWebData] = useState<WebData | null>(null);
   const [documents, setDocuments] = useState<DocumentContent[]>([]);
   const [enableWebSearch, setEnableWebSearch] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<string[]>(['general', 'demographics', 'infrastructure']);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['society', 'habitat', 'infrastructure']);
+  const [activeDimension, setActiveDimension] = useState('society');
   
   // Ref pour l'iframe
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -168,30 +252,85 @@ export default function Diagnosis() {
       city: "Nouakchott",
       country: "Mauritanie",
       region: "Nouakchott",
-      population: "1200000",
-      growth_rate: "3.5",
-      urban_area: "1000",
-      youth_percentage: "60",
+      
+      // Société
+      primary_school_enrollment: "75",
+      secondary_school_enrollment: "45",
+      adult_literacy_rate: "65",
+      crime_rate: "15",
+      safety_perception: "60",
+      healthcare_access: "55",
+      doctors_per_10000: "2.5",
+      life_expectancy: "65",
+      infant_mortality: "45",
+      vaccination_rate: "70",
+      urban_poverty_rate: "35",
+      social_inclusion_index: "50",
+      community_participation_rate: "25",
+      
+      // Habitat
       water_access: "45",
       electricity_access: "42",
+      housing_overcrowding: "4.5",
+      informal_housing_percentage: "40",
+      housing_cost_per_m2: "200",
+      home_ownership_rate: "55",
       sanitation_access: "25",
-      road_quality: "Moyenne",
+      homelessness_rate: "2",
+      housing_satisfaction_rate: "45",
+      
+      // Spatial
+      urban_density: "1200",
+      green_space_per_capita: "5",
+      public_transport_access: "35",
+      home_work_distance: "8",
+      urbanization_rate: "3.5",
+      planned_vs_informal_ratio: "30",
+      functional_mix_index: "40",
+      sports_cultural_access: "25",
+      
+      // Infrastructure
+      road_quality_percentage: "40",
+      road_length_per_capita: "1.2",
       internet_access: "35",
-      housing_deficit: "50000",
-      informal_settlements: "40",
-      housing_cost: "200",
+      mobile_penetration: "85",
+      water_reliability: "12",
+      electricity_reliability: "8",
+      public_transport_capacity: "15",
+      motorization_rate: "80",
+      accessibility_pmr: "15",
+      
+      // Environnement
+      air_quality_pm25: "45",
+      waste_collection_rate: "50",
+      waste_recycling_rate: "5",
+      sanitation_coverage: "25",
+      climate_vulnerability_index: "75",
+      heatwave_days_per_year: "15",
+      renewable_energy_share: "10",
+      urban_deforestation_rate: "2",
+      climate_adaptation_plan: "En développement",
+      
+      // Gouvernance
+      corruption_index: "35",
+      voter_turnout: "55",
+      elected_council_exists: "Oui",
+      public_service_satisfaction: "45",
+      open_data_access: "20",
+      political_stability_index: "60",
+      citizen_initiatives_supported: "15",
+      
+      // Économie
       unemployment_rate: "25",
-      informal_economy: "70",
-      gdp_per_capita: "1500",
-      literacy_rate: "65",
-      infant_mortality: "45",
-      life_expectancy: "65",
-      climate_risks: ["Inondations", "Sécheresse"],
-      green_spaces: "5",
-      public_transport: "Limité",
-      diagnostic_type: "Diagnostic général",
-      diagnostic_objective: "Évaluer l'état actuel du développement urbain et identifier les priorités d'intervention.",
-      additional_comments: "",
+      formal_employment_rate: "30",
+      gdp_growth_rate: "3.2",
+      fdi_attractiveness: "25",
+      business_creation_rate: "8",
+      income_per_capita: "1500",
+      microcredit_access_rate: "12",
+      cost_of_living_index: "110",
+      monetary_poverty_rate: "35",
+      green_digital_economy_share: "8",
     }
   });
 
@@ -242,132 +381,163 @@ export default function Diagnosis() {
     setDocuments((prev) => [...prev, ...newDocuments]);
   };
 
-  // Fonction pour télécharger en PDF en capturant l'iframe
- const downloadPDF = async () => {
-  if (!iframeRef.current) return;
-  
-  try {
-    toast({
-      title: "Préparation du PDF",
-      description: "Génération du document en cours...",
-    });
+  const downloadPDF = async () => {
+    if (!iframeRef.current) return;
     
-    const iframeDocument = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
-    if (!iframeDocument) {
-      throw new Error("Impossible d'accéder au contenu de l'iframe");
-    }
-    
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    const imgWidth = 210; // Largeur A4 en mm
-    const pageHeight = 297; // Hauteur A4 en mm
-    
-    // 1. Capturer la page de garde SÉPARÉMENT
-    const coverElement = iframeDocument.querySelector('.cover-page');
-    if (coverElement) {
-      const coverCanvas = await html2canvas(coverElement as HTMLElement, {
+    try {
+      toast({
+        title: "Préparation du PDF",
+        description: "Génération du document en cours...",
+      });
+      
+      const iframeDocument = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
+      if (!iframeDocument) {
+        throw new Error("Impossible d'accéder au contenu de l'iframe");
+      }
+      
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const imgWidth = 210;
+      const pageHeight = 297;
+      
+      const coverElement = iframeDocument.querySelector('.cover-page');
+      if (coverElement) {
+        const coverCanvas = await html2canvas(coverElement as HTMLElement, {
+          scale: 2,
+          backgroundColor: '#ffffff',
+          logging: false,
+          useCORS: true,
+          allowTaint: false,
+        });
+        
+        const coverImgData = coverCanvas.toDataURL('image/png');
+        const coverImgHeight = (coverCanvas.height * imgWidth) / coverCanvas.width;
+        
+        pdf.addImage(coverImgData, 'PNG', 0, 0, imgWidth, coverImgHeight, undefined, 'FAST');
+      }
+      
+      const bodyClone = iframeDocument.body.cloneNode(true) as HTMLElement;
+      
+      const coverInClone = bodyClone.querySelector('.cover-page');
+      if (coverInClone) {
+        coverInClone.remove();
+      }
+      
+      const pageBreaks = bodyClone.querySelectorAll('.page-break');
+      pageBreaks.forEach(el => el.remove());
+      
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '0';
+      tempContainer.style.width = '1200px';
+      tempContainer.style.background = '#ffffff';
+      tempContainer.appendChild(bodyClone);
+      document.body.appendChild(tempContainer);
+      
+      const contentCanvas = await html2canvas(tempContainer, {
         scale: 2,
         backgroundColor: '#ffffff',
         logging: false,
         useCORS: true,
         allowTaint: false,
+        windowWidth: 1200,
       });
       
-      const coverImgData = coverCanvas.toDataURL('image/png');
-      const coverImgHeight = (coverCanvas.height * imgWidth) / coverCanvas.width;
+      document.body.removeChild(tempContainer);
       
-      // Ajouter la page de garde sur sa propre page
-      pdf.addImage(coverImgData, 'PNG', 0, 0, imgWidth, coverImgHeight, undefined, 'FAST');
-    }
-    
-    // 2. Capturer le reste du document (sans la page de garde)
-    // Créer un clone du body
-    const bodyClone = iframeDocument.body.cloneNode(true) as HTMLElement;
-    
-    // Supprimer la page de garde du clone
-    const coverInClone = bodyClone.querySelector('.cover-page');
-    if (coverInClone) {
-      coverInClone.remove();
-    }
-    
-    // Supprimer les éléments page-break qui pourraient causer des problèmes
-    const pageBreaks = bodyClone.querySelectorAll('.page-break');
-    pageBreaks.forEach(el => el.remove());
-    
-    // Créer un conteneur temporaire
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.left = '-9999px';
-    tempContainer.style.top = '0';
-    tempContainer.style.width = '1200px';
-    tempContainer.style.background = '#ffffff';
-    tempContainer.appendChild(bodyClone);
-    document.body.appendChild(tempContainer);
-    
-    const contentCanvas = await html2canvas(tempContainer, {
-      scale: 2,
-      backgroundColor: '#ffffff',
-      logging: false,
-      useCORS: true,
-      allowTaint: false,
-      windowWidth: 1200,
-    });
-    
-    // Nettoyer
-    document.body.removeChild(tempContainer);
-    
-    const contentImgData = contentCanvas.toDataURL('image/png');
-    const contentImgHeight = (contentCanvas.height * imgWidth) / contentCanvas.width;
-    
-    // Ajouter une nouvelle page pour le contenu
-    pdf.addPage();
-    
-    // Ajouter le contenu sur plusieurs pages si nécessaire
-    let heightLeft = contentImgHeight;
-    let position = 0;
-    let firstPage = true;
-    
-    while (heightLeft > 0) {
-      if (!firstPage) {
-        pdf.addPage();
+      const contentImgData = contentCanvas.toDataURL('image/png');
+      const contentImgHeight = (contentCanvas.height * imgWidth) / contentCanvas.width;
+      
+      pdf.addPage();
+      
+      let heightLeft = contentImgHeight;
+      let position = 0;
+      let firstPage = true;
+      
+      while (heightLeft > 0) {
+        if (!firstPage) {
+          pdf.addPage();
+        }
+        
+        pdf.addImage(contentImgData, 'PNG', 0, position, imgWidth, contentImgHeight, undefined, 'FAST');
+        
+        heightLeft -= pageHeight;
+        position -= pageHeight;
+        firstPage = false;
       }
       
-      pdf.addImage(contentImgData, 'PNG', 0, position, imgWidth, contentImgHeight, undefined, 'FAST');
+      pdf.save(`Diagnostic_${watchCity?.replace(/\s+/g, '_') || 'ville'}.pdf`);
       
-      heightLeft -= pageHeight;
-      position -= pageHeight;
-      firstPage = false;
+      toast({
+        title: "Succès !",
+        description: "Le PDF a été généré avec succès.",
+      });
+    } catch (error) {
+      console.error('Erreur lors de la génération du PDF:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le PDF.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const generateRadarData = (data: FormData) => {
+    return [
+      { dimension: 'Société', value: calculateDimensionScore(data, 'society'), fullMark: 100 },
+      { dimension: 'Habitat', value: calculateDimensionScore(data, 'habitat'), fullMark: 100 },
+      { dimension: 'Spatial', value: calculateDimensionScore(data, 'spatial'), fullMark: 100 },
+      { dimension: 'Infrastructure', value: calculateDimensionScore(data, 'infrastructure'), fullMark: 100 },
+      { dimension: 'Environnement', value: calculateDimensionScore(data, 'environment'), fullMark: 100 },
+      { dimension: 'Gouvernance', value: calculateDimensionScore(data, 'governance'), fullMark: 100 },
+      { dimension: 'Économie', value: calculateDimensionScore(data, 'economy'), fullMark: 100 },
+    ];
+  };
+
+  const calculateDimensionScore = (data: FormData, dimension: string): number => {
+    // Logique simplifiée pour calculer le score par dimension
+    // À améliorer avec des pondérations réelles
+    const values: Record<string, number> = {};
+    let total = 0;
+    let count = 0;
+    
+    switch(dimension) {
+      case 'society':
+        ['primary_school_enrollment', 'secondary_school_enrollment', 'adult_literacy_rate', 
+         'healthcare_access', 'life_expectancy', 'vaccination_rate'].forEach(key => {
+          if (data[key as keyof FormData]) {
+            total += Number(data[key as keyof FormData]);
+            count++;
+          }
+        });
+        break;
+      case 'habitat':
+        ['water_access', 'electricity_access', 'sanitation_access', 'home_ownership_rate'].forEach(key => {
+          if (data[key as keyof FormData]) {
+            total += Number(data[key as keyof FormData]);
+            count++;
+          }
+        });
+        break;
+      // Ajouter les autres dimensions...
     }
     
-    // Sauvegarder le PDF
-    pdf.save(`Diagnostic_${watchCity?.replace(/\s+/g, '_') || 'ville'}.pdf`);
-    
-    toast({
-      title: "Succès !",
-      description: "Le PDF a été généré avec succès.",
-    });
-  } catch (error) {
-    console.error('Erreur lors de la génération du PDF:', error);
-    toast({
-      title: "Erreur",
-      description: "Impossible de générer le PDF.",
-      variant: "destructive",
-    });
-  }
-};
+    return count > 0 ? Math.round(total / count) : 50;
+  };
+
   const generateReportContent = async (data: FormData) => {
     setIsGenerating(true);
     
     try {
-      // Simuler la génération IA
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       const formatNumber = (num: string | undefined) => {
-        return num ? Number.parseInt(num, 10).toLocaleString('fr-FR') : 'Non spécifié';
+        return num ? Number.parseFloat(num).toLocaleString('fr-FR') : 'Non spécifié';
       };
 
       const formatPercent = (num: string | undefined) => {
@@ -375,11 +545,7 @@ export default function Diagnosis() {
       };
 
       const formatCurrency = (num: string | undefined) => {
-        return num ? `${Number.parseInt(num, 10).toLocaleString('fr-FR')} USD` : 'Non spécifié';
-      };
-
-      const calculateGap = (current: string | undefined, target: number) => {
-        return current ? (target - Number.parseInt(current, 10)).toString() : 'N/A';
+        return num ? `${Number.parseFloat(num).toLocaleString('fr-FR')} USD` : 'Non spécifié';
       };
 
       const getScoreColor = (value: number) => {
@@ -394,13 +560,15 @@ export default function Diagnosis() {
         return 'Critique';
       };
 
+      const radarData = generateRadarData(data);
+
       const mockReport = `
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rapport Diagnostic - ${data.city}</title>
+  <title>Rapport Diagnostic Urbain Complet - ${data.city}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
     
@@ -457,22 +625,16 @@ export default function Diagnosis() {
       margin: 1.5rem 0 1rem 0;
     }
 
-    /* PAGE DE GARDE ULTRA COMPACTE */
+    /* PAGE DE GARDE */
     .cover-page {
       text-align: center;
       background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
       border-radius: 20px;
-      padding: 15px 10px !important;
-      margin-bottom: 15px !important;
-      box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.15);
+      padding: 40px 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.15);
       position: relative;
       overflow: hidden;
-      min-height: auto !important;
-      height: auto !important;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
     }
 
     .cover-page::before {
@@ -481,431 +643,224 @@ export default function Diagnosis() {
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #1e3a5f, #fbbf24, #10b981);
+      height: 6px;
+      background: linear-gradient(90deg, #1e3a5f, #fbbf24, #10b981, #8b5cf6);
     }
 
     .cover-page h1 {
-      font-size: 1.8rem !important;
-      border: none !important;
-      margin: 2px 0 !important;
-      padding: 0 !important;
+      font-size: 3rem;
+      border: none;
+      margin: 20px 0;
       background: linear-gradient(135deg, #1e3a5f, #2d4a7a);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      line-height: 1.2;
     }
 
     .cover-page .city-name {
-      font-size: 2.2rem !important;
+      font-size: 4rem;
       font-weight: 800;
       color: #fbbf24;
-      margin: 5px 0 !important;
+      margin: 20px 0;
       text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-      line-height: 1.2;
+      letter-spacing: 4px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
     }
 
     .cover-page .country-name {
-      font-size: 1.2rem !important;
+      font-size: 2rem;
       color: #4a5568;
-      margin: 2px 0 5px 0 !important;
+      margin: 10px 0;
       font-weight: 400;
     }
 
     .cover-page .date {
-      font-size: 0.9rem !important;
+      font-size: 1.2rem;
       color: #64748b;
-      margin: 8px 0 !important;
-      padding: 4px 15px !important;
+      margin: 20px 0;
+      padding: 10px 30px;
       background: white;
-      border-radius: 30px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border-radius: 40px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
       display: inline-block;
     }
 
     .cover-page .institution {
-      font-size: 0.85rem !important;
+      font-size: 1.1rem;
       color: #334155;
-      margin-top: 8px !important;
-      padding: 8px 20px !important;
-      background: rgba(255,255,255,0.9);
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      width: fit-content;
-    }
-
-    .logo-container {
-      margin: 8px 0 !important;
-      padding: 5px !important;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      display: inline-block;
-    }
-
-    .logo-container img {
-      max-width: 100px !important;
-      height: auto;
-    }
-
-    /* Sommaire */
-    .toc {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      margin: 40px 0;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    .toc h2 {
-      border: none;
-      padding-left: 0;
-      margin-top: 0;
-      color: #1e3a5f;
-    }
-
-    .toc-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
       margin-top: 30px;
-    }
-
-    .toc-section {
-      background: #f8fafc;
-      padding: 20px;
-      border-radius: 12px;
-    }
-
-    .toc-section h3 {
-      color: #fbbf24;
-      margin-top: 0;
-      font-size: 1.2rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .toc-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px dashed #cbd5e1;
-    }
-
-    .toc-item:last-child {
-      border-bottom: none;
-    }
-
-    /* Cartes métriques */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 25px;
-      margin: 30px 0;
-    }
-
-    .metric-card {
-      background: white;
-      border-radius: 16px;
-      padding: 25px;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-      transition: transform 0.3s, box-shadow 0.3s;
+      padding: 15px 30px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 15px;
       border: 1px solid #e2e8f0;
     }
 
-    .metric-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 30px -10px rgba(30, 58, 95, 0.2);
-    }
-
-    .metric-title {
-      font-size: 1rem;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
-    }
-
-    .metric-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #1e3a5f;
-      margin: 10px 0;
-    }
-
-    .metric-trend {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #10b981;
-      font-weight: 500;
-    }
-
-    /* Tableaux stylisés */
-    .table-container {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-      margin: 30px 0;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th {
-      background: #1e3a5f;
-      color: white;
-      font-weight: 600;
-      padding: 15px;
-      text-align: left;
-      font-size: 1rem;
-    }
-
-    td {
-      padding: 15px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    tr:hover {
-      background: #f8fafc;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .badge-high {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .badge-medium {
-      background: #fef3c7;
-      color: #d97706;
-    }
-
-    .badge-low {
-      background: #d1fae5;
-      color: #059669;
-    }
-
-    /* Grille SWOT */
-    .swot-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 25px;
-      margin: 30px 0;
-    }
-
-    .swot-card {
-      background: white;
-      border-radius: 16px;
-      padding: 25px;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-    }
-
-    .swot-card.strengths { border-top: 6px solid #10b981; }
-    .swot-card.weaknesses { border-top: 6px solid #ef4444; }
-    .swot-card.opportunities { border-top: 6px solid #fbbf24; }
-    .swot-card.threats { border-top: 6px solid #8b5cf6; }
-
-    .swot-card h4 {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.4rem;
-      margin-bottom: 20px;
-    }
-
-    .swot-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 15px;
-      padding: 15px;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .swot-number {
-      width: 28px;
-      height: 28px;
-      background: #f1f5f9;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      color: #1e3a5f;
-      flex-shrink: 0;
-    }
-
-    /* Cartes recommandations */
-    .reco-grid {
+    /* Cards pour les indicateurs */
+    .dimension-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 25px;
       margin: 30px 0;
     }
 
-    .reco-card {
+    .dimension-card {
       background: white;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
     }
 
-    .reco-header {
+    .dimension-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .dimension-header {
+      padding: 20px;
       background: linear-gradient(135deg, #1e3a5f, #2d4a7a);
       color: white;
+    }
+
+    .dimension-header h3 {
+      color: white;
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .dimension-body {
       padding: 20px;
-      font-size: 1.2rem;
-      font-weight: 600;
     }
 
-    .reco-body {
-      padding: 20px;
-    }
-
-    .reco-item {
-      background: #f8fafc;
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
-
-    .reco-item strong {
-      color: #1e3a5f;
-      display: block;
-      margin-bottom: 8px;
-      font-size: 1.1rem;
-    }
-
-    .reco-details {
+    .indicator-item {
       display: flex;
       justify-content: space-between;
-      color: #64748b;
-      font-size: 0.95rem;
-      margin: 8px 0;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #e2e8f0;
     }
 
-    .reco-impact {
-      color: #10b981;
+    .indicator-item:last-child {
+      border-bottom: none;
+    }
+
+    .indicator-name {
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+
+    .indicator-value {
+      font-weight: 600;
+      color: #1e3a5f;
+    }
+
+    .indicator-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
       font-weight: 500;
     }
 
-    /* Graphiques */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 25px;
-      margin: 30px 0;
+    .badge-high {
+      background: #dcfce7;
+      color: #059669;
     }
 
-    .chart-card {
+    .badge-medium {
+      background: #fef9c3;
+      color: #ca8a04;
+    }
+
+    .badge-low {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    /* Tableaux de synthèse */
+    .summary-table {
       background: white;
       border-radius: 16px;
-      padding: 25px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      margin: 20px 0;
+    }
+
+    .summary-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .summary-table th {
+      background: #1e3a5f;
+      color: white;
+      padding: 15px;
+      text-align: left;
+    }
+
+    .summary-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .summary-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Radar Chart placeholder */
+    .radar-container {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin: 30px 0;
       box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
     }
 
-    .chart-card h3 {
-      margin-top: 0;
-      margin-bottom: 20px;
-      color: #1e3a5f;
-    }
-
-    .pie-chart {
-      width: 250px;
-      height: 250px;
+    .radar-placeholder {
+      width: 400px;
+      height: 400px;
       margin: 0 auto;
+      background: conic-gradient(
+        from 0deg,
+        #1e3a5f 0deg 51deg,
+        #fbbf24 51deg 102deg,
+        #10b981 102deg 153deg,
+        #ef4444 153deg 204deg,
+        #8b5cf6 204deg 255deg,
+        #ec4899 255deg 306deg,
+        #14b8a6 306deg 360deg
+      );
       border-radius: 50%;
-      background: conic-gradient(#1e3a5f 0deg 153deg, #fbbf24 153deg 347deg, #10b981 347deg 360deg);
       position: relative;
+      mask: radial-gradient(circle at center, transparent 50%, black 50%);
     }
 
-    .pie-chart::after {
-      content: "100%";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 120px;
-      height: 120px;
+    /* Score cards */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .score-card {
       background: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 1.5rem;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .score-value {
+      font-size: 2.5rem;
+      font-weight: 700;
       color: #1e3a5f;
     }
 
-    .bar-chart {
-      display: flex;
-      align-items: flex-end;
-      gap: 15px;
-      height: 250px;
-      padding: 20px 0;
+    .score-label {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-top: 5px;
     }
 
-    .bar-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .bar {
-      width: 40px;
-      background: #1e3a5f;
-      border-radius: 8px 8px 0 0;
-      transition: height 0.3s;
-    }
-
-    .bar.target {
-      width: 20px;
-      background: #fbbf24;
-      opacity: 0.7;
-      position: relative;
-      left: 10px;
-      top: -100%;
-    }
-
-    .legend {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .legend-color {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-    }
-
-    /* Footer */
     .footer {
       margin-top: 60px;
       padding: 40px;
@@ -915,93 +870,24 @@ export default function Diagnosis() {
       color: white;
     }
 
-    .footer p {
-      margin: 10px 0;
-      opacity: 0.9;
-    }
-
-    .documents-list {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin: 20px 0;
-    }
-
-    .document-tag {
-      background: rgba(255,255,255,0.15);
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-size: 0.9rem;
-      backdrop-filter: blur(5px);
-    }
-
-    hr {
-      border: none;
-      border-top: 2px solid rgba(255,255,255,0.2);
-      margin: 30px 0;
-    }
-
-    /* Utilitaires */
     .page-break {
       page-break-after: always;
       margin: 40px 0;
     }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin: 20px 0;
-    }
-
-    .stat-box {
-      text-align: center;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }
-
-    .stat-label {
-      color: #64748b;
-      font-size: 0.9rem;
-      margin-bottom: 8px;
-    }
-
-    .stat-number {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1e3a5f;
-    }
-
-    .info-box {
-      background: #f0f9ff;
-      border-left: 6px solid #0ea5e9;
-      padding: 20px;
-      border-radius: 12px;
-      margin: 20px 0;
-    }
-
     @media print {
       .page-break {
         page-break-after: always;
-        margin: 0;
-      }
-      
-      body {
-        padding: 0;
-        background: white;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- PAGE DE GARDE ULTRA COMPACTE -->
+  <!-- PAGE DE GARDE -->
   <div class="cover-page">
-    <h1>RAPPORT DE DIAGNOSTIC</h1>
-    <h1>INTELLIGENT</h1>
+    <h1>RAPPORT DE DIAGNOSTIC URBAIN</h1>
+    <h1>COMPLET</h1>
     
     <div class="city-name">${data.city?.toUpperCase() || 'VILLE'}</div>
     <div class="country-name">${data.country || 'PAYS'}</div>
@@ -1013,7 +899,6 @@ export default function Diagnosis() {
         year: 'numeric'
       })}
     </div>
-   
     
     <div class="institution">
       <strong>Centre of Urban Systems - UM6P</strong><br>
@@ -1023,234 +908,362 @@ export default function Diagnosis() {
 
   <div class="page-break"></div>
 
-  <!-- SOMMAIRE -->
-  <div class="toc">
-    <h2>📋 SOMMAIRE</h2>
-    
-    <div class="toc-grid">
-      <div class="toc-section">
-        <h3>PARTIE 1</h3>
-        <div class="toc-item"><span>1. RÉSUMÉ EXÉCUTIF</span> <span>3</span></div>
-        <div class="toc-item"><span>2. PROFIL SOCIO-ÉCONOMIQUE</span> <span>4</span></div>
-        <div class="toc-item" style="margin-left: 20px;"><span>2.1 Contexte démographique</span> <span>4</span></div>
-        <div class="toc-item" style="margin-left: 20px;"><span>2.2 Contexte économique</span> <span>5</span></div>
-        <div class="toc-item" style="margin-left: 20px;"><span>2.3 Contexte social</span> <span>5</span></div>
-      </div>
-      
-      <div class="toc-section">
-        <h3>PARTIE 2</h3>
-        <div class="toc-item"><span>3. DIAGNOSTIC PAR DIMENSION</span> <span>6</span></div>
-        <div class="toc-item" style="margin-left: 20px;"><span>3.1 Infrastructures</span> <span>6</span></div>
-        <div class="toc-item" style="margin-left: 20px;"><span>3.2 Habitat et logement</span> <span>7</span></div>
-        <div class="toc-item" style="margin-left: 20px;"><span>3.3 Environnement</span> <span>7</span></div>
-        <div class="toc-item" style="margin-left: 20px;"><span>3.4 Transport</span> <span>8</span></div>
-      </div>
-      
-      <div class="toc-section">
-        <h3>PARTIE 3</h3>
-        <div class="toc-item"><span>4. ANALYSE SWOT</span> <span>9</span></div>
-        <div class="toc-item"><span>5. RECOMMANDATIONS</span> <span>11</span></div>
-        <div class="toc-item"><span>6. SCÉNARIOS</span> <span>13</span></div>
-        <div class="toc-item"><span>7. CONCLUSION</span> <span>15</span></div>
-      </div>
-      
-      <div class="toc-section">
-        <h3>ANNEXES</h3>
-        <div class="toc-item"><span>8. VISUALISATIONS</span> <span>16</span></div>
-        <div class="toc-item"><span>9. DOCUMENTS</span> <span>18</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="page-break"></div>
-
-  <!-- 1. RÉSUMÉ EXÉCUTIF -->
-  <h2>1. RÉSUMÉ EXÉCUTIF</h2>
-
-  <div style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 30px; text-align: justify;">
-    Le diagnostic urbain de <strong>${data.city}</strong> révèle une métropole en pleine transformation, confrontée à des défis majeurs mais disposant d'atouts considérables. Ce rapport présente une analyse approfondie de la situation actuelle et propose des recommandations stratégiques pour un développement urbain durable et inclusif.
-  </div>
-
-  <div class="metrics-grid">
-    <div class="metric-card">
-      <div class="metric-title">Population totale</div>
-      <div class="metric-value">${formatNumber(data.population)}</div>
-      <div class="metric-trend">📈 Croissance ${data.growth_rate}% par an</div>
-    </div>
-    
-    <div class="metric-card">
-      <div class="metric-title">Densité urbaine</div>
-      <div class="metric-value">${data.urban_area ? Math.round(Number.parseInt(data.population || '0') / Number.parseInt(data.urban_area)).toLocaleString('fr-FR') : 'N/A'}</div>
-      <div class="metric-trend">🏙️ habitants/km²</div>
-    </div>
-    
-    <div class="metric-card">
-      <div class="metric-title">Accès eau potable</div>
-      <div class="metric-value">${formatPercent(data.water_access)}</div>
-      <div class="metric-trend">${getScoreColor(Number.parseInt(data.water_access || '0'))} ${getScoreText(Number.parseInt(data.water_access || '0'))}</div>
-    </div>
-    
-    <div class="metric-card">
-      <div class="metric-title">Accès électricité</div>
-      <div class="metric-value">${formatPercent(data.electricity_access)}</div>
-      <div class="metric-trend">${getScoreColor(Number.parseInt(data.electricity_access || '0'))} ${getScoreText(Number.parseInt(data.electricity_access || '0'))}</div>
-    </div>
-    
-    <div class="metric-card">
-      <div class="metric-title">Habitat informel</div>
-      <div class="metric-value">${formatPercent(data.informal_settlements)}</div>
-      <div class="metric-trend" style="color: #ef4444;">🔴 Critique</div>
-    </div>
-    
-    <div class="metric-card">
-      <div class="metric-title">Taux de chômage</div>
-      <div class="metric-value">${formatPercent(data.unemployment_rate)}</div>
-      <div class="metric-trend" style="color: #ef4444;">⚠️ Alerte</div>
-    </div>
-  </div>
-
-  <h3>🎯 Principaux constats</h3>
+  <!-- RÉSUMÉ EXÉCUTIF -->
+  <h2>RÉSUMÉ EXÉCUTIF</h2>
   
-  <div style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin: 20px 0;">
-    <ul style="list-style: none; padding: 0;">
-      <li style="margin-bottom: 15px; padding-left: 30px; position: relative;">
-        <span style="position: absolute; left: 0; color: #fbbf24;">📌</span>
-        <strong>Croissance démographique rapide</strong> (${data.growth_rate}%/an) non accompagnée par le développement des infrastructures
-      </li>
-      <li style="margin-bottom: 15px; padding-left: 30px; position: relative;">
-        <span style="position: absolute; left: 0; color: #fbbf24;">📌</span>
-        <strong>Déficit critique en logements</strong> (${formatNumber(data.housing_deficit)} unités) avec ${data.informal_settlements}% de la population en habitat informel
-      </li>
-      <li style="margin-bottom: 15px; padding-left: 30px; position: relative;">
-        <span style="position: absolute; left: 0; color: #fbbf24;">📌</span>
-        <strong>Accès limité aux services de base</strong> : eau (${data.water_access}%), électricité (${data.electricity_access}%), assainissement (${data.sanitation_access}%)
-      </li>
-      <li style="margin-bottom: 15px; padding-left: 30px; position: relative;">
-        <span style="position: absolute; left: 0; color: #fbbf24;">📌</span>
-        <strong>Potentiel économique important</strong> avec une population jeune (${data.youth_percentage}% < 25 ans)
-      </li>
-      <li style="margin-bottom: 15px; padding-left: 30px; position: relative;">
-        <span style="position: absolute; left: 0; color: #fbbf24;">📌</span>
-        <strong>Vulnérabilité climatique</strong> face à ${data.climate_risks?.join(', ')}
-      </li>
-    </ul>
-  </div>
-
-  ${webData?.wikipedia_info?.summary ? `
-  <div class="info-box">
-    <strong>🌐 Source Wikipedia:</strong> ${webData.wikipedia_info.summary}
-  </div>` : ''}
-
-  <div class="page-break"></div>
-
-  <!-- 2. PROFIL SOCIO-ÉCONOMIQUE -->
-  <h2>2. PROFIL SOCIO-ÉCONOMIQUE</h2>
-
-  <h3>2.1 Contexte démographique</h3>
-  
-  <div style="margin: 20px 0;">
-    <p style="text-align: justify; margin-bottom: 20px;">
-      La ville de <strong>${data.city}</strong> connaît une dynamique démographique exceptionnelle, caractérisée par une croissance soutenue et une population extrêmement jeune. Cette configuration offre un potentiel de développement considérable mais nécessite des investissements massifs dans les services de base et les infrastructures.
+  <div style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin: 20px 0;">
+    <p style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
+      Le diagnostic urbain complet de <strong>${data.city}</strong> a été réalisé sur la base de <strong>65 indicateurs</strong> répartis en 7 dimensions clés du développement urbain durable. Cette analyse multidimensionnelle permet d'obtenir une vision holistique et systémique des défis et opportunités de la ville.
     </p>
+    
+    <div class="score-grid">
+      <div class="score-card">
+        <div class="score-value">${Math.round((Number(data.life_expectancy || '65') + Number(data.adult_literacy_rate || '65')) / 2)}</div>
+        <div class="score-label">Score Société</div>
+      </div>
+      <div class="score-card">
+        <div class="score-value">${Math.round((Number(data.water_access || '45') + Number(data.electricity_access || '42')) / 2)}</div>
+        <div class="score-label">Score Habitat</div>
+      </div>
+      <div class="score-card">
+        <div class="score-value">${Math.round(Number(data.urban_density || '1200') / 100)}</div>
+        <div class="score-label">Score Spatial</div>
+      </div>
+      <div class="score-card">
+        <div class="score-value">${Math.round((Number(data.road_quality_percentage || '40') + Number(data.internet_access || '35')) / 2)}</div>
+        <div class="score-label">Score Infrastructure</div>
+      </div>
+    </div>
   </div>
 
-  <h4>📈 Évolution démographique (2018-2023)</h4>
+  <!-- SYNTHÈSE PAR DIMENSION -->
+  <h2>SYNTHÈSE PAR DIMENSION</h2>
+
+  <!-- Dimension 1: Société -->
+  <div class="dimension-card" style="margin: 30px 0;">
+    <div class="dimension-header" style="background: linear-gradient(135deg, #2563eb, #1e40af);">
+      <h3>👥 SOCIÉTÉ (12 indicateurs)</h3>
+    </div>
+    <div class="dimension-body">
+      <div class="indicator-item">
+        <span class="indicator-name">Taux de scolarisation primaire</span>
+        <span class="indicator-value">${formatPercent(data.primary_school_enrollment)}</span>
+        <span class="indicator-badge ${Number(data.primary_school_enrollment || '0') >= 70 ? 'badge-high' : Number(data.primary_school_enrollment || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.primary_school_enrollment || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Taux de scolarisation secondaire</span>
+        <span class="indicator-value">${formatPercent(data.secondary_school_enrollment)}</span>
+        <span class="indicator-badge ${Number(data.secondary_school_enrollment || '0') >= 70 ? 'badge-high' : Number(data.secondary_school_enrollment || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.secondary_school_enrollment || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Taux d'alphabétisation adultes</span>
+        <span class="indicator-value">${formatPercent(data.adult_literacy_rate)}</span>
+        <span class="indicator-badge ${Number(data.adult_literacy_rate || '0') >= 70 ? 'badge-high' : Number(data.adult_literacy_rate || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.adult_literacy_rate || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Taux de criminalité</span>
+        <span class="indicator-value">${data.crime_rate} pour 1000 hab.</span>
+        <span class="indicator-badge ${Number(data.crime_rate || '15') <= 10 ? 'badge-high' : Number(data.crime_rate || '15') <= 20 ? 'badge-medium' : 'badge-low'}">${Number(data.crime_rate || '15') <= 10 ? 'Faible' : Number(data.crime_rate || '15') <= 20 ? 'Modéré' : 'Élevé'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Perception de sécurité</span>
+        <span class="indicator-value">${formatPercent(data.safety_perception)}</span>
+        <span class="indicator-badge ${Number(data.safety_perception || '0') >= 70 ? 'badge-high' : Number(data.safety_perception || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.safety_perception || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Accès aux soins de base</span>
+        <span class="indicator-value">${formatPercent(data.healthcare_access)}</span>
+        <span class="indicator-badge ${Number(data.healthcare_access || '0') >= 70 ? 'badge-high' : Number(data.healthcare_access || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.healthcare_access || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Médecins pour 10 000 hab.</span>
+        <span class="indicator-value">${data.doctors_per_10000}</span>
+        <span class="indicator-badge ${Number(data.doctors_per_10000 || '2.5') >= 5 ? 'badge-high' : Number(data.doctors_per_10000 || '2.5') >= 2 ? 'badge-medium' : 'badge-low'}">${Number(data.doctors_per_10000 || '2.5') >= 5 ? 'Bon' : Number(data.doctors_per_10000 || '2.5') >= 2 ? 'Moyen' : 'Critique'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Espérance de vie</span>
+        <span class="indicator-value">${data.life_expectancy} ans</span>
+        <span class="indicator-badge ${Number(data.life_expectancy || '65') >= 75 ? 'badge-high' : Number(data.life_expectancy || '65') >= 65 ? 'badge-medium' : 'badge-low'}">${Number(data.life_expectancy || '65') >= 75 ? 'Bon' : Number(data.life_expectancy || '65') >= 65 ? 'Moyen' : 'Critique'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Mortalité infantile</span>
+        <span class="indicator-value">${data.infant_mortality} ‰</span>
+        <span class="indicator-badge ${Number(data.infant_mortality || '45') <= 20 ? 'badge-high' : Number(data.infant_mortality || '45') <= 40 ? 'badge-medium' : 'badge-low'}">${Number(data.infant_mortality || '45') <= 20 ? 'Faible' : Number(data.infant_mortality || '45') <= 40 ? 'Modéré' : 'Élevé'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Taux de vaccination</span>
+        <span class="indicator-value">${formatPercent(data.vaccination_rate)}</span>
+        <span class="indicator-badge ${Number(data.vaccination_rate || '0') >= 90 ? 'badge-high' : Number(data.vaccination_rate || '0') >= 70 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.vaccination_rate || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Taux de pauvreté urbaine</span>
+        <span class="indicator-value">${formatPercent(data.urban_poverty_rate)}</span>
+        <span class="indicator-badge ${Number(data.urban_poverty_rate || '35') <= 20 ? 'badge-high' : Number(data.urban_poverty_rate || '35') <= 40 ? 'badge-medium' : 'badge-low'}">${Number(data.urban_poverty_rate || '35') <= 20 ? 'Faible' : Number(data.urban_poverty_rate || '35') <= 40 ? 'Modéré' : 'Élevé'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Indice d'inclusion sociale</span>
+        <span class="indicator-value">${formatPercent(data.social_inclusion_index)}</span>
+        <span class="indicator-badge ${Number(data.social_inclusion_index || '0') >= 70 ? 'badge-high' : Number(data.social_inclusion_index || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.social_inclusion_index || '0'))}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dimension 2: Habitat -->
+  <div class="dimension-card" style="margin: 30px 0;">
+    <div class="dimension-header" style="background: linear-gradient(135deg, #059669, #047857);">
+      <h3>🏠 HABITAT (9 indicateurs)</h3>
+    </div>
+    <div class="dimension-body">
+      <div class="indicator-item">
+        <span class="indicator-name">Accès eau potable</span>
+        <span class="indicator-value">${formatPercent(data.water_access)}</span>
+        <span class="indicator-badge ${Number(data.water_access || '0') >= 70 ? 'badge-high' : Number(data.water_access || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.water_access || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Accès électricité</span>
+        <span class="indicator-value">${formatPercent(data.electricity_access)}</span>
+        <span class="indicator-badge ${Number(data.electricity_access || '0') >= 70 ? 'badge-high' : Number(data.electricity_access || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.electricity_access || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Indice de surpeuplement</span>
+        <span class="indicator-value">${data.housing_overcrowding} pers/pièce</span>
+        <span class="indicator-badge ${Number(data.housing_overcrowding || '4.5') <= 2 ? 'badge-high' : Number(data.housing_overcrowding || '4.5') <= 3 ? 'badge-medium' : 'badge-low'}">${Number(data.housing_overcrowding || '4.5') <= 2 ? 'Bon' : Number(data.housing_overcrowding || '4.5') <= 3 ? 'Moyen' : 'Critique'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Habitat informel</span>
+        <span class="indicator-value">${formatPercent(data.informal_housing_percentage)}</span>
+        <span class="indicator-badge ${Number(data.informal_housing_percentage || '40') <= 20 ? 'badge-high' : Number(data.informal_housing_percentage || '40') <= 40 ? 'badge-medium' : 'badge-low'}">${Number(data.informal_housing_percentage || '40') <= 20 ? 'Faible' : Number(data.informal_housing_percentage || '40') <= 40 ? 'Modéré' : 'Élevé'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Coût logement (USD/m²)</span>
+        <span class="indicator-value">${formatCurrency(data.housing_cost_per_m2)}</span>
+        <span class="indicator-badge">À contextualiser</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Taux d'accession à la propriété</span>
+        <span class="indicator-value">${formatPercent(data.home_ownership_rate)}</span>
+        <span class="indicator-badge ${Number(data.home_ownership_rate || '0') >= 60 ? 'badge-high' : Number(data.home_ownership_rate || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.home_ownership_rate || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Accès assainissement amélioré</span>
+        <span class="indicator-value">${formatPercent(data.sanitation_access)}</span>
+        <span class="indicator-badge ${Number(data.sanitation_access || '0') >= 70 ? 'badge-high' : Number(data.sanitation_access || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.sanitation_access || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Sans-abrisme</span>
+        <span class="indicator-value">${data.homelessness_rate}%</span>
+        <span class="indicator-badge ${Number(data.homelessness_rate || '2') <= 0.5 ? 'badge-high' : Number(data.homelessness_rate || '2') <= 1 ? 'badge-medium' : 'badge-low'}">${Number(data.homelessness_rate || '2') <= 0.5 ? 'Faible' : Number(data.homelessness_rate || '2') <= 1 ? 'Modéré' : 'Élevé'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Satisfaction logement</span>
+        <span class="indicator-value">${formatPercent(data.housing_satisfaction_rate)}</span>
+        <span class="indicator-badge ${Number(data.housing_satisfaction_rate || '0') >= 70 ? 'badge-high' : Number(data.housing_satisfaction_rate || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.housing_satisfaction_rate || '0'))}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dimension 3: Développement Spatial -->
+  <div class="dimension-card" style="margin: 30px 0;">
+    <div class="dimension-header" style="background: linear-gradient(135deg, #7c3aed, #6d28d9);">
+      <h3>🗺️ DÉVELOPPEMENT SPATIAL (8 indicateurs)</h3>
+    </div>
+    <div class="dimension-body">
+      <div class="indicator-item">
+        <span class="indicator-name">Densité urbaine</span>
+        <span class="indicator-value">${Number(data.urban_density || '1200').toLocaleString('fr-FR')} hab/km²</span>
+        <span class="indicator-badge">À analyser</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Espaces verts par habitant</span>
+        <span class="indicator-value">${data.green_space_per_capita} m²</span>
+        <span class="indicator-badge ${Number(data.green_space_per_capita || '5') >= 10 ? 'badge-high' : Number(data.green_space_per_capita || '5') >= 5 ? 'badge-medium' : 'badge-low'}">${Number(data.green_space_per_capita || '5') >= 10 ? 'Bon' : Number(data.green_space_per_capita || '5') >= 5 ? 'Moyen' : 'Critique'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Accès transport public</span>
+        <span class="indicator-value">${formatPercent(data.public_transport_access)}</span>
+        <span class="indicator-badge ${Number(data.public_transport_access || '0') >= 70 ? 'badge-high' : Number(data.public_transport_access || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.public_transport_access || '0'))}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Distance domicile-travail</span>
+        <span class="indicator-value">${data.home_work_distance} km</span>
+        <span class="indicator-badge ${Number(data.home_work_distance || '8') <= 5 ? 'badge-high' : Number(data.home_work_distance || '8') <= 10 ? 'badge-medium' : 'badge-low'}">${Number(data.home_work_distance || '8') <= 5 ? 'Faible' : Number(data.home_work_distance || '8') <= 10 ? 'Modéré' : 'Élevé'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Taux d'urbanisation annuel</span>
+        <span class="indicator-value">${data.urbanization_rate}%</span>
+        <span class="indicator-badge">${Number(data.urbanization_rate || '3.5') >= 3 ? 'Croissance rapide' : 'Croissance modérée'}</span>
+      </div>
+      <div class="indicator-item">
+        <span class="indicator-name">Quartiers planifiés/informels</span>
+        <span class="indicator-value">${data.planned_vs_informal_ratio}% planifiés</span>
+        <span class="indicator-badge ${Number(data.planned_vs_informal_ratio || '30') >= 60 ? 'badge-high' : Number(data.planned_vs_informal_ratio || '30') >= 30 ? 'badge-medium' : 'badge-low'}">${Number(data.planned_vs_informal_ratio || '30') >= 60 ? 'Bon' : Number(data.planned_vs_informal_ratio || '30') >= 30 ? 'Moyen' : 'Critique'}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suite des dimensions... -->
+
+  <div class="page-break"></div>
+
+  <!-- SYNTHÈSE RADAR -->
+  <h2>ANALYSE MULTIDIMENSIONNELLE</h2>
   
-  <div class="table-container">
+  <div class="radar-container">
+    <h3 style="text-align: center;">Score par dimension</h3>
+    <div style="display: flex; justify-content: center; padding: 20px;">
+      <div style="width: 500px; height: 500px; background: #f8fafc; border-radius: 50%; position: relative;">
+        <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+          <polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" fill="none" stroke="#cbd5e1" stroke-width="0.5"/>
+          <polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" fill="rgba(30,58,95,0.2)" stroke="#1e3a5f" stroke-width="2"/>
+          <!-- Ajouter les points pour chaque dimension -->
+          <circle cx="50" cy="5" r="3" fill="#2563eb"/>
+          <circle cx="95" cy="27.5" r="3" fill="#059669"/>
+          <circle cx="95" cy="72.5" r="3" fill="#7c3aed"/>
+          <circle cx="50" cy="95" r="3" fill="#fbbf24"/>
+          <circle cx="5" cy="72.5" r="3" fill="#ef4444"/>
+          <circle cx="5" cy="27.5" r="3" fill="#8b5cf6"/>
+        </svg>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px;">
+      <div><span style="color: #2563eb;">●</span> Société: ${calculateDimensionScore(data, 'society')}</div>
+      <div><span style="color: #059669;">●</span> Habitat: ${calculateDimensionScore(data, 'habitat')}</div>
+      <div><span style="color: #7c3aed;">●</span> Spatial: ${calculateDimensionScore(data, 'spatial')}</div>
+      <div><span style="color: #fbbf24;">●</span> Infrastructure: ${calculateDimensionScore(data, 'infrastructure')}</div>
+      <div><span style="color: #ef4444;">●</span> Environnement: ${calculateDimensionScore(data, 'environment')}</div>
+      <div><span style="color: #8b5cf6;">●</span> Gouvernance: ${calculateDimensionScore(data, 'governance')}</div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- RECOMMANDATIONS SPÉCIFIQUES -->
+  <h2>RECOMMANDATIONS STRATÉGIQUES</h2>
+  
+  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin: 30px 0;">
+    <div style="background: white; border-radius: 16px; padding: 25px; border-left: 6px solid #2563eb;">
+      <h4 style="margin-top: 0; color: #2563eb;">Priorité 1 - Société</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: 10px;">✓ Renforcer l'accès à l'éducation secondaire (actuel: ${formatPercent(data.secondary_school_enrollment)})</li>
+        <li style="margin-bottom: 10px;">✓ Améliorer la couverture sanitaire (actuel: ${formatPercent(data.healthcare_access)})</li>
+        <li style="margin-bottom: 10px;">✓ Développer des programmes d'inclusion sociale</li>
+      </ul>
+    </div>
+    
+    <div style="background: white; border-radius: 16px; padding: 25px; border-left: 6px solid #059669;">
+      <h4 style="margin-top: 0; color: #059669;">Priorité 2 - Habitat</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: 10px;">✓ Accélérer l'accès à l'eau potable (actuel: ${formatPercent(data.water_access)})</li>
+        <li style="margin-bottom: 10px;">✓ Résorption de l'habitat informel (actuel: ${formatPercent(data.informal_housing_percentage)})</li>
+        <li style="margin-bottom: 10px;">✓ Améliorer l'assainissement (actuel: ${formatPercent(data.sanitation_access)})</li>
+      </ul>
+    </div>
+    
+    <div style="background: white; border-radius: 16px; padding: 25px; border-left: 6px solid #7c3aed;">
+      <h4 style="margin-top: 0; color: #7c3aed;">Priorité 3 - Spatial</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: 10px;">✓ Augmenter les espaces verts (actuel: ${data.green_space_per_capita} m²/hab)</li>
+        <li style="margin-bottom: 10px;">✓ Améliorer l'accès au transport public (actuel: ${formatPercent(data.public_transport_access)})</li>
+        <li style="margin-bottom: 10px;">✓ Renforcer la planification urbaine</li>
+      </ul>
+    </div>
+    
+    <div style="background: white; border-radius: 16px; padding: 25px; border-left: 6px solid #fbbf24;">
+      <h4 style="margin-top: 0; color: #fbbf24;">Priorité 4 - Infrastructures</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: 10px;">✓ Améliorer la qualité des routes (actuel: ${formatPercent(data.road_quality_percentage)})</li>
+        <li style="margin-bottom: 10px;">✓ Développer l'accès Internet (actuel: ${formatPercent(data.internet_access)})</li>
+        <li style="margin-bottom: 10px;">✓ Renforcer la fiabilité électrique</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- INDICATEURS DE GOUVERNANCE -->
+  <h2>ANALYSE DE LA GOUVERNANCE</h2>
+  
+  <div class="summary-table">
     <table>
       <thead>
-        <tr><th>Année</th><th>Population</th><th>Croissance annuelle</th><th>Évolution</th></tr>
+        <tr>
+          <th>Indicateur</th>
+          <th>Valeur</th>
+          <th>Évaluation</th>
+        </tr>
       </thead>
       <tbody>
-        <tr><td>2018</td><td>1 050 000</td><td>-</td><td>📊 Base</td></tr>
-        <tr><td>2019</td><td>1 087 500</td><td>+3.57%</td><td>📈 Hausse</td></tr>
-        <tr><td>2020</td><td>1 126 250</td><td>+3.56%</td><td>📈 Hausse</td></tr>
-        <tr><td>2021</td><td>1 165 656</td><td>+3.50%</td><td>📈 Hausse</td></tr>
-        <tr><td>2022</td><td>1 206 428</td><td>+3.50%</td><td>📈 Hausse</td></tr>
-        <tr><td>2023</td><td>1 250 000</td><td>+3.61%</td><td>📈 Hausse</td></tr>
+        <tr>
+          <td>Indice de perception corruption</td>
+          <td>${data.corruption_index}/100</td>
+          <td><span class="indicator-badge ${Number(data.corruption_index || '35') >= 60 ? 'badge-high' : Number(data.corruption_index || '35') >= 40 ? 'badge-medium' : 'badge-low'}">${Number(data.corruption_index || '35') >= 60 ? 'Bon' : Number(data.corruption_index || '35') >= 40 ? 'Moyen' : 'Faible'}</span></td>
+        </tr>
+        <tr>
+          <td>Participation électorale</td>
+          <td>${formatPercent(data.voter_turnout)}</td>
+          <td><span class="indicator-badge ${Number(data.voter_turnout || '0') >= 60 ? 'badge-high' : Number(data.voter_turnout || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.voter_turnout || '0'))}</span></td>
+        </tr>
+        <tr>
+          <td>Conseil municipal élu</td>
+          <td>${data.elected_council_exists}</td>
+          <td><span class="indicator-badge badge-high">✓ Conforme</span></td>
+        </tr>
+        <tr>
+          <td>Satisfaction services publics</td>
+          <td>${formatPercent(data.public_service_satisfaction)}</td>
+          <td><span class="indicator-badge ${Number(data.public_service_satisfaction || '0') >= 70 ? 'badge-high' : Number(data.public_service_satisfaction || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.public_service_satisfaction || '0'))}</span></td>
+        </tr>
+        <tr>
+          <td>Accès données ouvertes</td>
+          <td>${formatPercent(data.open_data_access)}</td>
+          <td><span class="indicator-badge ${Number(data.open_data_access || '0') >= 70 ? 'badge-high' : Number(data.open_data_access || '0') >= 40 ? 'badge-medium' : 'badge-low'}">${getScoreText(Number(data.open_data_access || '0'))}</span></td>
+        </tr>
       </tbody>
     </table>
   </div>
 
-  <h4>👥 Structure par âge</h4>
+  <!-- INDICATEURS ÉCONOMIQUES -->
+  <h2>ANALYSE ÉCONOMIQUE</h2>
   
-  <div class="stats-grid">
-    <div class="stat-box">
-      <div class="stat-label">0-14 ans</div>
-      <div class="stat-number">42.5%</div>
-      <div style="color: #10b981;">Très jeune</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">15-64 ans</div>
-      <div class="stat-number">54.3%</div>
-      <div style="color: #fbbf24;">Active</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">65+ ans</div>
-      <div class="stat-number">3.2%</div>
-      <div style="color: #64748b;">Âgée</div>
-    </div>
-  </div>
-
-  <p style="text-align: justify; margin: 20px 0;">
-    La population est extrêmement jeune, avec <strong>${data.youth_percentage}%</strong> de moins de 25 ans. Cette caractéristique représente un atout majeur pour le développement économique futur, à condition de mettre en place des politiques adéquates en matière d'éducation, de formation professionnelle et de création d'emplois.
-  </p>
-
-  <h3>2.2 Contexte économique</h3>
-
-  <div class="table-container">
+  <div class="summary-table">
     <table>
       <thead>
-        <tr><th>Indicateur</th><th>Valeur</th><th>Tendance</th><th>Analyse</th></tr>
+        <tr>
+          <th>Indicateur</th>
+          <th>Valeur</th>
+          <th>Tendance</th>
+        </tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>PIB par habitant</strong></td>
-          <td>${formatCurrency(data.gdp_per_capita)}</td>
-          <td>📈 +2.5%</td>
-          <td>Croissance modérée</td>
-        </tr>
-        <tr>
-          <td><strong>Taux de chômage</strong></td>
+          <td>Taux de chômage</td>
           <td>${formatPercent(data.unemployment_rate)}</td>
-          <td>⚠️ Stable</td>
-          <td>Niveau préoccupant</td>
+          <td><span class="indicator-badge badge-medium">⚠️ Préoccupant</span></td>
         </tr>
         <tr>
-          <td><strong>Économie informelle</strong></td>
-          <td>${formatPercent(data.informal_economy)}</td>
-          <td>📊 Prédominante</td>
-          <td>Défi structurel</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>2.3 Contexte social</h3>
-
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr><th>Indicateur</th><th>Valeur actuelle</th><th>Objectif 2030</th><th>Écart</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Taux d'alphabétisation</strong></td>
-          <td>${formatPercent(data.literacy_rate)}</td>
-          <td>85%</td>
-          <td>${85 - Number.parseInt(data.literacy_rate || '0')} pts</td>
+          <td>Emploi formel</td>
+          <td>${formatPercent(data.formal_employment_rate)}</td>
+          <td><span class="indicator-badge badge-low">🔴 Très faible</span></td>
         </tr>
         <tr>
-          <td><strong>Mortalité infantile</strong></td>
-          <td>${data.infant_mortality} ‰</td>
-          <td>25 ‰</td>
-          <td>${Number.parseInt(data.infant_mortality || '0') - 25} pts</td>
+          <td>Croissance PIB</td>
+          <td>${data.gdp_growth_rate}%</td>
+          <td><span class="indicator-badge badge-high">📈 Positive</span></td>
         </tr>
         <tr>
-          <td><strong>Espérance de vie</strong></td>
-          <td>${data.life_expectancy} ans</td>
-          <td>72 ans</td>
-          <td>${72 - Number.parseInt(data.life_expectancy || '0')} ans</td>
+          <td>Investissements FDI</td>
+          <td>${data.fdi_attractiveness}/100</td>
+          <td><span class="indicator-badge badge-medium">📊 Modéré</span></td>
+        </tr>
+        <tr>
+          <td>Revenu moyen/hab</td>
+          <td>${formatCurrency(data.income_per_capita)}</td>
+          <td><span class="indicator-badge">À améliorer</span></td>
+        </tr>
+        <tr>
+          <td>Économie verte/digitale</td>
+          <td>${formatPercent(data.green_digital_economy_share)}</td>
+          <td><span class="indicator-badge badge-low">🔴 Émergente</span></td>
         </tr>
       </tbody>
     </table>
@@ -1258,463 +1271,58 @@ export default function Diagnosis() {
 
   <div class="page-break"></div>
 
-  <!-- 3. DIAGNOSTIC PAR DIMENSION -->
-  <h2>3. DIAGNOSTIC PAR DIMENSION</h2>
-
-  <h3>3.1 Infrastructures et services de base</h3>
-
-  <p style="text-align: justify; margin-bottom: 20px;">
-    L'analyse des infrastructures de base révèle des lacunes significatives dans l'accès aux services essentiels, avec des disparités importantes entre les quartiers. Les investissements nécessaires pour atteindre les objectifs de développement durable sont estimés à plusieurs centaines de millions de dollars.
-  </p>
-
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr><th>Service</th><th>Taux actuel</th><th>Objectif 2030</th><th>Écart</th><th>Priorité</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Eau potable</strong></td>
-          <td>${formatPercent(data.water_access)}</td>
-          <td>80%</td>
-          <td>${calculateGap(data.water_access, 80)} pts</td>
-          <td><span class="badge badge-high">🔴 Urgente</span></td>
-        </tr>
-        <tr>
-          <td><strong>Électricité</strong></td>
-          <td>${formatPercent(data.electricity_access)}</td>
-          <td>75%</td>
-          <td>${calculateGap(data.electricity_access, 75)} pts</td>
-          <td><span class="badge badge-high">🔴 Urgente</span></td>
-        </tr>
-        <tr>
-          <td><strong>Assainissement</strong></td>
-          <td>${formatPercent(data.sanitation_access)}</td>
-          <td>60%</td>
-          <td>${calculateGap(data.sanitation_access, 60)} pts</td>
-          <td><span class="badge badge-high">🔴 Urgente</span></td>
-        </tr>
-        <tr>
-          <td><strong>Internet</strong></td>
-          <td>${formatPercent(data.internet_access)}</td>
-          <td>90%</td>
-          <td>${calculateGap(data.internet_access, 90)} pts</td>
-          <td><span class="badge badge-medium">🟡 Modérée</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>3.2 Habitat et logement</h3>
-
-  <div class="stats-grid">
-    <div class="stat-box">
-      <div class="stat-label">Déficit logements</div>
-      <div class="stat-number">${formatNumber(data.housing_deficit)}</div>
-      <div>Unités</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Habitat informel</div>
-      <div class="stat-number">${formatPercent(data.informal_settlements)}</div>
-      <div>Population</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Coût moyen/m²</div>
-      <div class="stat-number">${formatCurrency(data.housing_cost)}</div>
-      <div>Prix</div>
-    </div>
-  </div>
-
-  <p style="text-align: justify; margin: 20px 0;">
-    Le secteur du logement fait face à une crise sans précédent, avec un déficit estimé à <strong>${formatNumber(data.housing_deficit)} unités</strong> et <strong>${data.informal_settlements}%</strong> de la population vivant dans des quartiers informels. Cette situation engendre des conditions de vie précaires et limite l'accès aux services de base.
-  </p>
-
-  <h3>3.3 Environnement et climat</h3>
-
-  <div style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin: 20px 0;">
-    <h4 style="margin-top: 0;">🌍 Risques climatiques identifiés</h4>
-    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0;">
-      ${data.climate_risks?.map((risk: string) => `
-        <span style="background: #fee2e2; color: #dc2626; padding: 8px 16px; border-radius: 30px; font-size: 0.9rem;">
-          ⚠️ ${risk}
-        </span>
-      `).join('') || 'Aucun risque spécifié'}
-    </div>
+  <!-- CONCLUSION -->
+  <h2>CONCLUSION ET PERSPECTIVES</h2>
+  
+  <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d4a7a 100%); color: white; padding: 40px; border-radius: 20px; margin: 30px 0;">
+    <h3 style="color: #fbbf24; margin-top: 0;">Synthèse du diagnostic 65 indicateurs</h3>
     
-    <h4>🌳 Espaces verts</h4>
-    <div style="display: flex; align-items: center; gap: 30px; margin-top: 15px;">
-      <div style="flex: 1; text-align: center;">
-        <div style="font-size: 2.5rem; color: #1e3a5f;">${data.green_spaces} m²</div>
-        <div style="color: #64748b;">Ratio actuel par habitant</div>
-      </div>
-      <div style="flex: 1; text-align: center;">
-        <div style="font-size: 2.5rem; color: #10b981;">10 m²</div>
-        <div style="color: #64748b;">Norme OMS recommandée</div>
-      </div>
-    </div>
-  </div>
-
-  <h3>3.4 Transport et mobilité</h3>
-
-  <div style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin: 20px 0;">
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-      <div style="text-align: center;">
-        <div style="font-size: 2rem; color: #1e3a5f;">${data.public_transport}</div>
-        <div style="color: #64748b;">Niveau de service</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-size: 2rem; color: #1e3a5f;">80/1000</div>
-        <div style="color: #64748b;">Taux de motorisation</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-size: 2rem; color: #1e3a5f;">45 min</div>
-        <div style="color: #64748b;">Temps de trajet moyen</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="page-break"></div>
-
-  <!-- 4. ANALYSE SWOT -->
-  <h2>4. ANALYSE SWOT</h2>
-
-  <div class="swot-grid">
-    <div class="swot-card strengths">
-      <h4>💪 FORCES</h4>
-      <div class="swot-item">
-        <span class="swot-number">1</span>
-        <span><strong>Population jeune</strong> (${data.youth_percentage}% < 25 ans)</span>
-      </div>
-      <div class="swot-item">
-        <span class="swot-number">2</span>
-        <span><strong>Position géostratégique</strong> - Carrefour commercial</span>
-      </div>
-      <div class="swot-item">
-        <span class="swot-number">3</span>
-        <span><strong>Taux d'alphabétisation</strong> (${data.literacy_rate}%)</span>
-      </div>
-    </div>
-    
-    <div class="swot-card weaknesses">
-      <h4>🔻 FAIBLESSES</h4>
-      <div class="swot-item">
-        <span class="swot-number">1</span>
-        <span><strong>Déficit d'infrastructures</strong> (eau: ${data.water_access}%, électricité: ${data.electricity_access}%)</span>
-      </div>
-      <div class="swot-item">
-        <span class="swot-number">2</span>
-        <span><strong>Habitat informel</strong> (${data.informal_settlements}%)</span>
-      </div>
-      <div class="swot-item">
-        <span class="swot-number">3</span>
-        <span><strong>Chômage élevé</strong> (${data.unemployment_rate}%)</span>
-      </div>
-    </div>
-    
-    <div class="swot-card opportunities">
-      <h4>🌟 OPPORTUNITÉS</h4>
-      <div class="swot-item">
-        <span class="swot-number">1</span>
-        <span><strong>Financements climatiques</strong> (Fonds Vert, Adaptation Fund)</span>
-      </div>
-      <div class="swot-item">
-        <span class="swot-number">2</span>
-        <span><strong>Partenariats public-privé</strong> pour les infrastructures</span>
-      </div>
-      <div class="swot-item">
-        <span class="swot-number">3</span>
-        <span><strong>Transition numérique</strong> et smart city</span>
-      </div>
-    </div>
-    
-    <div class="swot-card threats">
-      <h4>⚠️ MENACES</h4>
-      <div class="swot-item">
-        <span class="swot-number">1</span>
-        <span><strong>Changement climatique</strong> - ${data.climate_risks?.join(', ')}</span>
-      </div>
-      <div class="swot-item">
-        <span class="swot-number">2</span>
-        <span><strong>Pression migratoire</strong> et étalement urbain</span>
-      </div>
-      <div class="swot-item">
-        <span class="swot-number">3</span>
-        <span><strong>Tensions sociales</strong> liées aux inégalités</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="page-break"></div>
-
-  <!-- 5. RECOMMANDATIONS PRIORITAIRES -->
-  <h2>5. RECOMMANDATIONS PRIORITAIRES</h2>
-
-  <div class="reco-grid">
-    <div class="reco-card">
-      <div class="reco-header">Axe 1 : Accès universel aux services de base</div>
-      <div class="reco-body">
-        <div class="reco-item">
-          <strong>Extension réseau eau potable</strong>
-          <div class="reco-details">
-            <span>📅 Délai: 2 ans</span>
-            <span>💰 Coût: 15 M$</span>
-          </div>
-          <div class="reco-impact">🎯 Impact: +20% de couverture</div>
-        </div>
-        <div class="reco-item">
-          <strong>Électrification des quartiers</strong>
-          <div class="reco-details">
-            <span>📅 Délai: 3 ans</span>
-            <span>💰 Coût: 25 M$</span>
-          </div>
-          <div class="reco-impact">🎯 Impact: +25% ménages connectés</div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="reco-card">
-      <div class="reco-header">Axe 2 : Résorption de l'habitat informel</div>
-      <div class="reco-body">
-        <div class="reco-item">
-          <strong>Régularisation foncière</strong>
-          <div class="reco-details">
-            <span>📅 Délai: 3 ans</span>
-            <span>💰 Coût: 5 M$</span>
-          </div>
-          <div class="reco-impact">🎯 Impact: 25 000 familles sécurisées</div>
-        </div>
-        <div class="reco-item">
-          <strong>Logements sociaux</strong>
-          <div class="reco-details">
-            <span>📅 Délai: 5 ans</span>
-            <span>💰 Coût: 150 M$</span>
-          </div>
-          <div class="reco-impact">🎯 Impact: 10 000 unités</div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="reco-card">
-      <div class="reco-header">Axe 3 : Développement économique</div>
-      <div class="reco-body">
-        <div class="reco-item">
-          <strong>Zones d'activités économiques</strong>
-          <div class="reco-details">
-            <span>📅 Délai: 4 ans</span>
-            <span>💰 Coût: 20 M$</span>
-          </div>
-          <div class="reco-impact">🎯 Impact: 5 000 emplois créés</div>
-        </div>
-        <div class="reco-item">
-          <strong>Formation professionnelle</strong>
-          <div class="reco-details">
-            <span>📅 Délai: 3 ans</span>
-            <span>💰 Coût: 8 M$</span>
-          </div>
-          <div class="reco-impact">🎯 Impact: 15 000 jeunes formés</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="page-break"></div>
-
-  <!-- 6. SCÉNARIOS D'INVESTISSEMENT -->
-  <h2>6. SCÉNARIOS D'INVESTISSEMENT</h2>
-
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr><th>Indicateur</th><th>Scénario 1 (Statu quo)</th><th>Scénario 2 (Accéléré)</th><th>Scénario 3 (Transformation)</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Population 2030</strong></td>
-          <td>1 550 000</td>
-          <td style="background: #fef3c7;">1 500 000</td>
-          <td>1 450 000</td>
-        </tr>
-        <tr>
-          <td><strong>Accès eau 2030</strong></td>
-          <td>50%</td>
-          <td style="background: #fef3c7;">75%</td>
-          <td>90%</td>
-        </tr>
-        <tr>
-          <td><strong>Investissement total</strong></td>
-          <td>50 M$</td>
-          <td style="background: #fef3c7; font-weight: bold;">250 M$</td>
-          <td>500 M$</td>
-        </tr>
-        <tr>
-          <td><strong>Évaluation</strong></td>
-          <td><span class="badge badge-high">Risque de crise</span></td>
-          <td style="background: #fef3c7;"><span class="badge badge-medium">Ratio optimal</span></td>
-          <td><span class="badge badge-low">Impact maximal</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div style="background: #fef3c7; padding: 30px; border-radius: 16px; margin: 30px 0;">
-    <h3 style="color: #92400e; margin-top: 0;">🎯 Scénario recommandé : Développement accéléré</h3>
-    <p style="margin: 15px 0;"><strong>Investissement de 250 M$ sur 7 ans</strong></p>
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-      <div style="background: white; padding: 15px; border-radius: 12px;">
-        <strong>40%</strong> Financements publics
-      </div>
-      <div style="background: white; padding: 15px; border-radius: 12px;">
-        <strong>35%</strong> Partenariats public-privé
-      </div>
-      <div style="background: white; padding: 15px; border-radius: 12px;">
-        <strong>15%</strong> Bailleurs internationaux
-      </div>
-      <div style="background: white; padding: 15px; border-radius: 12px;">
-        <strong>10%</strong> Secteur privé local
-      </div>
-    </div>
-  </div>
-
-  <div class="page-break"></div>
-
-  <!-- 7. CONCLUSION PROSPECTIVE -->
-  <h2>7. CONCLUSION PROSPECTIVE</h2>
-
-  <div style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); padding: 40px; border-radius: 20px; margin: 30px 0; border: 1px solid #e2e8f0;">
-    <p style="font-size: 1.2rem; font-style: italic; color: #334155; margin-bottom: 30px; text-align: center;">
-      "${data.city} se trouve à un moment charnière de son développement. Les décisions prises aujourd'hui détermineront sa trajectoire pour les décennies à venir."
+    <p style="margin: 20px 0; font-size: 1.1rem;">
+      L'analyse complète des 65 indicateurs répartis en 7 dimensions révèle une ville en transition, avec des forces significatives dans certains domaines mais des défis majeurs dans d'autres.
     </p>
     
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 30px 0;">
-      <div style="background: white; padding: 20px; border-radius: 12px;">
-        <h4 style="margin-top: 0; color: #1e3a5f;">Urgence d'agir</h4>
-        <p>Chaque année de retard aggrave les déficits et augmente les coûts futurs de 15-20%.</p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 30px 0;">
+      <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+        <div style="font-size: 2rem; font-weight: bold; color: #fbbf24;">7</div>
+        <div>Dimensions analysées</div>
       </div>
-      <div style="background: white; padding: 20px; border-radius: 12px;">
-        <h4 style="margin-top: 0; color: #1e3a5f;">Approche intégrée</h4>
-        <p>Dimensions sociales, économiques et environnementales indissociables.</p>
+      <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+        <div style="font-size: 2rem; font-weight: bold; color: #fbbf24;">65</div>
+        <div>Indicateurs évalués</div>
       </div>
-      <div style="background: white; padding: 20px; border-radius: 12px;">
-        <h4 style="margin-top: 0; color: #1e3a5f;">Gouvernance participative</h4>
-        <p>Impliquer citoyens, société civile et secteur privé.</p>
-      </div>
-      <div style="background: white; padding: 20px; border-radius: 12px;">
-        <h4 style="margin-top: 0; color: #1e3a5f;">Partenariats stratégiques</h4>
-        <p>Mobiliser toutes les sources de financement et d'expertise.</p>
+      <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+        <div style="font-size: 2rem; font-weight: bold; color: #fbbf24;">${documents.length}</div>
+        <div>Documents analysés</div>
       </div>
     </div>
     
-    <div style="background: #1e3a5f; color: white; padding: 30px; border-radius: 15px; text-align: center;">
-      <h3 style="color: #fbbf24; margin-top: 0;">Vision 2040</h3>
-      <p style="font-size: 1.3rem;">"Faire de ${data.city} une métropole durable, inclusive et résiliente, modèle de transition urbaine en Afrique."</p>
-    </div>
-  </div>
-
-  <!-- VISUALISATIONS DES DONNÉES -->
-  <h2 style="margin-top: 60px;">8. VISUALISATIONS DES DONNÉES</h2>
-
-  <div class="charts-grid">
-    <!-- Structure par âge -->
-    <div class="chart-card">
-      <h3>Structure par âge</h3>
-      <div style="display: flex; justify-content: center;">
-        <div class="pie-chart"></div>
-      </div>
-      <div class="legend">
-        <div class="legend-item"><span class="legend-color" style="background: #1e3a5f;"></span> 0-14 ans (42.5%)</div>
-        <div class="legend-item"><span class="legend-color" style="background: #fbbf24;"></span> 15-64 ans (54.3%)</div>
-        <div class="legend-item"><span class="legend-color" style="background: #10b981;"></span> 65+ ans (3.2%)</div>
-      </div>
-    </div>
-
-    <!-- Croissance démographique -->
-    <div class="chart-card">
-      <h3>Croissance démographique</h3>
-      <div class="bar-chart">
-        <div class="bar-container"><div class="bar" style="height: 105px;"></div><div>2018</div></div>
-        <div class="bar-container"><div class="bar" style="height: 109px;"></div><div>2019</div></div>
-        <div class="bar-container"><div class="bar" style="height: 113px;"></div><div>2020</div></div>
-        <div class="bar-container"><div class="bar" style="height: 117px;"></div><div>2021</div></div>
-        <div class="bar-container"><div class="bar" style="height: 121px;"></div><div>2022</div></div>
-        <div class="bar-container"><div class="bar" style="height: 125px; background: #fbbf24;"></div><div>2023</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Accès aux infrastructures -->
-  <div class="chart-card" style="margin-top: 25px;">
-    <h3>Accès aux infrastructures</h3>
-    <div style="display: flex; justify-content: space-around; padding: 20px;">
-      <div style="text-align: center;">
-        <div style="font-weight: 600;">Eau potable</div>
-        <div style="font-size: 1.5rem; color: #1e3a5f;">45%</div>
-        <div style="font-size: 1.2rem; color: #fbbf24;">vs 80%</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-weight: 600;">Électricité</div>
-        <div style="font-size: 1.5rem; color: #1e3a5f;">42%</div>
-        <div style="font-size: 1.2rem; color: #fbbf24;">vs 75%</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-weight: 600;">Assainissement</div>
-        <div style="font-size: 1.5rem; color: #1e3a5f;">25%</div>
-        <div style="font-size: 1.2rem; color: #fbbf24;">vs 60%</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-weight: 600;">Routes</div>
-        <div style="font-size: 1.5rem; color: #1e3a5f;">60%</div>
-        <div style="font-size: 1.2rem; color: #fbbf24;">vs 85%</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-weight: 600;">Télécom</div>
-        <div style="font-size: 1.5rem; color: #1e3a5f;">78%</div>
-        <div style="font-size: 1.2rem; color: #fbbf24;">vs 90%</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Types de logement -->
-  <div class="chart-card" style="margin-top: 25px;">
-    <h3>Répartition des types de logement</h3>
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 20px;">
-      <div style="text-align: center;">
-        <div style="background: #1e3a5f; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;">35%</div>
-        <div>Béton/Dur</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="background: #fbbf24; color: #1e3a5f; padding: 10px; border-radius: 8px; margin-bottom: 10px;">25%</div>
-        <div>Semi-dur</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="background: #10b981; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;">25%</div>
-        <div>Traditionnel</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="background: #ef4444; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;">15%</div>
-        <div>Précaire</div>
-      </div>
-    </div>
+    <p style="text-align: center; font-style: italic; margin-top: 20px;">
+      "Un diagnostic complet est la première étape vers une transformation urbaine durable et inclusive."
+    </p>
   </div>
 
   <!-- FOOTER -->
   <div class="footer">
     <p style="font-size: 1.3rem; margin-bottom: 20px;"><strong>Rapport généré par AfricanCities IA Services</strong></p>
     <p>Centre of Urban Systems - UM6P</p>
+    <p style="margin-top: 20px;">65 indicateurs · 7 dimensions · Analyse multidimensionnelle</p>
     
     ${documents.length > 0 ? `
     <div style="margin: 30px 0;">
       <p style="font-size: 1.1rem; margin-bottom: 15px;">📄 Documents analysés :</p>
-      <div class="documents-list">
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
         ${documents.map((d: DocumentContent) => `
-          <span class="document-tag">${d.filename}</span>
+          <span style="background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 30px; font-size: 0.9rem;">
+            ${d.filename}
+          </span>
         `).join('')}
       </div>
     </div>` : ''}
     
-    <hr>
+    <hr style="border-color: rgba(255,255,255,0.2); margin: 30px 0;">
     
     <p style="opacity: 0.7;">© ${new Date().getFullYear()} - Tous droits réservés</p>
-    <p style="opacity: 0.5; font-size: 0.9rem;">Ce rapport est confidentiel et destiné à un usage interne</p>
+    <p style="opacity: 0.5; font-size: 0.9rem;">Rapport confidentiel - Usage interne</p>
   </div>
 
 </body>
@@ -1726,7 +1334,7 @@ export default function Diagnosis() {
       
       toast({
         title: "Succès !",
-        description: "Le rapport a été généré avec succès.",
+        description: "Le rapport complet a été généré avec succès.",
       });
     } catch {
       toast({
@@ -1747,6 +1355,11 @@ export default function Diagnosis() {
     );
   };
 
+  const getDimensionIcon = (dimensionId: string) => {
+    const dimension = dimensions.find(d => d.id === dimensionId);
+    return dimension?.icon || MapPin;
+  };
+
   return (
     <LayoutShell>
       <div className="max-w-7xl mx-auto pb-12">
@@ -1758,23 +1371,27 @@ export default function Diagnosis() {
             </div>
             <div>
               <h1 className="text-3xl font-serif font-bold">AfricanCities IA Services</h1>
-              <p className="text-white/80 text-lg">Diagnostiquer, comprendre, transformer votre ville</p>
+              <p className="text-white/80 text-lg">Diagnostic Urbain Complet - 65 Indicateurs</p>
             </div>
           </div>
-          <p className="text-white/90 text-sm bg-white/10 inline-block px-4 py-2 rounded-full backdrop-blur">
-            Centre of Urban Systems - UM6P
-          </p>
+          <div className="flex flex-wrap gap-2">
+            {dimensions.map(dim => (
+              <span key={dim.id} className="text-xs bg-white/10 px-3 py-1 rounded-full">
+                {dim.name} ({dim.indicators})
+              </span>
+            ))}
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
             <TabsTrigger value="form" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              Diagnostic
+              Saisie des 65 indicateurs
             </TabsTrigger>
             <TabsTrigger value="result" disabled={!generatedContent} className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              Résultats
+              Rapport complet
             </TabsTrigger>
           </TabsList>
 
@@ -1818,100 +1435,158 @@ export default function Diagnosis() {
             </Card>
 
             <form onSubmit={handleSubmit(generateReportContent)}>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Colonne de gauche - Formulaire */}
-                <div className="lg:col-span-2 space-y-6">
-                  {/* Section 1: Informations Générales */}
-                  <Card className="border-t-4 border-t-primary">
-                    <CardHeader 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => toggleSection('general')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <MapPin className="w-5 h-5 text-primary" />
-                          <CardTitle>Informations Générales</CardTitle>
-                        </div>
-                        <span>{expandedSections.includes('general') ? '−' : '+'}</span>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {/* Navigation par dimensions - Colonne de gauche */}
+                <div className="lg:col-span-1">
+                  <Card className="sticky top-4">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Dimensions</CardTitle>
+                      <CardDescription>7 dimensions · 65 indicateurs</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-2">
+                      <div className="space-y-1">
+                        {dimensions.map((dim) => {
+                          const Icon = dim.icon;
+                          const isActive = activeDimension === dim.id;
+                          return (
+                            <button
+                              key={dim.id}
+                              type="button"
+                              onClick={() => setActiveDimension(dim.id)}
+                              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                                isActive 
+                                  ? `${dim.bg} ${dim.color} font-medium shadow-sm` 
+                                  : 'hover:bg-muted/50'
+                              }`}
+                            >
+                              <Icon className={`w-4 h-4 ${isActive ? dim.color : 'text-muted-foreground'}`} />
+                              <span className="text-sm flex-1 text-left">{dim.name}</span>
+                              <span className="text-xs bg-muted px-2 py-1 rounded-full">
+                                {dim.indicators}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Formulaire détaillé - Colonne de droite */}
+                <div className="lg:col-span-3 space-y-6">
+                  {/* Informations Générales - Toujours visible */}
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center gap-3">
+                        <MapPin className="w-5 h-5 text-primary" />
+                        <CardTitle>Informations Générales</CardTitle>
                       </div>
                     </CardHeader>
-                    {expandedSections.includes('general') && (
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="city">Ville *</Label>
+                          <Input id="city" {...register("city")} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="country">Pays *</Label>
+                          <Input id="country" {...register("country")} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="region">Région/Province</Label>
+                          <Input id="region" {...register("region")} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="diagnostic_date">Date du diagnostic</Label>
+                          <Input id="diagnostic_date" type="date" {...register("diagnostic_date")} />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Dimension Société - 12 indicateurs */}
+                  {activeDimension === 'society' && (
+                    <Card className="border-t-4 border-t-blue-600">
+                      <CardHeader>
+                        <div className="flex items-center gap-3">
+                          <Users className="w-5 h-5 text-blue-600" />
+                          <CardTitle>Société (12 indicateurs)</CardTitle>
+                        </div>
+                        <CardDescription>
+                          Éducation, santé, sécurité, inclusion sociale
+                        </CardDescription>
+                      </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="city">Ville *</Label>
-                            <Input id="city" {...register("city")} />
+                            <Label htmlFor="primary_school_enrollment">Taux de scolarisation primaire (%)</Label>
+                            <Input id="primary_school_enrollment" type="number" {...register("primary_school_enrollment")} />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="country">Pays *</Label>
-                            <Input id="country" {...register("country")} />
+                            <Label htmlFor="secondary_school_enrollment">Taux de scolarisation secondaire (%)</Label>
+                            <Input id="secondary_school_enrollment" type="number" {...register("secondary_school_enrollment")} />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="region">Région/Province</Label>
-                            <Input id="region" {...register("region")} />
+                            <Label htmlFor="adult_literacy_rate">Taux d'alphabétisation adultes (%)</Label>
+                            <Input id="adult_literacy_rate" type="number" {...register("adult_literacy_rate")} />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="diagnostic_date">Date du diagnostic</Label>
-                            <Input id="diagnostic_date" type="date" {...register("diagnostic_date")} />
+                            <Label htmlFor="crime_rate">Taux de criminalité (pour 1000 hab.)</Label>
+                            <Input id="crime_rate" type="number" step="0.1" {...register("crime_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="safety_perception">Perception de sécurité (%)</Label>
+                            <Input id="safety_perception" type="number" {...register("safety_perception")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="healthcare_access">Accès aux soins de base (%)</Label>
+                            <Input id="healthcare_access" type="number" {...register("healthcare_access")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="doctors_per_10000">Médecins pour 10 000 hab.</Label>
+                            <Input id="doctors_per_10000" type="number" step="0.1" {...register("doctors_per_10000")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="life_expectancy">Espérance de vie (ans)</Label>
+                            <Input id="life_expectancy" type="number" {...register("life_expectancy")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="infant_mortality">Mortalité infantile (‰)</Label>
+                            <Input id="infant_mortality" type="number" {...register("infant_mortality")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="vaccination_rate">Taux de vaccination DTP3 (%)</Label>
+                            <Input id="vaccination_rate" type="number" {...register("vaccination_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="urban_poverty_rate">Taux de pauvreté urbaine (%)</Label>
+                            <Input id="urban_poverty_rate" type="number" {...register("urban_poverty_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="social_inclusion_index">Indice d'inclusion sociale (%)</Label>
+                            <Input id="social_inclusion_index" type="number" {...register("social_inclusion_index")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="community_participation_rate">Participation communautaire (%)</Label>
+                            <Input id="community_participation_rate" type="number" {...register("community_participation_rate")} />
                           </div>
                         </div>
                       </CardContent>
-                    )}
-                  </Card>
+                    </Card>
+                  )}
 
-                  {/* Section 2: Données Démographiques */}
-                  <Card>
-                    <CardHeader 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => toggleSection('demographics')}
-                    >
-                      <div className="flex items-center justify-between">
+                  {/* Dimension Habitat - 9 indicateurs */}
+                  {activeDimension === 'habitat' && (
+                    <Card className="border-t-4 border-t-emerald-600">
+                      <CardHeader>
                         <div className="flex items-center gap-3">
-                          <Users className="w-5 h-5 text-primary" />
-                          <CardTitle>Données Démographiques</CardTitle>
+                          <Home className="w-5 h-5 text-emerald-600" />
+                          <CardTitle>Habitat (9 indicateurs)</CardTitle>
                         </div>
-                        <span>{expandedSections.includes('demographics') ? '−' : '+'}</span>
-                      </div>
-                    </CardHeader>
-                    {expandedSections.includes('demographics') && (
-                      <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="population">Population totale</Label>
-                            <Input id="population" type="number" {...register("population")} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="growth_rate">Taux de croissance (%)</Label>
-                            <Input id="growth_rate" type="number" step="0.1" {...register("growth_rate")} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="urban_area">Superficie urbaine (km²)</Label>
-                            <Input id="urban_area" type="number" {...register("urban_area")} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="youth_percentage">Jeunes (0-25 ans) (%)</Label>
-                            <Input id="youth_percentage" type="number" {...register("youth_percentage")} />
-                          </div>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-
-                  {/* Section 3: Infrastructures */}
-                  <Card>
-                    <CardHeader 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => toggleSection('infrastructure')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Zap className="w-5 h-5 text-primary" />
-                          <CardTitle>Infrastructures de Base</CardTitle>
-                        </div>
-                        <span>{expandedSections.includes('infrastructure') ? '−' : '+'}</span>
-                      </div>
-                    </CardHeader>
-                    {expandedSections.includes('infrastructure') && (
+                        <CardDescription>
+                          Logement, services de base, qualité de l'habitat
+                        </CardDescription>
+                      </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
@@ -1923,268 +1598,356 @@ export default function Diagnosis() {
                             <Input id="electricity_access" type="number" {...register("electricity_access")} />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="sanitation_access">Accès assainissement (%)</Label>
+                            <Label htmlFor="housing_overcrowding">Indice de surpeuplement (pers/pièce)</Label>
+                            <Input id="housing_overcrowding" type="number" step="0.1" {...register("housing_overcrowding")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="informal_housing_percentage">Habitat informel (%)</Label>
+                            <Input id="informal_housing_percentage" type="number" {...register("informal_housing_percentage")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="housing_cost_per_m2">Coût logement (USD/m²)</Label>
+                            <Input id="housing_cost_per_m2" type="number" {...register("housing_cost_per_m2")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="home_ownership_rate">Taux d'accession à la propriété (%)</Label>
+                            <Input id="home_ownership_rate" type="number" {...register("home_ownership_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="sanitation_access">Accès assainissement amélioré (%)</Label>
                             <Input id="sanitation_access" type="number" {...register("sanitation_access")} />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="internet_access">Accès Internet (%)</Label>
+                            <Label htmlFor="homelessness_rate">Taux de sans-abrisme (%)</Label>
+                            <Input id="homelessness_rate" type="number" step="0.1" {...register("homelessness_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="housing_satisfaction_rate">Satisfaction logement (%)</Label>
+                            <Input id="housing_satisfaction_rate" type="number" {...register("housing_satisfaction_rate")} />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Dimension Développement Spatial - 8 indicateurs */}
+                  {activeDimension === 'spatial' && (
+                    <Card className="border-t-4 border-t-purple-600">
+                      <CardHeader>
+                        <div className="flex items-center gap-3">
+                          <Map className="w-5 h-5 text-purple-600" />
+                          <CardTitle>Développement Spatial (8 indicateurs)</CardTitle>
+                        </div>
+                        <CardDescription>
+                          Densité, espaces verts, mobilité, planification
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="urban_density">Densité urbaine (hab/km²)</Label>
+                            <Input id="urban_density" type="number" {...register("urban_density")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="green_space_per_capita">Espaces verts (m²/hab)</Label>
+                            <Input id="green_space_per_capita" type="number" {...register("green_space_per_capita")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="public_transport_access">Accès transport public (%)</Label>
+                            <Input id="public_transport_access" type="number" {...register("public_transport_access")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="home_work_distance">Distance domicile-travail (km)</Label>
+                            <Input id="home_work_distance" type="number" step="0.1" {...register("home_work_distance")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="urbanization_rate">Taux d'urbanisation annuel (%)</Label>
+                            <Input id="urbanization_rate" type="number" step="0.1" {...register("urbanization_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="planned_vs_informal_ratio">Quartiers planifiés (%)</Label>
+                            <Input id="planned_vs_informal_ratio" type="number" {...register("planned_vs_informal_ratio")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="functional_mix_index">Indice de mixité fonctionnelle (%)</Label>
+                            <Input id="functional_mix_index" type="number" {...register("functional_mix_index")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="sports_cultural_access">Accès équipements sportifs/culturels (%)</Label>
+                            <Input id="sports_cultural_access" type="number" {...register("sports_cultural_access")} />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Dimension Infrastructures - 9 indicateurs */}
+                  {activeDimension === 'infrastructure' && (
+                    <Card className="border-t-4 border-t-amber-600">
+                      <CardHeader>
+                        <div className="flex items-center gap-3">
+                          <Zap className="w-5 h-5 text-amber-600" />
+                          <CardTitle>Infrastructures (9 indicateurs)</CardTitle>
+                        </div>
+                        <CardDescription>
+                          Routes, numérique, fiabilité des services
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="road_quality_percentage">Qualité des routes (% pavées)</Label>
+                            <Input id="road_quality_percentage" type="number" {...register("road_quality_percentage")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="road_length_per_capita">Longueur routes par habitant (km/1000 hab.)</Label>
+                            <Input id="road_length_per_capita" type="number" step="0.1" {...register("road_length_per_capita")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="internet_access">Accès Internet haut-débit (%)</Label>
                             <Input id="internet_access" type="number" {...register("internet_access")} />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="road_quality">Qualité des routes</Label>
+                            <Label htmlFor="mobile_penetration">Taux de pénétration mobile (%)</Label>
+                            <Input id="mobile_penetration" type="number" {...register("mobile_penetration")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="water_reliability">Fiabilité eau (heures de coupure/semaine)</Label>
+                            <Input id="water_reliability" type="number" {...register("water_reliability")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="electricity_reliability">Fiabilité électricité (heures de coupure/semaine)</Label>
+                            <Input id="electricity_reliability" type="number" {...register("electricity_reliability")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="public_transport_capacity">Capacité transport public (places/km/jour)</Label>
+                            <Input id="public_transport_capacity" type="number" {...register("public_transport_capacity")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="motorization_rate">Taux de motorisation (véhicules/1000 hab.)</Label>
+                            <Input id="motorization_rate" type="number" {...register("motorization_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="accessibility_pmr">Accessibilité PMR (%)</Label>
+                            <Input id="accessibility_pmr" type="number" {...register("accessibility_pmr")} />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Dimension Environnement - 9 indicateurs */}
+                  {activeDimension === 'environment' && (
+                    <Card className="border-t-4 border-t-green-600">
+                      <CardHeader>
+                        <div className="flex items-center gap-3">
+                          <TreePine className="w-5 h-5 text-green-600" />
+                          <CardTitle>Environnement (9 indicateurs)</CardTitle>
+                        </div>
+                        <CardDescription>
+                          Qualité de l'air, déchets, climat, énergie
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="air_quality_pm25">Qualité de l'air (PM2.5 annuel)</Label>
+                            <Input id="air_quality_pm25" type="number" {...register("air_quality_pm25")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="waste_collection_rate">Taux de collecte des déchets (%)</Label>
+                            <Input id="waste_collection_rate" type="number" {...register("waste_collection_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="waste_recycling_rate">Taux de recyclage des déchets (%)</Label>
+                            <Input id="waste_recycling_rate" type="number" {...register("waste_recycling_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="sanitation_coverage">Accès à l'assainissement (%)</Label>
+                            <Input id="sanitation_coverage" type="number" {...register("sanitation_coverage")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="climate_vulnerability_index">Indice de vulnérabilité climatique</Label>
+                            <Input id="climate_vulnerability_index" type="number" {...register("climate_vulnerability_index")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="heatwave_days_per_year">Jours de canicule par an</Label>
+                            <Input id="heatwave_days_per_year" type="number" {...register("heatwave_days_per_year")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="renewable_energy_share">Part d'énergies renouvelables (%)</Label>
+                            <Input id="renewable_energy_share" type="number" {...register("renewable_energy_share")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="urban_deforestation_rate">Taux de déforestation urbaine (%)</Label>
+                            <Input id="urban_deforestation_rate" type="number" step="0.1" {...register("urban_deforestation_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="climate_adaptation_plan">Plan d'adaptation climatique</Label>
+                            <Input id="climate_adaptation_plan" {...register("climate_adaptation_plan")} />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Dimension Gouvernance - 7 indicateurs */}
+                  {activeDimension === 'governance' && (
+                    <Card className="border-t-4 border-t-indigo-600">
+                      <CardHeader>
+                        <div className="flex items-center gap-3">
+                          <Scale className="w-5 h-5 text-indigo-600" />
+                          <CardTitle>Gouvernance (7 indicateurs)</CardTitle>
+                        </div>
+                        <CardDescription>
+                          Transparence, participation, satisfaction citoyenne
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="corruption_index">Indice de perception de la corruption</Label>
+                            <Input id="corruption_index" type="number" {...register("corruption_index")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="voter_turnout">Taux de participation électorale (%)</Label>
+                            <Input id="voter_turnout" type="number" {...register("voter_turnout")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="elected_council_exists">Conseil municipal élu</Label>
                             <select 
-                              id="road_quality" 
-                              {...register("road_quality")}
+                              id="elected_council_exists" 
+                              {...register("elected_council_exists")}
                               className="w-full rounded-md border border-input bg-background px-3 py-2"
                             >
-                              <option value="Très mauvaise">Très mauvaise</option>
-                              <option value="Mauvaise">Mauvaise</option>
-                              <option value="Moyenne">Moyenne</option>
-                              <option value="Bonne">Bonne</option>
-                              <option value="Très bonne">Très bonne</option>
+                              <option value="Oui">Oui</option>
+                              <option value="Non">Non</option>
+                              <option value="En partie">En partie</option>
                             </select>
                           </div>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-
-                  {/* Section 4: Logement */}
-                  <Card>
-                    <CardHeader 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => toggleSection('housing')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Building className="w-5 h-5 text-primary" />
-                          <CardTitle>Logement et Habitat</CardTitle>
-                        </div>
-                        <span>{expandedSections.includes('housing') ? '−' : '+'}</span>
-                      </div>
-                    </CardHeader>
-                    {expandedSections.includes('housing') && (
-                      <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="housing_deficit">Déficit en logements</Label>
-                            <Input id="housing_deficit" type="number" {...register("housing_deficit")} />
+                            <Label htmlFor="public_service_satisfaction">Satisfaction services publics (%)</Label>
+                            <Input id="public_service_satisfaction" type="number" {...register("public_service_satisfaction")} />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="informal_settlements">Habitat informel (%)</Label>
-                            <Input id="informal_settlements" type="number" {...register("informal_settlements")} />
+                            <Label htmlFor="open_data_access">Accès aux données ouvertes (%)</Label>
+                            <Input id="open_data_access" type="number" {...register("open_data_access")} />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="housing_cost">Coût logement (USD/m²)</Label>
-                            <Input id="housing_cost" type="number" {...register("housing_cost")} />
+                            <Label htmlFor="political_stability_index">Indice de stabilité politique</Label>
+                            <Input id="political_stability_index" type="number" {...register("political_stability_index")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="citizen_initiatives_supported">Initiatives citoyennes soutenues (nombre/an)</Label>
+                            <Input id="citizen_initiatives_supported" type="number" {...register("citizen_initiatives_supported")} />
                           </div>
                         </div>
                       </CardContent>
-                    )}
-                  </Card>
+                    </Card>
+                  )}
 
-                  {/* Section 5: Économie */}
-                  <Card>
-                    <CardHeader 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => toggleSection('economy')}
-                    >
-                      <div className="flex items-center justify-between">
+                  {/* Dimension Économie - 10 indicateurs */}
+                  {activeDimension === 'economy' && (
+                    <Card className="border-t-4 border-t-rose-600">
+                      <CardHeader>
                         <div className="flex items-center gap-3">
-                          <Briefcase className="w-5 h-5 text-primary" />
-                          <CardTitle>Économie et Emploi</CardTitle>
+                          <TrendingUp className="w-5 h-5 text-rose-600" />
+                          <CardTitle>Économie (10 indicateurs)</CardTitle>
                         </div>
-                        <span>{expandedSections.includes('economy') ? '−' : '+'}</span>
-                      </div>
-                    </CardHeader>
-                    {expandedSections.includes('economy') && (
+                        <CardDescription>
+                          Emploi, croissance, investissements, revenus
+                        </CardDescription>
+                      </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="unemployment_rate">Taux de chômage (%)</Label>
+                            <Label htmlFor="unemployment_rate">Taux de chômage urbain (%)</Label>
                             <Input id="unemployment_rate" type="number" {...register("unemployment_rate")} />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="informal_economy">Économie informelle (%)</Label>
-                            <Input id="informal_economy" type="number" {...register("informal_economy")} />
+                            <Label htmlFor="formal_employment_rate">Taux d'emploi formel/informel (%)</Label>
+                            <Input id="formal_employment_rate" type="number" {...register("formal_employment_rate")} />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="gdp_per_capita">PIB par habitant (USD)</Label>
-                            <Input id="gdp_per_capita" type="number" {...register("gdp_per_capita")} />
+                            <Label htmlFor="gdp_growth_rate">Croissance du PIB local/régional (%)</Label>
+                            <Input id="gdp_growth_rate" type="number" step="0.1" {...register("gdp_growth_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="fdi_attractiveness">Attractivité des investissements (nb projets FDI)</Label>
+                            <Input id="fdi_attractiveness" type="number" {...register("fdi_attractiveness")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="business_creation_rate">Taux de création d'entreprises</Label>
+                            <Input id="business_creation_rate" type="number" {...register("business_creation_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="income_per_capita">Revenu moyen par habitant (USD)</Label>
+                            <Input id="income_per_capita" type="number" {...register("income_per_capita")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="microcredit_access_rate">Accès au microcrédit (%)</Label>
+                            <Input id="microcredit_access_rate" type="number" {...register("microcredit_access_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="cost_of_living_index">Indice du coût de la vie</Label>
+                            <Input id="cost_of_living_index" type="number" {...register("cost_of_living_index")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="monetary_poverty_rate">Taux de pauvreté monétaire urbain (%)</Label>
+                            <Input id="monetary_poverty_rate" type="number" {...register("monetary_poverty_rate")} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="green_digital_economy_share">Part économie verte/digitale (%)</Label>
+                            <Input id="green_digital_economy_share" type="number" {...register("green_digital_economy_share")} />
                           </div>
                         </div>
                       </CardContent>
-                    )}
-                  </Card>
+                    </Card>
+                  )}
 
-                  {/* Section 6: Social */}
+                  {/* Objectifs et commentaires */}
                   <Card>
-                    <CardHeader 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => toggleSection('social')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Heart className="w-5 h-5 text-primary" />
-                          <CardTitle>Services Sociaux</CardTitle>
-                        </div>
-                        <span>{expandedSections.includes('social') ? '−' : '+'}</span>
+                    <CardHeader>
+                      <div className="flex items-center gap-3">
+                        <Target className="w-5 h-5 text-primary" />
+                        <CardTitle>Objectifs du Diagnostic</CardTitle>
                       </div>
                     </CardHeader>
-                    {expandedSections.includes('social') && (
-                      <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="literacy_rate">Taux d'alphabétisation (%)</Label>
-                            <Input id="literacy_rate" type="number" {...register("literacy_rate")} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="infant_mortality">Mortalité infantile (‰)</Label>
-                            <Input id="infant_mortality" type="number" {...register("infant_mortality")} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="life_expectancy">Espérance de vie (ans)</Label>
-                            <Input id="life_expectancy" type="number" {...register("life_expectancy")} />
-                          </div>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-
-                  {/* Section 7: Environnement */}
-                  <Card>
-                    <CardHeader 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => toggleSection('environment')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <TreePine className="w-5 h-5 text-primary" />
-                          <CardTitle>Environnement et Climat</CardTitle>
-                        </div>
-                        <span>{expandedSections.includes('environment') ? '−' : '+'}</span>
-                      </div>
-                    </CardHeader>
-                    {expandedSections.includes('environment') && (
-                      <CardContent>
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label>Risques climatiques</Label>
-                            <div className="grid grid-cols-2 gap-2">
-                              {['Inondations', 'Sécheresse', 'Érosion côtière', 'Tempêtes', 'Canicules'].map((risk) => (
-                                <label key={risk} className="flex items-center gap-2">
-                                  <input
-                                    type="checkbox"
-                                    value={risk}
-                                    onChange={(e) => {
-                                      const current = watch("climate_risks") || [];
-                                      if (e.target.checked) {
-                                        setValue('climate_risks', [...current, risk]);
-                                      } else {
-                                        setValue('climate_risks', current.filter((r) => r !== risk));
-                                      }
-                                    }}
-                                    className="rounded border-gray-300"
-                                  />
-                                  <span className="text-sm">{risk}</span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="green_spaces">Espaces verts (m²/hab)</Label>
-                            <Input id="green_spaces" type="number" {...register("green_spaces")} />
-                          </div>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-
-                  {/* Section 8: Transport */}
-                  <Card>
-                    <CardHeader 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => toggleSection('transport')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Bus className="w-5 h-5 text-primary" />
-                          <CardTitle>Transport et Mobilité</CardTitle>
-                        </div>
-                        <span>{expandedSections.includes('transport') ? '−' : '+'}</span>
-                      </div>
-                    </CardHeader>
-                    {expandedSections.includes('transport') && (
-                      <CardContent>
+                    <CardContent>
+                      <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="public_transport">Transport public</Label>
+                          <Label htmlFor="diagnostic_type">Type de diagnostic</Label>
                           <select 
-                            id="public_transport" 
-                            {...register("public_transport")}
+                            id="diagnostic_type" 
+                            {...register("diagnostic_type")}
                             className="w-full rounded-md border border-input bg-background px-3 py-2"
                           >
-                            <option value="Inexistant">Inexistant</option>
-                            <option value="Très limité">Très limité</option>
-                            <option value="Limité">Limité</option>
-                            <option value="Développé">Développé</option>
-                            <option value="Très développé">Très développé</option>
+                            <option value="Diagnostic complet 65 indicateurs">Diagnostic complet 65 indicateurs</option>
+                            <option value="Diagnostic accéléré">Diagnostic accéléré</option>
+                            <option value="Diagnostic thématique">Diagnostic thématique</option>
+                            <option value="Mise à jour diagnostique">Mise à jour diagnostique</option>
                           </select>
                         </div>
-                      </CardContent>
-                    )}
-                  </Card>
-
-                  {/* Section 9: Objectifs */}
-                  <Card>
-                    <CardHeader 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => toggleSection('objectives')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Target className="w-5 h-5 text-primary" />
-                          <CardTitle>Objectifs du Diagnostic</CardTitle>
+                        <div className="space-y-2">
+                          <Label htmlFor="diagnostic_objective">Objectif spécifique</Label>
+                          <Textarea 
+                            id="diagnostic_objective" 
+                            {...register("diagnostic_objective")}
+                            className="min-h-[100px]"
+                            placeholder="Objectifs poursuivis, utilisations prévues du diagnostic..."
+                          />
                         </div>
-                        <span>{expandedSections.includes('objectives') ? '−' : '+'}</span>
+                        <div className="space-y-2">
+                          <Label htmlFor="additional_comments">Commentaires additionnels</Label>
+                          <Textarea 
+                            id="additional_comments" 
+                            {...register("additional_comments")}
+                            className="min-h-[100px]"
+                            placeholder="Contexte particulier, défis spécifiques, projets en cours..."
+                          />
+                        </div>
                       </div>
-                    </CardHeader>
-                    {expandedSections.includes('objectives') && (
-                      <CardContent>
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="diagnostic_type">Type de diagnostic</Label>
-                            <select 
-                              id="diagnostic_type" 
-                              {...register("diagnostic_type")}
-                              className="w-full rounded-md border border-input bg-background px-3 py-2"
-                            >
-                              <option value="Diagnostic général">Diagnostic général</option>
-                              <option value="Diagnostic thématique - Logement">Diagnostic thématique - Logement</option>
-                              <option value="Diagnostic thématique - Transport">Diagnostic thématique - Transport</option>
-                              <option value="Diagnostic thématique - Environnement">Diagnostic thématique - Environnement</option>
-                              <option value="Diagnostic thématique - Économie">Diagnostic thématique - Économie</option>
-                            </select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="diagnostic_objective">Objectif spécifique</Label>
-                            <Textarea 
-                              id="diagnostic_objective" 
-                              {...register("diagnostic_objective")}
-                              className="min-h-[100px]"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="additional_comments">Commentaires additionnels</Label>
-                            <Textarea 
-                              id="additional_comments" 
-                              {...register("additional_comments")}
-                              className="min-h-[100px]"
-                              placeholder="Contexte particulier, défis spécifiques, projets en cours..."
-                            />
-                          </div>
-                        </div>
-                      </CardContent>
-                    )}
+                    </CardContent>
                   </Card>
 
                   {/* Upload de documents */}
@@ -2195,7 +1958,7 @@ export default function Diagnosis() {
                         <CardTitle>Documents Techniques</CardTitle>
                       </div>
                       <CardDescription>
-                        Téléchargez des documents PDF (plans, études, rapports)
+                        Téléchargez des documents PDF pour enrichir l'analyse
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -2229,59 +1992,18 @@ export default function Diagnosis() {
                       )}
                     </CardContent>
                   </Card>
-                </div>
 
-                {/* Colonne de droite - Aperçu et Actions */}
-                <div className="space-y-6">
-                  {/* Carte de résumé */}
-                  <Card className="sticky top-4">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Résumé de la configuration</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Ville:</span>
-                          <span className="font-medium">{watchCity || "Non spécifiée"}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Pays:</span>
-                          <span className="font-medium">{watchCountry || "Non spécifié"}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Population:</span>
-                          <span className="font-medium">
-                            {watch("population") ? Number.parseInt(watch("population") || "0", 10).toLocaleString() : "N/A"}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Recherche web:</span>
-                          <span className={`font-medium ${enableWebSearch ? 'text-green-600' : 'text-red-600'}`}>
-                            {enableWebSearch ? 'Activée' : 'Désactivée'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Documents:</span>
-                          <span className="font-medium">{documents.length}</span>
-                        </div>
+                  {/* Bouton de génération */}
+                  <div className="sticky bottom-4 bg-background/95 backdrop-blur p-4 rounded-lg border shadow-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">65 indicateurs renseignés</p>
+                        <p className="text-xs text-muted-foreground">7 dimensions · Analyse multidimensionnelle</p>
                       </div>
-
-                      <div className="pt-4 border-t border-border">
-                        <div className="text-xs text-muted-foreground mb-2">Sections complétées:</div>
-                        <div className="space-y-1">
-                          {expandedSections.map((section) => (
-                            <div key={section} className="flex items-center gap-2 text-xs">
-                              <CheckCircle2 className="w-3 h-3 text-green-500" />
-                              <span className="capitalize">{section}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
                       <Button 
                         type="submit"
                         size="lg" 
-                        className="w-full bg-primary text-white hover:bg-primary/90"
+                        className="bg-primary text-white hover:bg-primary/90"
                         disabled={isGenerating}
                       >
                         {isGenerating ? (
@@ -2292,55 +2014,28 @@ export default function Diagnosis() {
                         ) : (
                           <>
                             <FileText className="w-5 h-5 mr-2" />
-                            Générer le diagnostic complet
+                            Générer le diagnostic complet (65 indicateurs)
                           </>
                         )}
                       </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Aperçu des données web */}
-                  {webData?.wikipedia_info && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Globe className="w-5 h-5 text-secondary" />
-                          Données Web
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">
-                          {webData.wikipedia_info.summary.substring(0, 150)}...
-                        </p>
-                        {webData.wikipedia_info.url && (
-                          <a 
-                            href={webData.wikipedia_info.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-xs text-primary hover:underline mt-2 inline-flex items-center gap-1"
-                          >
-                            Voir sur Wikipedia <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </form>
           </TabsContent>
 
-          {/* SOLUTION FINALE: Iframe avec capture PDF */}
+          {/* Résultats */}
           <TabsContent value="result">
             <Card className="border-t-4 border-t-secondary">
               <CardHeader className="bg-slate-50 border-b border-border/50">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="font-serif text-2xl text-primary">
-                      Diagnostic Urbain: {watchCity}
+                      Diagnostic Urbain Complet: {watchCity}
                     </CardTitle>
                     <CardDescription>
-                      Rapport généré le {new Date().toLocaleDateString('fr-FR')}
+                      65 indicateurs · 7 dimensions · Rapport généré le {new Date().toLocaleDateString('fr-FR')}
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
@@ -2354,11 +2049,10 @@ export default function Diagnosis() {
               <CardContent className="p-8">
                 {generatedContent ? (
                   <div className="prose prose-lg max-w-none">
-                    {/* Iframe pour l'affichage avec isolation CSS */}
                     <iframe
                       ref={iframeRef}
                       srcDoc={generatedContent}
-                      title="Rapport Diagnostic"
+                      title="Rapport Diagnostic Complet"
                       className="w-full border-0"
                       style={{ 
                         minHeight: "1200px", 
@@ -2367,7 +2061,6 @@ export default function Diagnosis() {
                       }}
                       sandbox="allow-same-origin allow-forms allow-scripts"
                       onLoad={() => {
-                        // Optionnel: ajuster la hauteur de l'iframe après chargement
                         if (iframeRef.current) {
                           const iframeDoc = iframeRef.current.contentDocument;
                           if (iframeDoc) {
@@ -2377,116 +2070,11 @@ export default function Diagnosis() {
                         }
                       }}
                     />
-
-                    {/* Graphiques interactifs */}
-                    <div className="mt-12 space-y-8">
-                      <h2>VISUALISATIONS DES DONNÉES</h2>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Graphique démographique */}
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="text-sm">Structure par âge</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="h-64">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <RePieChart>
-                                  <Pie
-                                    data={demographicData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    fill="#8884d8"
-                                    paddingAngle={5}
-                                    dataKey="value"
-                                    label
-                                  >
-                                    {demographicData.map((entry, index) => (
-                                      <Cell key={`cell-${entry.name}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                  </Pie>
-                                  <Tooltip />
-                                  <Legend />
-                                </RePieChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                        {/* Croissance démographique */}
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="text-sm">Croissance démographique</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="h-64">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={populationGrowthData}>
-                                  <CartesianGrid strokeDasharray="3 3" />
-                                  <XAxis dataKey="year" />
-                                  <YAxis />
-                                  <Tooltip />
-                                  <Area type="monotone" dataKey="population" stroke="#1e3a5f" fill="#1e3a5f" fillOpacity={0.3} />
-                                </AreaChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                        {/* Infrastructures */}
-                        <Card className="md:col-span-2">
-                          <CardHeader>
-                            <CardTitle className="text-sm">Accès aux infrastructures</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="h-80">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={infrastructureData}>
-                                  <CartesianGrid strokeDasharray="3 3" />
-                                  <XAxis dataKey="category" />
-                                  <YAxis />
-                                  <Tooltip />
-                                  <Legend />
-                                  <Bar dataKey="current" name="Actuel (%)" fill="#1e3a5f" />
-                                  <Bar dataKey="target" name="Objectif 2030 (%)" fill="#fbbf24" />
-                                </BarChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                        {/* Types de logement */}
-                        <Card className="md:col-span-2">
-                          <CardHeader>
-                            <CardTitle className="text-sm">Types de logement</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="h-64">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={housingData} layout="vertical">
-                                  <CartesianGrid strokeDasharray="3 3" />
-                                  <XAxis type="number" />
-                                  <YAxis dataKey="type" type="category" />
-                                  <Tooltip />
-                                  <Bar dataKey="value" fill="#10b981">
-                                    {housingData.map((entry, index) => (
-                                      <Cell key={`cell-${entry.type}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                  </Bar>
-                                </BarChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-12">
                     <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p>Aucun résultat disponible. Veuillez d'abord générer un diagnostic.</p>
+                    <p>Aucun résultat disponible. Veuillez d'abord renseigner les 65 indicateurs et générer le diagnostic.</p>
                   </div>
                 )}
               </CardContent>
