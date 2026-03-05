@@ -244,6 +244,9 @@ const Home: React.FC = () => {
     <div className="flex flex-col md:flex-row-reverse items-center gap-12">
       <div className="flex-1">
         <h2 className="text-4xl font-bold mb-8 text-gray-900">Fonctionnalités clés</h2>
+        <p className="text-lg text-gray-600 mb-8">
+          Des outils puissants pour diagnostiquer et planifier l'avenir de votre ville.
+        </p>
         <div className="grid grid-cols-2 gap-6">
           {[
             { 
@@ -317,21 +320,19 @@ const Home: React.FC = () => {
       {/* Colonne contenu */}
       <div className="flex-1 order-2 lg:order-1">
         <h2 className="text-4xl font-bold text-gray-900 mb-4">
-          Fonctionnalités <span className="text-amber-500">clés</span>
+          Bénéfices <span className="text-amber-500">concrets</span>
         </h2>
-        <p className="text-lg text-gray-600 mb-8">
-          Des outils puissants pour diagnostiquer et planifier l'avenir de votre ville.
-        </p>
+        
 
         {/* Grille 2 colonnes */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {[
-            { icon: Clock, title: "Diagnostic express", desc: "Indicateurs couvrant toutes les dimensions urbaines." },
-            { icon: BarChart, title: "Score Smart City", desc: "Notation 0–100 avec benchmark automatique et visualisation des forces/progrès." },
-            { icon: Download, title: "Rapport PDF", desc: "Interface interactive + rapport confidentiel prêt à partager." },
-            { icon: MessageCircle, title: "Chatbot IA 24/7", desc: "Assistant intelligent pour conseils stratégiques et exemples concrets." },
-            { icon: Zap, title: "Scénarios what-if", desc: "Simulez l'impact des interventions : coûts, population touchée, score." },
-            { icon: Globe, title: "Benchmarking", desc: "Comparez votre ville à d'autres métropoles africaines et internationales." }
+            { icon: Clock, title: "Rapidité et simplicité", desc: "Fini les études qui prennent 6 mois et coûtent des dizaines de milliers de dollars. Avec AfricanCities IA, obtenez votre diagnostic complet en quelques minutes, pour un coût accessible même aux plus petites municipalités." },
+            { icon: BarChart, title: "Préparation de projets financés", desc: "Les bailleurs de fonds exigent des dossiers solides avec indicateurs, scénarios et projections. Notre plateforme génère automatiquement tous les éléments nécessaires pour construire des propositions convaincantes et augmenter vos chances d'obtenir des financements." },
+            { icon: Download, title: "Renforcement des capacités", desc: "Plus besoin de faire systématiquement appel à des consultants externes. Votre équipe municipale développe son autonomie et sa compréhension des enjeux urbains grâce aux outils de diagnostic, simulation et formation intégrés." },
+            { icon: MessageCircle, title: "Suivi dans le temps", desc: "Comparez l'évolution de votre ville d'année en année. Mesurez l'impact réel de vos investissements. Démontrez les progrès accomplis aux citoyens et aux partenaires. Ajustez votre stratégie en continu." }
+            
+            
           ].map((item, idx) => (
             <div
               key={idx}
