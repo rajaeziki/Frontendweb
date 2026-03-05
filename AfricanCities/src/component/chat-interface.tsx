@@ -67,7 +67,7 @@ export function ChatInterface() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] bg-white rounded-2xl shadow-sm border border-border/50 overflow-hidden">
+    <div className="flex flex-col h-full bg-white rounded-2xl shadow-sm border border-border/50 overflow-hidden">
       {/* Chat Header */}
       <div className="bg-primary/5 p-4 border-b border-border/10 flex items-center justify-between">
         <div className="flex items-center gap-3">
