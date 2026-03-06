@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../component/ui/tabs";
 import ChatWidget from "../Chat";
 import {
   FileText, BarChart3, Users, Home, Map, Building2,
-  Trees, Landmark, Briefcase, Sparkles, Instagram
+  Trees, Landmark, Briefcase
 } from "lucide-react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "./schemas";
@@ -62,10 +61,10 @@ const dimensionIcons: Record<DimensionKey, React.ElementType> = {
 const dimensionColors: Record<DimensionKey, string> = {
   society: "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100",
   habitat: "bg-green-50 text-green-600 border-green-200 hover:bg-green-100",
-  spatial: "bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100",
+  spatial: "bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100",
   infrastructure: "bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100",
   environment: "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100",
-  governance: "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100",
+  governance: "bg-orange-50 text-orange-500 border-orange-200 hover:bg-orange-100",
   economy: "bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100",
 };
 
@@ -75,6 +74,17 @@ export default function Diagnosis() {
   const [enableWebSearch, setEnableWebSearch] = useState(true);
   const [enableWorldBank, setEnableWorldBank] = useState(true);
   const [enableSDG, setEnableSDG] = useState(true);
+
+  // État pour la détection du scroll
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const { register, handleSubmit, watch } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -109,15 +119,23 @@ export default function Diagnosis() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white font-sans text-gray-800">
-      {/* Header absolu avec effet de transparence */}
-      <header className="absolute top-0 left-0 right-0 z-20 bg-transparent">
-        <nav className="container mx-auto px-6 py-4">
+      {/* Header sticky avec changement de style au scroll */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white/90 backdrop-blur-md shadow-lg py-2' 
+          : 'bg-transparent py-4'
+      }`}>
+        <nav className="container mx-auto px-6">
           <div className="flex items-center justify-between">
             {/* Logo avec lueur */}
             <Link href="/" className="group relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-200/50 to-orange-200/50 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 to-orange-100/30 rounded-2xl blur-md" />
-              <div className="relative bg-white/90 backdrop-blur-sm p-3 rounded-2xl shadow-xl border border-white/60 group-hover:shadow-2xl transition-all duration-500">
+              <div className="absolute -inset-1 bg-gradient-to-r from-amber-200/50 to-amber-200/50 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 to-amber-100/30 rounded-2xl blur-md" />
+              <div className={`relative p-3 rounded-2xl shadow-xl border transition-all duration-300 ${
+                isScrolled 
+                  ? 'bg-white border-gray-200' 
+                  : 'bg-white/90 backdrop-blur-sm border-white/60'
+              } group-hover:shadow-2xl`}>
                 <img
                   src={logo}
                   alt="AfricanCities AI Logo"
@@ -128,37 +146,75 @@ export default function Diagnosis() {
 
             {/* Navigation */}
             <ul className="flex space-x-8 text-sm font-medium tracking-wider">
-              <li><Link href="/" className="text-white hover:text-amber-300 cursor-pointer transition-colors">HOME</Link></li>
-              <li><Link href="/about" className="text-white hover:text-amber-300 cursor-pointer transition-colors">ABOUT</Link></li>
-              <li><Link href="/diagnosis" className="text-white hover:text-amber-300 cursor-pointer transition-colors font-semibold border-b-2 border-amber-300 pb-1">DIAGNOSTIC</Link></li>
-              <li><Link href="/contact" className="text-white hover:text-amber-300 cursor-pointer transition-colors">CONTACT</Link></li>
+              <li>
+                <Link 
+                  href="/" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
+                  HOME
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/about" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
+                  ABOUT
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/diagnosis" 
+                  className={`transition-colors ${
+                    isScrolled 
+                      ? 'text-gray-800 hover:text-amber-500 font-semibold border-b-2 border-amber-500 pb-1' 
+                      : 'text-white hover:text-amber-400 font-semibold border-b-2 border-amber-300 pb-1'
+                  }`}
+                >
+                  DIAGNOSTIC
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/contact" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
+                  CONTACT
+                </Link>
+              </li>
             </ul>
           </div>
         </nav>
       </header>
 
-      {/* Hero section avec image corrigée (Lagos, Nigeria) */}
-      <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
+      {/* Hero section avec -mt-20 pour remonter sous le header */}
+      <section className="relative h-[50vh] flex items-center justify-center overflow-hidden -mt-20">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-black/50 z-10"></div>
           <img
-            src="/Morroco.jpg" // Remplacez par votre image locale de Lagos ou une autre ville africaine dynamique
+            src="/Morroco.jpg"
             alt="Vue de Lagos, Nigeria - Ville africaine dynamique"
             className="w-full h-full object-cover"
           />
         </div>
         <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-6">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
-             <span className="text-amber-400">Diagnostic</span>
+            <span className="text-amber-400">Diagnostic</span>
           </h1>
           <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-white font-normal">
-            Diagnostic Urbain Complet  80+ indicateurs avec intégration Banque Mondiale et SDG
+            Diagnostic Urbain Complet 80+ indicateurs avec intégration Banque Mondiale et SDG
           </p>
         </div>
       </section>
 
-      {/* Contenu principal */}
-      <main className="py-12">
+      {/* Contenu principal avec padding-top pour éviter le chevauchement */}
+      <main className="pt-20 pb-12">
         <div className="container mx-auto px-6">
           {/* Barre des sources externes */}
           <div className="mb-8">
@@ -200,7 +256,6 @@ export default function Diagnosis() {
               {/* Sélection des dimensions */}
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-500" />
                   Choisissez une dimension à renseigner
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
@@ -292,28 +347,21 @@ export default function Diagnosis() {
         {/* Image de fond : ville africaine */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=2070" // Exemple (Nairobi) - à remplacer par votre image locale
+            src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=2070"
             alt="African city background"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/60 z-10"></div> {/* Overlay sombre */}
+          <div className="absolute inset-0 bg-black/60 z-10"></div>
         </div>
-      
-        {/* Contenu (relatif pour passer au-dessus) */}
+
+        {/* Contenu */}
         <div className="relative z-20 container mx-auto px-6">
           <div className="flex flex-col items-center text-center gap-4 text-white">
             <p className="text-lg">
               Thank you for your interest in us. Our derivative websites will be launched soon, stay tuned!
             </p>
             <p className="text-lg">
-              Can't wait?{' '}
-              {/* <Link
-                href="/contact"
-                className="text-amber-300 hover:text-amber-400 font-semibold underline underline-offset-2"
-              >
-                Contact us now
-              </Link>{' '} */}
-              to set up a pilot program.
+              Can't wait? to set up a pilot program.
             </p>
             <div className="flex items-center justify-center gap-4 mt-2 text-sm text-white/80">
               <span>Benguerir</span>
@@ -325,15 +373,6 @@ export default function Diagnosis() {
               </Link>
             </div>
             <div className="mt-4 flex items-center gap-4">
-              {/* <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/80 hover:text-amber-300 transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-6 h-6" />
-              </a> */}
               <Link
                 href="/contact"
                 className="bg-amber-500 hover:bg-amber-600 text-white font-medium px-8 py-3 rounded-full shadow-md hover:shadow-lg transition duration-300 inline-block"

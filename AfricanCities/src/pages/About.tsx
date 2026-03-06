@@ -1,32 +1,41 @@
-import React from 'react';
+// pages/About.tsx
+import React, { useState, useEffect } from 'react'; // ← ajout des hooks
 import { Link } from 'wouter';
 import { Users, Globe, Sparkles, Instagram, Clock, Building, CheckCircle } from 'lucide-react';
 import logo from "../assets/logo.jpeg";
 
-// Liste des partenaires
-const partners = [
-  { name: 'BMW', file: 'BMW-logo-black-2048x2048.png' },
-  { name: 'SOSV', file: 'SOSV_Logo_Positive.png' },
-  { name: 'National Geographic', file: '240px-National_Geographic_Channel.svg.png' },
-  { name: 'TVBS', file: 'tvbs.jpg' },
-  { name: 'SXSW', file: 'SXSW_IA_Innovation_Awards_400px.png' },
-  { name: 'PSFK', file: 'psfk.jpg' },
-  { name: 'The Sydney Morning Herald', file: 'proram-thesydney-morning-herald-w843h360.jpg' },
-  { name: 'Carey', file: 'carey.logo.small.horizontal.blue crop.png' },
-  { name: 'Sencity', file: 'Sencity-Corporation-i.jpg' },
-];
+// ... (partners, inchangé)
 
 const About: React.FC = () => {
+  // 1. État pour détecter le scroll
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 font-sans text-gray-800">
-      {/* Header avec navigation */}
-      <header className="absolute top-0 left-0 right-0 z-20 bg-transparent">
-        <nav className="container mx-auto px-6 py-4">
+      {/* 2. Header identique à celui de Home */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white/90 backdrop-blur-md shadow-lg py-2' 
+          : 'bg-transparent py-4'
+      }`}>
+        <nav className="container mx-auto px-6">
           <div className="flex items-center justify-between">
             <Link href="/" className="group relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-200/50 to-orange-200/50 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 to-orange-100/30 rounded-2xl blur-md" />
-              <div className="relative bg-white/90 backdrop-blur-sm p-3 rounded-2xl shadow-xl border border-white/60 group-hover:shadow-2xl transition-all duration-500">
+              <div className="absolute -inset-1 bg-gradient-to-r from-amber-200/50 to-amber-200/50 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 to-amber-100/30 rounded-2xl blur-md" />
+              <div className={`relative p-3 rounded-2xl shadow-xl border transition-all duration-300 ${
+                isScrolled 
+                  ? 'bg-white border-gray-200' 
+                  : 'bg-white/90 backdrop-blur-sm border-white/60'
+              } group-hover:shadow-2xl`}>
                 <img
                   src={logo}
                   alt="AfricanCities AI Logo"
@@ -37,22 +46,42 @@ const About: React.FC = () => {
 
             <ul className="flex space-x-8 text-sm font-medium tracking-wider">
               <li>
-                <Link href="/" className="text-white hover:text-amber-300 cursor-pointer transition-colors">
+                <Link 
+                  href="/" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
                   HOME
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-white hover:text-amber-300 cursor-pointer transition-colors">
+                <Link 
+                  href="/about" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
                   ABOUT
                 </Link>
               </li>
               <li>
-                <Link href="/diagnosis" className="text-white hover:text-amber-300 cursor-pointer transition-colors">
+                <Link 
+                  href="/diagnosis" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
                   DIAGNOSTIC
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-white hover:text-amber-300 cursor-pointer transition-colors">
+                <Link 
+                  href="/contact" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
                   CONTACT
                 </Link>
               </li>
@@ -61,9 +90,10 @@ const About: React.FC = () => {
         </nav>
       </header>
 
-      <main>
-        {/* Hero Section */}
-        <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+      {/* 3. Main avec padding-top pour compenser le header fixe */}
+      <main className="pt-20">
+        {/* Hero Section avec -mt-20 pour remonter sous le header */}
+        <section className="relative h-[60vh] flex items-center justify-center overflow-hidden -mt-20">
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-black/50 z-10"></div>
             <img 
@@ -73,17 +103,16 @@ const About: React.FC = () => {
             />
           </div>
           <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-6">
-             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-  <p className="text-amber-400 font-light mb-12">
-    Notre Historique 
-  </p>
-</h1>
+            <h1 className="text-5xl md:text-7xl font-bold mb-6">
+              <p className="text-amber-400 font-light mb-12">
+                NOTRE MISSION
+              </p>
+            </h1>
             <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-white font-normal">
               Jouer la ville. Transformer les infrastructures urbaines en plateformes interactives.
             </p>
           </div>
         </section>
-
         
 
         {/* Notre parcours */}

@@ -29,7 +29,7 @@ export function FormActions({ isGenerating, documents, webData, enableSDG }: For
         <Button
           type="submit"
           size="lg"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-sm"
+         className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 text-sm"
           disabled={isGenerating}
         >
           {isGenerating ? (

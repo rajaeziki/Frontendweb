@@ -11,10 +11,10 @@ interface GovernanceFormProps {
 
 export function GovernanceForm({ register }: GovernanceFormProps) {
   return (
-    <Card className="border-t-4 border-t-indigo-600">
+    <Card className="border-t-4 border-t-orange-600">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <Scale className="w-5 h-5 text-indigo-600" />
+          <Scale className="w-5 h-5 text-orange-600" />
           <CardTitle>Gouvernance (12 indicateurs)</CardTitle>
         </div>
         <CardDescription>

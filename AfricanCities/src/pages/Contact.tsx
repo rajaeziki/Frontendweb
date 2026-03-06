@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Instagram, Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
 import logo from "../assets/logo.jpeg";
@@ -20,6 +20,16 @@ const Contact: React.FC = () => {
     message: '',
   });
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
@@ -27,23 +37,29 @@ const Contact: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Ici vous pouvez envoyer les données à votre API ou service
     console.log('Form submitted:', formData);
     alert('Message envoyé avec succès !');
-    // Réinitialiser le formulaire si souhaité
     setFormData({ name: '', firstName: '', lastName: '', email: '', message: '' });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 font-sans text-gray-800">
-      {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-20 bg-transparent">
-        <nav className="container mx-auto px-6 py-4">
+      {/* Header sticky avec changement de style au scroll */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white/90 backdrop-blur-md shadow-lg py-2' 
+          : 'bg-transparent py-4'
+      }`}>
+        <nav className="container mx-auto px-6">
           <div className="flex items-center justify-between">
             <Link href="/" className="group relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-200/50 to-orange-200/50 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 to-orange-100/30 rounded-2xl blur-md" />
-              <div className="relative bg-white/90 backdrop-blur-sm p-3 rounded-2xl shadow-xl border border-white/60 group-hover:shadow-2xl transition-all duration-500">
+              <div className="absolute -inset-1 bg-gradient-to-r from-amber-200/50 to-amber-200/50 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 to-amber-100/30 rounded-2xl blur-md" />
+              <div className={`relative p-3 rounded-2xl shadow-xl border transition-all duration-300 ${
+                isScrolled 
+                  ? 'bg-white border-gray-200' 
+                  : 'bg-white/90 backdrop-blur-sm border-white/60'
+              } group-hover:shadow-2xl`}>
                 <img
                   src={logo}
                   alt="AfricanCities AI Logo"
@@ -53,18 +69,54 @@ const Contact: React.FC = () => {
             </Link>
 
             <ul className="flex space-x-8 text-sm font-medium tracking-wider">
-              <li><Link href="/" className="text-white hover:text-amber-300">HOME</Link></li>
-              <li><Link href="/about" className="text-white hover:text-amber-300">ABOUT</Link></li>
-              <li><Link href="/diagnosis" className="text-white hover:text-amber-300">DIAGNOSTIC</Link></li>
-              <li><Link href="/contact" className="text-white hover:text-amber-300">CONTACT</Link></li>
+              <li>
+                <Link 
+                  href="/" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
+                  HOME
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/about" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
+                  ABOUT
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/diagnosis" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
+                  DIAGNOSTIC
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/contact" 
+                  className={`transition-colors ${
+                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
+                  }`}
+                >
+                  CONTACT
+                </Link>
+              </li>
             </ul>
           </div>
         </nav>
       </header>
 
-      <main>
-        {/* Hero Section */}
-        <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
+      <main className="pt-20">
+        {/* Hero Section avec -mt-20 pour remonter sous le header */}
+        <section className="relative h-[50vh] flex items-center justify-center overflow-hidden -mt-20">
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-black/50 z-10"></div>
             <img 
@@ -75,10 +127,10 @@ const Contact: React.FC = () => {
           </div>
           <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-6">
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-  <p className="text-amber-400 font-light mb-12">
-    Contact
-  </p>
-</h1>
+              <p className="text-amber-400 font-light mb-12">
+                Contact
+              </p>
+            </h1>
             <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-white font-normal">
               Opportunities now exist to apply digital technologies into everyday environments and to transform urban infrastructures into interactive platforms.
             </p>

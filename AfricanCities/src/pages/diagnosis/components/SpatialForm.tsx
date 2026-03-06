@@ -11,10 +11,10 @@ interface SpatialFormProps {
 
 export function SpatialForm({ register }: SpatialFormProps) {
   return (
-    <Card className="border-t-4 border-t-purple-600">
+    <Card className="border-t-4 border-t-orange-600">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <Map className="w-5 h-5 text-purple-600" />
+          <Map className="w-5 h-5 text-orange-600" />
           <CardTitle>Développement Spatial (11 indicateurs)</CardTitle>
         </div>
         <CardDescription>
