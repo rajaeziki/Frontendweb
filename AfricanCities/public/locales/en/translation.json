@@ -1,0 +1,164 @@
+{
+  "common": {
+    "header": {
+      "home": "HOME",
+      "about": "ABOUT",
+      "diagnostic": "DIAGNOSTIC",
+      "contact": "CONTACT",
+      "chat": "CHAT"
+    },
+    "footer": {
+      "thank_you": "Thank you for your interest. Our derivative websites will be launched soon, stay tuned!",
+      "pilot": "Can't wait? <1>Set up a pilot program</1>.",
+      "location": "Benguerir",
+      "email": "contact.cus@um6p.ma",
+      "privacy": "Privacy Policy",
+      "contact_button": "CONTACT"
+    }
+  },
+  "home": {
+    "hero": {
+      "subtitle": "Diagnose, understand, transform your city.",
+      "cta": "Diagnose Your City"
+    },
+    "IntroHome": {
+      "title": "AfricanCities IA Services",
+      "subtitle": "A complete urban diagnosis in less than 10 minutes.",
+      "description": "AfricanCities AI Services offers a complete urban diagnosis in just a few minutes and an expert urban AI coach available 24/7, enabling African cities to transform their data into fast, reliable, and actionable decisions."
+    },
+    "why": {
+      "title": "Why AfricanCities IA Services?",
+      "subtitle": "Because African cities deserve fast and actionable diagnostics.",
+      "stat1": "Massive urbanization requiring immediate planning.",
+      "stat2": "The fastest urban integration challenge in history.",
+      "stat3": "Growth that makes 6-month studies obsolete upon release.",
+      "stat4": "pressure on infrastructure",
+      "description": "Traditional diagnostics are a bottleneck. AfricanCities IA Services is the engine: we analyze hundreds of sources in 10 minutes to prioritize your investments where they truly matter."
+    },
+    "how": {
+      "title": "How it works?",
+      "subtitle": "A simple and fast approach to get a complete diagnosis of your city.",
+      "step1": { "title": "Target", "desc": "Select your city and key indicators." },
+      "step2": { "title": "AI Analysis", "desc": "Our AI processes hundreds of data in minutes." },
+      "step3": { "title": "Visualize", "desc": "Get an interactive dashboard and a Smart City score." },
+      "step4": { "title": "Plan", "desc": "Simulate scenarios and generate a PDF report." }
+    },
+    "features": {
+      "title": "Key Features",
+      "subtitle": "Powerful tools to diagnose and plan your city's future.",
+      "items": [
+        { "title": "Express diagnostic", "description": "Indicators covering all urban dimensions." },
+        { "title": "Smart City Score", "description": "Rating from 0 to 100 with automatic benchmarking against similar African cities. Clear visualization of strengths and areas for improvement." },
+        { "title": "PDF Report", "description": "Interactive interface to explore results, plus confidential PDF report ready to share with partners and funders." },
+        { "title": "AI Chatbot 24/7", "description": "Intelligent assistant available 24/7 to answer technical questions, propose adapted strategies, and suggest examples of similar cities." },
+        { "title": "What-if scenarios", "description": "Simulate the impact of different urban interventions: before/after, estimated costs, affected populations, overall score variation." },
+        { "title": "Benchmarking", "description": "Compare your city to other African and international metropolises to identify best practices and opportunities." }
+      ]
+    },
+    "benefits": {
+      "title": "Concrete",
+      "highlight": "Benefits",
+      "items": [
+        { "title": "Speed and simplicity", "desc": "No more studies that take 6 months and cost tens of thousands of dollars. With AfricanCities IA, get your complete diagnosis in minutes, at a cost accessible even to smaller municipalities." },
+        { "title": "Preparation of funded projects", "desc": "Funders require solid dossiers with indicators, scenarios, and projections. Our platform automatically generates all necessary elements to build convincing proposals and increase your chances of obtaining funding." },
+        { "title": "Capacity building", "desc": "No need to systematically call on external consultants. Your municipal team develops autonomy and understanding of urban issues through integrated diagnostic, simulation, and training tools." },
+        { "title": "Monitoring over time", "desc": "Compare your city's evolution year by year. Measure the real impact of your investments. Demonstrate progress to citizens and partners. Adjust your strategy continuously." }
+      ]
+    }
+  },
+  "about": {
+    "hero": {
+      "mission": "OUR MISSION",
+      "subtitle": "Play the city. Transform urban infrastructures into interactive platforms."
+    },
+    "parcours": {
+      "title": "Our",
+      "highlight": "journey",
+      "p1": "<0>AfricanCities AI</0> aims to revive and evolve urban culture: designing engaging human-centered experiences through technology, empathy, and creativity.",
+      "p2": "As design thinkers, we believe in the mantra of creating frictionless and joyful human interactions for the public. As humans, we also believe in building a sustainable world for future generations.",
+      "p3": "In 2016, the United Nations reported that more than half of the world's population lived in cities, and this number continues to grow. Increasing human density in urban areas leads to more frequent use of public urban services and products, and more interactions with urban infrastructure.",
+      "p4": "The multidisciplinary team at AfricanCities AI works hard to mitigate the problems of massive urbanization, reinforcing the crucial role of embedded technologies and smart infrastructure in building our lives in the cities of the future."
+    },
+    "expertise": {
+      "title": "World-class multidisciplinary expertise",
+      "description": "AfricanCities IA Services is powered by the Center for Urban Systems (CUS) at UM6P, a center of excellence dedicated to urban innovation in Africa.",
+      "pillars_title": "Impact pillars",
+      "pillar1": {
+        "title": "+20 high-level experts",
+        "desc": "A multinational team combining AI, statistics, spatial data science, architecture, mobility, digital twin, and geomatics."
+      },
+      "pillar2": {
+        "title": "Scientific rigor",
+        "desc": "More than 79 scientific publications and 32 international conferences."
+      },
+      "pillar3": {
+        "title": "Continental impact",
+        "desc": "45 case studies and more than 16 strategic projects in Africa carried out in collaboration with the World Bank, OCP Foundation, and EPFL."
+      }
+    },
+    "summary": {
+      "title": "Project",
+      "highlight": "Summary",
+      "subtitle": "AfricanCities IA Services: AI for urban diagnostics in African cities",
+      "p1": "Africa's rapid urbanization demands smart solutions. Many cities face major challenges in housing, infrastructure, and climate, and lack accessible tools to plan effectively.",
+      "p2": "AfricanCities IA Services offers an innovative AI assistant that provides fast and confidential urban diagnostics. In just 5 minutes, cities can assess their \"smart city\" potential, receive personalized impact-focused recommendations, and compare themselves to similar cities. Our platform includes an interactive dashboard, detailed PDF reports, and an urban AI chatbot for strategic analysis and \"what-if\" scenarios.",
+      "p3": "This tool provides municipalities with fast, affordable, and reliable data, helping them prioritize investments in housing, water, transportation, and energy. It strengthens local capacity, improves their visibility for funding, and enables tracking progress over time.",
+      "p4": "Our vision is to expand across the continent, creating a unique database of smart African cities and contributing to a continental index of sustainable and inclusive urban development.",
+      "p5": "AfricanCities IA Services is transforming how African cities plan and grow, fostering data-driven decisions for a better urban future."
+    }
+  },
+  "diagnostic": {
+    "title": "Smart Urban Diagnostic",
+    "subtitle": "Assess your city in 5 minutes",
+    "steps": {
+      "step1": "Enter basic information",
+      "step2": "Answer targeted questions",
+      "step3": "Get your personalized report"
+    },
+    "form": {
+      "city_name": "City name",
+      "country": "Country",
+      "population": "Population",
+      "area": "Area (km²)",
+      "start_button": "Start assessment"
+    },
+    "results": {
+      "title": "Your diagnostic",
+      "download": "Download PDF report",
+      "compare": "Compare to similar cities"
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Opportunities now exist to apply digital technologies into everyday environments and to transform urban infrastructures into interactive platforms.",
+    "form": {
+      "title": "Your message",
+      "name": "Your name",
+      "name_placeholder": "John Doe",
+      "firstName": "First Name",
+      "firstName_placeholder": "Jean",
+      "lastName": "Last Name",
+      "lastName_placeholder": "Dupont",
+      "email": "Email address",
+      "email_placeholder": "jean@example.com",
+      "message": "Message",
+      "message_placeholder": "Your message...",
+      "send": "Send",
+      "success": "Message sent successfully!"
+    },
+    "info": {
+      "title": "Get in touch",
+      "address_title": "Our office",
+      "address": "Center of Urban Systems ( CUS )\nMohammed VI Polytechnic University\nBenguerir, Morocco",
+      "email_title": "Email us",
+      "email": "contact.cus@um6p.ma"
+    }
+  },
+  "chat": {
+    "title": "Urban AI Assistant",
+    "subtitle": "Ask your questions about urban diagnostics",
+    "input_placeholder": "Type your message...",
+    "send": "Send",
+    "welcome_message": "Hello! I am your urban AI assistant. How can I help you today?"
+  }
+}

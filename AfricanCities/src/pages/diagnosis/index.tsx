@@ -194,7 +194,7 @@ export default function Diagnosis() {
       </header>
 
       {/* Hero section avec -mt-20 pour remonter sous le header */}
-      <section className="relative h-[50vh] flex items-center justify-center overflow-hidden -mt-20">
+      <section className="relative h-[70vh] flex items-center justify-center overflow-hidden -mt-20">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-black/50 z-10"></div>
           <img
@@ -203,14 +203,14 @@ export default function Diagnosis() {
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-6">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            <span className="text-amber-400">Diagnostic</span>
-          </h1>
-          <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-white font-normal">
-            Diagnostic Urbain Complet 80+ indicateurs avec intégration Banque Mondiale et SDG
-          </p>
-        </div>
+        <div className="relative z-20 text-white max-w-4xl mx-auto px-6">
+  <h1 className="text-4xl md:text-6xl font-bold mb-4 text-center">
+    <span className="text-amber-400">Diagnostic</span>
+  </h1>
+  <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-white font-normal text-center">
+    Diagnostic Urbain Complet 80+ indicateurs avec intégration Banque Mondiale et SDG
+  </p>
+</div>
       </section>
 
       {/* Contenu principal avec padding-top pour éviter le chevauchement */}
