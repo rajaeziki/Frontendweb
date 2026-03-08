@@ -238,7 +238,7 @@ const Contact: React.FC = () => {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">Our office</h3>
                       <p className="text-gray-600 mt-1">
-                        AfricanCities AI<br />
+                        Center of Urban Systems ( CUS )<br />
                         Mohammed VI Polytechnic University<br />
                         Benguerir, Morocco
                       </p>

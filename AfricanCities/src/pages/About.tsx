@@ -1,13 +1,10 @@
 // pages/About.tsx
-import React, { useState, useEffect } from 'react'; // ← ajout des hooks
+import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Users, Globe, Sparkles, Instagram, Clock, Building, CheckCircle } from 'lucide-react';
 import logo from "../assets/logo.jpeg";
 
-// ... (partners, inchangé)
-
 const About: React.FC = () => {
-  // 1. État pour détecter le scroll
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -20,7 +17,7 @@ const About: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 font-sans text-gray-800">
-      {/* 2. Header identique à celui de Home */}
+      {/* Header fixe (inchangé) */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/90 backdrop-blur-md shadow-lg py-2' 
@@ -90,39 +87,37 @@ const About: React.FC = () => {
         </nav>
       </header>
 
-      {/* 3. Main avec padding-top pour compenser le header fixe */}
       <main className="pt-20">
-        {/* Hero Section avec -mt-20 pour remonter sous le header */}
+        {/* Hero Section (inchangé) */}
         <section className="relative h-[60vh] flex items-center justify-center overflow-hidden -mt-20">
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-black/50 z-10"></div>
             <img 
               src="/Kinshasa.jpg" 
-              alt="Futuristic African city"
+              alt="Vue futuriste d'une ville africaine"
               className="w-full h-full object-cover"
             />
           </div>
           <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-6">
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <p className="text-amber-400 font-light mb-12">
+              <span className="text-amber-400 font-light block mb-12">
                 NOTRE MISSION
-              </p>
+              </span>
             </h1>
             <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-white font-normal">
               Jouer la ville. Transformer les infrastructures urbaines en plateformes interactives.
             </p>
           </div>
         </section>
-        
 
-        {/* Notre parcours */}
+        {/* Notre parcours - centré */}
         <section className="py-20 bg-gradient-to-br from-amber-50/30 to-purple-50/30">
-          <div className="container mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
-            <div>
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto text-center"> {/* centré + texte centré */}
               <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
                 Notre <span className="text-amber-500">parcours</span>
               </h2>
-              <div className="space-y-4 text-gray-600 text-lg">
+              <div className="space-y-6 text-gray-600 text-lg leading-relaxed">
                 <p>
                   <span className="font-semibold text-amber-600">AfricanCities AI</span> vise à faire revivre et à faire évoluer la culture urbaine : 
                   concevoir des expériences engageantes centrées sur l'humain grâce à la technologie, l'empathie et la créativité.
@@ -145,38 +140,68 @@ const About: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-200 group">
-  <img 
-    src="/MrSayed.png" 
-    alt="Dr. Seyid Abdellahi EBNOU ABDEM"
-    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-  />
-  {/* Overlay gradient */}
-  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-  {/* Contenu texte */}
-  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-    <h3 className="text-2xl font-bold mb-1">Dr. Seyid Abdellahi EBNOU ABDEM</h3>
-    <p className="text-amber-300 font-medium text-sm mb-2">PhD in Statistics</p>
-    <p className="text-sm text-white/90 leading-tight">
-      Spécialisé en statistique appliquée, data science, probabilités et villes intelligentes
-    </p>
-    <p className="text-xs text-white/70 mt-2"> Chef de projet AfricanCities Ai Services ,Research Scientist</p>
-  </div>
-</div>
           </div>
         </section>
 
-        {/* NOUVELLE SECTION : Project Summary */}
+        {/* Section Expertise - centrée */}
+        <section className="bg-white py-16 px-4 md:px-8">
+          <div className="max-w-7xl mx-auto text-center"> {/* centrage du contenu */}
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Une expertise multidisciplinaire de classe mondiale
+            </h2>
+            <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto"> {/* mx-auto pour centrer le paragraphe */}
+              AfricanCities IA Services est propulsé par le Centre des Systèmes Urbains (CUS) de l'UM6P, 
+              un pôle d'excellence dédié à l'innovation urbaine en Afrique.
+            </p>
+
+            {/* Image horizontale */}
+            <div className="relative w-full h-64 md:h-99 mb-12 rounded-2xl overflow-hidden shadow-2xl bg-gray-100">
+  <img 
+    src="/CUS_teams.jpeg"
+    alt="Équipe du CUS - AfricanCities IA Services"
+    className="w-full h-full object-contain"  // object-contain au lieu de object-cover
+  />
+</div>
+
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
+              Les piliers d'impact
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-gray-50 p-6 rounded-xl shadow-sm text-left"> {/* on garde le texte à gauche pour lisibilité */}
+                <h4 className="text-xl font-bold text-amber-600 mb-2">+20 experts de haut niveau</h4>
+                <p className="text-gray-700">
+                  Une équipe multinationale unissant l'IA, les statistiques, la spatial data science, 
+                  l'architecture, la mobilité, le digital twin et la géomatique.
+                </p>
+              </div>
+              <div className="bg-gray-50 p-6 rounded-xl shadow-sm text-left">
+                <h4 className="text-xl font-bold text-amber-600 mb-2">Rigueur scientifique</h4>
+                <p className="text-gray-700">
+                  Plus de 79 publications scientifiques et 32 conférences internationales.
+                </p>
+              </div>
+              <div className="bg-gray-50 p-6 rounded-xl shadow-sm text-left">
+                <h4 className="text-xl font-bold text-amber-600 mb-2">Impact continental</h4>
+                <p className="text-gray-700">
+                  45 études de cas et plus de 16 projets stratégiques en Afrique menés en collaboration 
+                  avec la Banque mondiale, OCP Foundation et l'EPFL.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Project Summary - centré */}
         <section className="py-20 bg-white">
           <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto text-center"> {/* centrage */}
               <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
                 Project <span className="text-amber-500">Summary</span>
               </h2>
               <p className="text-2xl font-light text-amber-600 mb-8">
                 AfricanCities IA Services : L'IA au service du diagnostic urbain pour les villes africaines
               </p>
-              <div className="prose prose-lg text-gray-600 space-y-6">
+              <div className="prose prose-lg text-gray-600 space-y-6 text-left"> {/* on garde le texte justifié/aligné à gauche pour lisibilité */}
                 <p>
                   L'urbanisation rapide de l'Afrique exige des solutions intelligentes. De nombreuses villes sont confrontées à des défis majeurs en matière de logement, d'infrastructures et de climat, et manquent d'outils accessibles pour planifier efficacement.
                 </p>
@@ -193,26 +218,17 @@ const About: React.FC = () => {
                   AfricanCities IA Services transforme la manière dont les villes africaines planifient et se développent, en favorisant des décisions basées sur les données pour un avenir urbain meilleur.
                 </p>
               </div>
-
-              {/* Metadata (Duration, Partners, Status) */}
-              
-            
-              
-              
             </div>
           </div>
         </section>
-
-        
-        
       </main>
 
-      {/* Footer avec navigation */}
+      {/* Footer (inchangé) */}
       <footer className="relative bg-white border-t border-gray-200 py-12 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=2070"
-            alt="African city background"
+            alt="Fond de ville africaine"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/60 z-10"></div>
@@ -223,7 +239,7 @@ const About: React.FC = () => {
               Thank you for your interest in us. Our derivative websites will be launched soon, stay tuned!
             </p>
             <p className="text-lg">
-              Can't wait? to set up a pilot program.
+              Can't wait? <span className="font-semibold">Set up a pilot program</span>.
             </p>
             <div className="flex items-center justify-center gap-4 mt-2 text-sm text-white/80">
               <span>Benguerir</span>
