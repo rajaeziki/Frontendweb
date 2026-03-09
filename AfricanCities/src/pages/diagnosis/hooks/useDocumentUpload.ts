@@ -2,8 +2,9 @@
 import { useState, useRef } from 'react';
 import { toast } from "../../../hooks/use-toast";
 import type { DocumentContent } from '../types';
-import { MAX_FILE_SIZE } from '../constants'; // ← ACCEPTED_FILE_TYPES enlevé car non utilisé
-import { uploadMultipleFiles, uploadSingleFile } from '../../../services/api';
+import { MAX_FILE_SIZE } from '../constants';
+import { uploadMultipleFiles } from '../../../services/api';
+import * as XLSX from 'xlsx'; // Assurez-vous d'avoir installé xlsx
 
 export function useDocumentUpload() {
   const [documents, setDocuments] = useState<DocumentContent[]>([]);
@@ -20,215 +21,171 @@ export function useDocumentUpload() {
     return null;
   };
 
-  // Fonction pour uploader un seul fichier vers le backend
-  const uploadFileToBackend = async (file: File): Promise<DocumentContent | null> => {
-    try {
-      console.log(`📤 Upload de ${file.name} vers le backend...`);
-      
-      // Simuler la progression
-      for (let progress = 0; progress <= 100; progress += 10) {
-        setUploadProgress(prev => ({ ...prev, [file.name]: progress }));
-        await new Promise(resolve => setTimeout(resolve, 20));
-      }
+  // ---------- Fonctions d'extraction locales (fallback) ----------
+  const extractExcelData = async (file: File): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheets: any = {};
+          workbook.SheetNames.forEach(sheetName => {
+            const sheet = workbook.Sheets[sheetName];
+            sheets[sheetName] = XLSX.utils.sheet_to_json(sheet);
+          });
+          resolve({
+            sheets,
+            sheetNames: workbook.SheetNames,
+            rows: Object.values(sheets).flat().length
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  };
 
-      // Appel API réel vers ton backend FastAPI
-      console.log(`📡 Appel API uploadSingleFile pour ${file.name}`);
-      const response = await uploadSingleFile(file);
-      console.log(`✅ Réponse reçue pour ${file.name}:`, response);
-      
-      if (response.success) {
-        const fileType = getFileType(file) || 'unknown';
-        
-        // Construire l'objet DocumentContent à partir de la réponse
-        const document: DocumentContent = {
-          filename: file.name,
-          content: JSON.stringify(response.document),
-          type: fileType,
-          data: response.document,
-          preview: fileType === 'image' ? URL.createObjectURL(file) : undefined,
-          metadata: {
-            size: file.size,
-            ...(response.document.pages && { pages: response.document.pages.length }),
-            ...(response.document.images && { images: response.document.images.length }),
-            ...(response.document.rows && { rows: response.document.rows }),
-            ...(response.document.sheets && { sheets: response.document.sheet_names }),
-            ...(response.document.dimensions && { 
-              width: response.document.dimensions.width,
-              height: response.document.dimensions.height 
-            })
-          }
-        };
+  const extractGeoJSONData = async (file: File): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const jsonData = JSON.parse(e.target?.result as string);
+          const features = jsonData.features?.length || 0;
+          const geometryTypes = jsonData.features?.map((f: any) => f.geometry.type) || [];
+          resolve({
+            ...jsonData,
+            metadata: {
+              features,
+              geometryTypes: [...new Set(geometryTypes)],
+              properties: jsonData.features?.[0] ? Object.keys(jsonData.features[0].properties) : []
+            }
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
+  };
 
-        toast({
-          title: "✅ Document traité",
-          description: `${file.name} analysé avec succès par le serveur`,
+  const createImagePreview = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        resolve(e.target?.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const getImageMetadata = (file: File): Promise<any> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        resolve({
+          width: img.width,
+          height: img.height,
+          aspectRatio: (img.width / img.height).toFixed(2)
         });
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  };
+  // ----------------------------------------------------------------
 
-        return document;
+  // Traitement local d'un fichier (fallback)
+  const processFileLocally = async (file: File): Promise<DocumentContent | null> => {
+    const fileType = getFileType(file);
+    if (!fileType) return null;
+
+    try {
+      let content = '';
+      let extractedData = null;
+      let preview = undefined;
+      let metadata: any = { size: file.size };
+
+      switch (fileType) {
+        case 'pdf':
+          content = `Document PDF: ${file.name}`;
+          metadata.pages = Math.floor(Math.random() * 50) + 5; // simulé
+          break;
+        case 'image':
+          preview = await createImagePreview(file);
+          const imgMetadata = await getImageMetadata(file);
+          metadata = { ...metadata, ...imgMetadata };
+          content = `Image: ${file.name} (${imgMetadata.width}x${imgMetadata.height})`;
+          break;
+        case 'excel':
+          extractedData = await extractExcelData(file);
+          content = `Fichier Excel: ${file.name} - ${extractedData.rows} lignes extraites`;
+          metadata.rows = extractedData.rows;
+          metadata.sheets = extractedData.sheetNames;
+          break;
+        case 'geojson':
+          extractedData = await extractGeoJSONData(file);
+          const features = extractedData.metadata?.features || 0;
+          content = `Fichier GeoJSON: ${file.name} - ${features} entités géographiques`;
+          metadata.features = features;
+          metadata.geometryTypes = extractedData.metadata?.geometryTypes;
+          break;
+        default:
+          return null;
       }
-      
-      throw new Error('Échec de l\'upload');
-      
+
+      return {
+        filename: file.name,
+        content,
+        type: fileType,
+        data: extractedData,
+        preview,
+        metadata
+      };
     } catch (error) {
-      console.error(`❌ Erreur lors du traitement de ${file.name}:`, error);
-      toast({
-        title: "❌ Erreur de traitement",
-        description: `Impossible de traiter ${file.name}.`,
-        variant: "destructive",
-      });
+      console.error(`Erreur lors du traitement local de ${file.name}:`, error);
       return null;
-    } finally {
-      setUploadProgress(prev => {
-        const newProgress = { ...prev };
-        delete newProgress[file.name];
-        return newProgress;
-      });
     }
   };
 
-  // Upload multiple fichiers (VERSION AVEC BEAUCOUP DE LOGS)
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  // Upload principal (tente l'API, puis fallback local)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files || files.length === 0) {
-      console.log('⚠️ Aucun fichier sélectionné');
-      return;
-    }
-
-    console.log('📂 Fichiers sélectionnés:', files);
-    console.log(`📊 Nombre de fichiers: ${files.length}`);
+    if (!files || files.length === 0) return;
 
     setIsUploading(true);
     const fileArray = Array.from(files);
     const newDocuments: DocumentContent[] = [];
 
-    try {
-      for (const file of fileArray) {
-        console.log(`\n🔍 Traitement de ${file.name}:`);
-        console.log(`   - Taille: ${file.size} bytes`);
-        console.log(`   - Type: ${file.type}`);
-
-        // Vérification taille
-        if (file.size > MAX_FILE_SIZE) {
-          console.warn(`   ⚠️ Fichier trop volumineux: ${file.size} > ${MAX_FILE_SIZE}`);
-          toast({
-            title: "Fichier trop volumineux",
-            description: `${file.name} dépasse la limite de 50MB.`,
-            variant: "destructive",
-          });
-          continue;
-        }
-
-        // Vérification type
-        const fileType = getFileType(file);
-        console.log(`   - Type détecté: ${fileType || 'inconnu'}`);
-
-        if (!fileType) {
-          console.warn(`   ⚠️ Format non supporté`);
-          toast({
-            title: "Format non supporté",
-            description: `${file.name} n'est pas dans un format accepté.`,
-            variant: "destructive",
-          });
-          continue;
-        }
-
-        // Upload vers le backend
-        console.log(`   📤 Upload vers backend...`);
-        const doc = await uploadFileToBackend(file);
-        if (doc) {
-          console.log(`   ✅ Upload réussi pour ${file.name}`);
-          newDocuments.push(doc);
-        } else {
-          console.warn(`   ❌ Échec upload pour ${file.name}`);
-        }
+    // Filtrer les fichiers valides
+    const validFiles = fileArray.filter(file => {
+      if (file.size > MAX_FILE_SIZE) {
+        toast({ title: "Fichier trop volumineux", description: `${file.name} dépasse 50MB.`, variant: "destructive" });
+        return false;
       }
-
-      console.log(`\n📊 Résultat final: ${newDocuments.length}/${fileArray.length} fichiers uploadés`);
-
-      if (newDocuments.length > 0) {
-        setDocuments(prev => [...prev, ...newDocuments]);
-        toast({
-          title: "🎉 Succès !",
-          description: `${newDocuments.length} fichier(s) uploadé(s) avec succès`,
-        });
+      if (!getFileType(file)) {
+        toast({ title: "Format non supporté", description: `${file.name} n'est pas accepté.`, variant: "destructive" });
+        return false;
       }
+      return true;
+    });
 
-    } catch (error) {
-      console.error('❌ Erreur globale upload:', error);
-      toast({
-        title: "❌ Erreur",
-        description: "Impossible d'uploader les fichiers",
-        variant: "destructive",
-      });
-    } finally {
+    if (validFiles.length === 0) {
       setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  }
-
-  // Upload rapide (version simplifiée avec logs)
-  const handleQuickUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) {
-      console.log('⚠️ Aucun fichier sélectionné');
       return;
     }
 
-    console.log('🚀 DÉBUT UPLOAD RAPIDE');
-    console.log('📂 Fichiers:', Array.from(files).map(f => ({ name: f.name, type: f.type, size: f.size })));
-
-    setIsUploading(true);
-    const fileArray = Array.from(files);
-    
+    // Tentative d'upload via API
     try {
-      // Filtrer les fichiers non supportés
-      console.log('🔍 Filtrage des fichiers...');
-      const validFiles = fileArray.filter(file => {
-        if (file.size > MAX_FILE_SIZE) {
-          console.warn(`⚠️ Fichier trop gros: ${file.name} (${file.size} bytes)`);
-          toast({
-            title: "Fichier trop volumineux",
-            description: `${file.name} dépasse la limite de 50MB.`,
-            variant: "destructive",
-          });
-          return false;
-        }
-        const fileType = getFileType(file);
-        if (!fileType) {
-          console.warn(`⚠️ Format non supporté: ${file.name} (${file.type})`);
-          toast({
-            title: "Format non supporté",
-            description: `${file.name} n'est pas dans un format accepté.`,
-            variant: "destructive",
-          });
-          return false;
-        }
-        return true;
-      });
-
-      console.log(`✅ Fichiers valides: ${validFiles.length}/${fileArray.length}`);
-      
-      if (validFiles.length === 0) {
-        console.log('❌ Aucun fichier valide');
-        setIsUploading(false);
-        return;
-      }
-
-      // Upload multiple vers le backend
-      console.log('📡 Envoi de la requête uploadMultipleFiles...');
-      console.log('📦 URL:', `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/ingest`);
-      
       const response = await uploadMultipleFiles(validFiles);
-      console.log('✅ Réponse reçue:', response);
-      
-      if (response.success) {
-        console.log(`📊 Traitement de ${response.documents.length} documents...`);
-        
-        const newDocs: DocumentContent[] = response.documents.map((doc: any, index: number) => {
-          console.log(`   Document ${index + 1}:`, doc.filename);
-          return {
+      if (response.success && response.documents) {
+        // Succès API : construire les documents depuis la réponse
+        response.documents.forEach((doc: any, index: number) => {
+          newDocuments.push({
             filename: doc.filename || validFiles[index].name,
             content: JSON.stringify(doc),
             type: doc.type || getFileType(validFiles[index]) || 'unknown',
@@ -240,50 +197,48 @@ export function useDocumentUpload() {
               ...(doc.rows && { rows: doc.rows }),
               ...(doc.sheet_names && { sheets: doc.sheet_names })
             }
-          };
+          });
         });
-        
-        setDocuments(prev => [...prev, ...newDocs]);
-        
-        toast({
-          title: "🎉 Succès !",
-          description: `${response.count} fichier(s) uploadé(s) avec succès`,
+        toast({ title: "🎉 Succès !", description: `${response.count} fichier(s) uploadé(s) via API.` });
+      } else {
+        throw new Error('Réponse API invalide');
+      }
+    } catch (error) {
+      console.warn('API d’upload indisponible, traitement local…', error);
+      toast({ title: "⚠️ Mode dégradé", description: "Traitement local des fichiers.", variant: "default" });
+
+      // Fallback local : traiter chaque fichier un par un
+      for (const file of validFiles) {
+        // Simuler progression
+        for (let p = 0; p <= 100; p += 25) {
+          setUploadProgress(prev => ({ ...prev, [file.name]: p }));
+          await new Promise(r => setTimeout(r, 10));
+        }
+        const doc = await processFileLocally(file);
+        if (doc) newDocuments.push(doc);
+        setUploadProgress(prev => {
+          const newProgress = { ...prev };
+          delete newProgress[file.name];
+          return newProgress;
         });
       }
-    } catch (error: any) {
-      console.error('❌ ERREUR UPLOAD:');
-      console.error('   Message:', error.message);
-      console.error('   Status:', error.response?.status);
-      console.error('   Data:', error.response?.data);
-      console.error('   Config:', error.config);
-      
-      toast({
-        title: "❌ Erreur",
-        description: `Impossible d'uploader les fichiers: ${error.message}`,
-        variant: "destructive",
-      });
     } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      if (newDocuments.length > 0) {
+        setDocuments(prev => [...prev, ...newDocuments]);
       }
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
   const removeDocument = (filename: string) => {
     setDocuments(prev => prev.filter(doc => doc.filename !== filename));
-    toast({
-      title: "Document retiré",
-      description: `${filename} a été supprimé de l'analyse.`,
-    });
+    toast({ title: "Document retiré", description: `${filename} supprimé.` });
   };
 
   const clearAllDocuments = () => {
     setDocuments([]);
-    toast({
-      title: "🧹 Liste vidée",
-      description: "Tous les documents ont été retirés",
-    });
+    toast({ title: "🧹 Liste vidée", description: "Tous les documents ont été retirés." });
   };
 
   const getDocumentsSummary = () => {
@@ -303,7 +258,7 @@ export function useDocumentUpload() {
     uploadProgress,
     isUploading,
     fileInputRef,
-    handleFileUpload: handleQuickUpload,
+    handleFileUpload,   // à utiliser dans le composant
     removeDocument,
     clearAllDocuments,
     getDocumentsSummary

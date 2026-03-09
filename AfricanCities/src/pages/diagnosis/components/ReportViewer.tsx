@@ -4,12 +4,11 @@ import { Button } from "../../../component/ui/button";
 import { Download, AlertCircle } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "../../../hooks/use-toast";
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import html2pdf from 'html2pdf.js';
 
 interface ReportViewerProps {
-  generatedContent: string | null;
-  city: string;
+  readonly generatedContent: string | null;  // marqué read-only pour SonarLint
+  readonly city: string;
 }
 
 export function ReportViewer({ generatedContent, city }: ReportViewerProps) {
@@ -18,112 +17,37 @@ export function ReportViewer({ generatedContent, city }: ReportViewerProps) {
 
   const downloadPDF = async () => {
     if (!reportContentRef.current) return;
-    
+
+    toast({
+      title: t('diagnostic.report.preparing', 'Préparation du PDF'),
+      description: t('diagnostic.report.generating', 'Génération du document en cours...'),
+    });
+
     try {
-      toast({
-        title: t('diagnostic.report.preparing', 'Préparation du PDF'),
-        description: t('diagnostic.report.generating', 'Génération du document en cours...'),
-      });
-      
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      const imgWidth = 210;
-      const pageHeight = 297;
-      
-      const coverElement = reportContentRef.current.querySelector('.cover-page');
-      if (coverElement) {
-        const coverCanvas = await html2canvas(coverElement as HTMLElement, {
-          scale: 2,
-          backgroundColor: '#ffffff',
-          logging: false,
-          useCORS: true,
-          allowTaint: false,
-        });
-        
-        const coverImgData = coverCanvas.toDataURL('image/png');
-        const coverImgHeight = (coverCanvas.height * imgWidth) / coverCanvas.width;
-        
-        pdf.addImage(coverImgData, 'PNG', 0, 0, imgWidth, coverImgHeight, undefined, 'FAST');
-      }
-      
-      const contentClone = reportContentRef.current.cloneNode(true) as HTMLElement;
-      
-      const coverInClone = contentClone.querySelector('.cover-page');
-      if (coverInClone) {
-        coverInClone.remove();
-      }
-      
-      const pageBreaks = contentClone.querySelectorAll('.page-break');
-      pageBreaks.forEach(el => el.remove());
-      
-      const tempContainer = document.createElement('div');
-      tempContainer.style.position = 'absolute';
-      tempContainer.style.left = '-9999px';
-      tempContainer.style.top = '0';
-      tempContainer.style.width = '1200px';
-      tempContainer.style.background = '#ffffff';
-      tempContainer.appendChild(contentClone);
-      document.body.appendChild(tempContainer);
-      
-      const contentCanvas = await html2canvas(tempContainer, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        logging: false,
-        useCORS: true,
-        allowTaint: false,
-        windowWidth: 1200,
-      });
-      
-      document.body.removeChild(tempContainer);
-      
-      const contentImgData = contentCanvas.toDataURL('image/png');
-      const contentImgHeight = (contentCanvas.height * imgWidth) / contentCanvas.width;
-      
-      if (coverElement) {
-        let heightLeft = contentImgHeight;
-        let position = 0;
-        let firstPage = true;
-        
-        while (heightLeft > 0) {
-          if (!firstPage) {
-            pdf.addPage();
-          }
-          
-          pdf.addImage(contentImgData, 'PNG', 0, position, imgWidth, contentImgHeight, undefined, 'FAST');
-          
-          heightLeft -= pageHeight;
-          position -= pageHeight;
-          firstPage = false;
-        }
-      } else {
-        pdf.addImage(contentImgData, 'PNG', 0, 0, imgWidth, contentImgHeight, undefined, 'FAST');
-        
-        let heightLeft = contentImgHeight - pageHeight;
-        let position = -pageHeight;
-        
-        while (heightLeft > 0) {
-          pdf.addPage();
-          pdf.addImage(contentImgData, 'PNG', 0, position, imgWidth, contentImgHeight, undefined, 'FAST');
-          heightLeft -= pageHeight;
-          position -= pageHeight;
-        }
-      }
-      
-      pdf.save(`Diagnostic_${city?.replace(/\s+/g, '_') || 'ville'}_${new Date().toISOString().split('T')[0]}.pdf`);
-      
+      // Définition des options avec 'as const' pour obtenir des types littéraux stricts
+      const opt = {
+        margin: 0.5,
+        filename: `Diagnostic_${city?.replace(/\s+/g, '_') || 'ville'}_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: true },
+        jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const }
+      } as const;  // rend toutes les propriétés en lecture seule avec types littéraux
+
+      await html2pdf().set(opt).from(reportContentRef.current).save();
+
       toast({
         title: t('common.success', 'Succès !'),
         description: t('diagnostic.report.success', 'Le PDF a été généré avec succès.'),
       });
     } catch (error) {
-      console.error('Erreur lors de la génération du PDF:', error);
+      console.error('Erreur complète :', error);
+      // Gestion robuste du message d'erreur (car error est de type 'unknown')
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Erreur inconnue lors de la génération du PDF.';
       toast({
         title: t('common.error', 'Erreur'),
-        description: t('diagnostic.report.error', 'Impossible de générer le PDF.'),
+        description: errorMessage,
         variant: "destructive",
       });
     }

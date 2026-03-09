@@ -1,5 +1,18 @@
 {
+
+"login": {
+    "title": "Connexion requise",
+    "description": "Pour accéder aux fonctionnalités de diagnostic (upload de documents, génération de rapport), vous devez vous connecter.",
+    "email": "Email",
+    "password": "Mot de passe",
+    "cancel": "Annuler",
+    "submit": "Se connecter",
+    "alert": {
+      "fill_fields": "Veuillez remplir tous les champs"
+    }
+  },
   "common": {
+  "logout": "Déconnexion",
     "header": {
       "home": "ACCUEIL",
       "about": "À PROPOS",
@@ -7,6 +20,7 @@
       "contact": "CONTACT",
       "chat": "CHAT"
     },
+    
     "footer": {
       "thank_you": "Merci de votre intérêt. Nos sites dérivés seront bientôt lancés, restez à l'écoute !",
       "pilot": "Vous ne voulez pas attendre ? Mettez en place un programme pilote.",
@@ -114,6 +128,7 @@
     }
   },
   "diagnostic": {
+  "report_language": "Report language",
     "title": "Diagnostic urbain intelligent",
     "subtitle": "Évaluez votre ville en 5 minutes",
     "stats": {

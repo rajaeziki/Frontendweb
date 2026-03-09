@@ -1,5 +1,18 @@
 {
+
+ "login": {
+    "title": "Login required",
+    "description": "To access diagnostic features (document upload, report generation), you need to log in.",
+    "email": "Email",
+    "password": "Password",
+    "cancel": "Cancel",
+    "submit": "Log in",
+    "alert": {
+      "fill_fields": "Please fill in all fields"
+    }
+  },
   "common": {
+  "logout": "Logout",
     "header": {
       "home": "HOME",
       "about": "ABOUT",
@@ -114,6 +127,7 @@
     }
   },
   "diagnostic": {
+  "report_language": "Langue du rapport",
     "title": "Smart Urban Diagnosis",
     "subtitle": "Assess your city in 5 minutes",
     "stats": {
