@@ -392,6 +392,12 @@
   "input_placeholder": "Ask a question about your city...",
   "disclaimer": "AI can make mistakes. Check important information.",
   "open_aria": "Open chat",
-  "close_aria": "Close"
+  "close_aria": "Close",
+   "no_messages": "No messages yet. Start the conversation!",
+    "response_urban_planning": "Urban planning in Nouakchott must address urban sprawl and access to basic services. Tools like GIS and citizen participation are essential.",
+    "response_transport": "The transport system in Nouakchott is mainly informal (taxis, minibuses). A BRT project is under study.",
+    "response_waste": "Waste collection covers about 50% of the population. Recycling initiatives are emerging, but the recycling rate remains low (5%).",
+    "response_housing": "Informal housing represents 40% of dwellings. Housing cost is affordable but quality varies. Restructuring programs are underway.",
+    "response_default": "Thank you for your question. I recommend consulting the diagnostic reports for more details."
   }
 }

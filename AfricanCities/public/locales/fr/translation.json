@@ -393,6 +393,13 @@
   "input_placeholder": "Posez une question sur votre ville...",
   "disclaimer": "L'IA peut faire des erreurs. Vérifiez les informations importantes.",
   "open_aria": "Ouvrir le chat",
-  "close_aria": "Fermer"
+  "close_aria": "Fermer",
+  "no_messages": "Aucun message. Commencez la conversation !",
+    "response_urban_planning": "La planification urbaine à Nouakchott doit tenir compte de l'étalement urbain et de l'accès aux services de base. Des outils comme les SIG et la participation citoyenne sont essentiels.",
+    "response_transport": "Le système de transport à Nouakchott est principalement informel (taxis, minibus). Un projet de bus à haut niveau de service (BHNS) est à l'étude.",
+    "response_waste": "La collecte des déchets couvre environ 50% de la population. Des initiatives de recyclage émergent, mais le taux de recyclage reste faible (5%).",
+    "response_housing": "L'habitat informel représente 40% des logements. Le coût du logement est abordable mais la qualité est variable. Des programmes de restructuration sont en cours.",
+    "response_default": "Merci pour votre question. Je vous recommande de consulter les rapports de diagnostic pour plus de détails."
+
   }
 }

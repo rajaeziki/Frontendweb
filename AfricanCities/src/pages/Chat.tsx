@@ -34,7 +34,7 @@ export default function ChatWidget() {
 
       {/* Fenêtre du chat */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[32rem] bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col z-50 overflow-hidden">
+        <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col z-50 overflow-hidden">
           <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
             <h2 className="font-semibold text-gray-800">{t('chat.title')}</h2>
             <button
