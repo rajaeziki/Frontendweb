@@ -207,7 +207,7 @@ const Contact: React.FC = () => {
           </div>
           <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-6">
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <p className="text-amber-400 font-light mb-12">
+              <p className="text-amber-400 font-bold mb-12">
                 {t('contact.title')}
               </p>
             </h1>

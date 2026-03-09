@@ -1,8 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../component/ui/card";
 import type { Dimension } from "../types";
 
 interface DimensionNavigationProps {
-  dimensions: Dimension[];
+  dimensions: (Dimension & { nameKey: string })[]; // On suppose que chaque dimension a une clé de traduction pour son nom
   activeDimension: string;
   onDimensionChange: (dimensionId: string) => void;
 }
@@ -12,12 +13,14 @@ export function DimensionNavigation({
   activeDimension,
   onDimensionChange
 }: DimensionNavigationProps) {
+  const { t } = useTranslation();
+
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle>Navigation par dimension</CardTitle>
+        <CardTitle>{t('diagnostic.dimensions.navigation_title')}</CardTitle>
         <CardDescription>
-          Cliquez sur une dimension pour accéder à ses indicateurs
+          {t('diagnostic.dimensions.navigation_description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -36,9 +39,11 @@ export function DimensionNavigation({
                 }`}
               >
                 <Icon className={`w-6 h-6 mx-auto mb-2 ${dim.color}`} />
-                <div className="text-xs font-medium text-center">{dim.name}</div>
+                <div className="text-xs font-medium text-center">
+                  {t(dim.nameKey)}
+                </div>
                 <div className="text-xs text-muted-foreground text-center mt-1">
-                  {dim.indicators} indicateurs
+                  {t('diagnostic.indicators', { count: dim.indicators })}
                 </div>
               </button>
             );

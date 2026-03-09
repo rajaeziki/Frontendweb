@@ -180,7 +180,7 @@ const About: React.FC = () => {
           </div>
           <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-6">
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="text-amber-400 font-light block mb-12">
+              <span className="text-amber-400 font-bold mb-12">
                 {t('about.hero.mission')}
               </span>
             </h1>
@@ -202,8 +202,6 @@ const About: React.FC = () => {
                   <Trans i18nKey="about.parcours.p1" components={{ 0: <span className="font-semibold text-amber-600" /> }} />
                 </p>
                 <p>{t('about.parcours.p2')}</p>
-                <p>{t('about.parcours.p3')}</p>
-                <p>{t('about.parcours.p4')}</p>
               </div>
             </div>
           </div>

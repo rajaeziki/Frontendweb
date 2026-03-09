@@ -9,12 +9,20 @@
     },
     "footer": {
       "thank_you": "Thank you for your interest. Our derivative websites will be launched soon, stay tuned!",
-      "pilot": "Can't wait? <1>Set up a pilot program</1>.",
+      "pilot": "Can't wait? Set up a pilot program.",
       "location": "Benguerir",
       "email": "contact.cus@um6p.ma",
       "privacy": "Privacy Policy",
       "contact_button": "CONTACT"
-    }
+    },
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "success": "Success!",
+    "error": "Error",
+    "yes": "Yes",
+    "no": "No",
+    "partly": "Partly",
+    "testing": "Testing"
   },
   "home": {
     "hero": {
@@ -22,47 +30,47 @@
       "cta": "Diagnose Your City"
     },
     "IntroHome": {
-      "title": "AfricanCities IA Services",
-      "subtitle": "A complete urban diagnosis in less than 10 minutes.",
-      "description": "AfricanCities AI Services offers a complete urban diagnosis in just a few minutes and an expert urban AI coach available 24/7, enabling African cities to transform their data into fast, reliable, and actionable decisions."
+      "title": "AfricanCities AI Services",
+      "subtitle": "A comprehensive urban diagnosis in less than 10 minutes.",
+      "description": "AfricanCities AI Services offers a complete urban diagnosis in minutes and an expert urban AI coach available 24/7, enabling African cities to transform their data into fast, reliable, and actionable decisions."
     },
     "why": {
-      "title": "Why AfricanCities IA Services?",
-      "subtitle": "Because African cities deserve fast and actionable diagnostics.",
-      "stat1": "Massive urbanization requiring immediate planning.",
+      "title": "Why AfricanCities AI Services?",
+      "subtitle": "Because African cities deserve fast and actionable diagnoses.",
+      "stat1": "Massive urbanization that requires immediate planning.",
       "stat2": "The fastest urban integration challenge in history.",
-      "stat3": "Growth that makes 6-month studies obsolete upon release.",
+      "stat3": "Growth that makes 6-month studies obsolete upon publication.",
       "stat4": "pressure on infrastructure",
-      "description": "Traditional diagnostics are a bottleneck. AfricanCities IA Services is the engine: we analyze hundreds of sources in 10 minutes to prioritize your investments where they truly matter."
+      "description": "Traditional diagnosis is a bottleneck. AfricanCities AI Services is the engine: we analyze hundreds of sources in 10 minutes to prioritize your investments where they really matter."
     },
     "how": {
-      "title": "How it works?",
+      "title": "How does it work?",
       "subtitle": "A simple and fast approach to get a complete diagnosis of your city.",
       "step1": { "title": "Target", "desc": "Select your city and key indicators." },
-      "step2": { "title": "AI Analysis", "desc": "Our AI processes hundreds of data in minutes." },
+      "step2": { "title": "AI Analysis", "desc": "Our AI processes hundreds of data points in minutes." },
       "step3": { "title": "Visualize", "desc": "Get an interactive dashboard and a Smart City score." },
       "step4": { "title": "Plan", "desc": "Simulate scenarios and generate a PDF report." }
     },
     "features": {
       "title": "Key Features",
-      "subtitle": "Powerful tools to diagnose and plan your city's future.",
+      "subtitle": "Powerful tools to diagnose and plan the future of your city.",
       "items": [
-        { "title": "Express diagnostic", "description": "Indicators covering all urban dimensions." },
-        { "title": "Smart City Score", "description": "Rating from 0 to 100 with automatic benchmarking against similar African cities. Clear visualization of strengths and areas for improvement." },
-        { "title": "PDF Report", "description": "Interactive interface to explore results, plus confidential PDF report ready to share with partners and funders." },
-        { "title": "AI Chatbot 24/7", "description": "Intelligent assistant available 24/7 to answer technical questions, propose adapted strategies, and suggest examples of similar cities." },
+        { "title": "Express diagnosis", "description": "Indicators spread across all urban dimensions." },
+        { "title": "Smart City Score", "description": "Rating from 0 to 100 with automatic benchmarking against similar cities in Africa. Clear visualization of strengths and areas for improvement." },
+        { "title": "PDF Report", "description": "Interactive interface to explore results, plus confidential PDF report ready to share with partners and donors." },
+        { "title": "24/7 AI Chatbot", "description": "Intelligent assistant available 24/7 to answer technical questions, propose adapted strategies and suggest examples of similar cities." },
         { "title": "What-if scenarios", "description": "Simulate the impact of different urban interventions: before/after, estimated costs, affected populations, overall score variation." },
-        { "title": "Benchmarking", "description": "Compare your city to other African and international metropolises to identify best practices and opportunities." }
+        { "title": "Benchmarking", "description": "Compare your city with other African and international metropolises to identify best practices and opportunities." }
       ]
     },
     "benefits": {
-      "title": "Concrete",
-      "highlight": "Benefits",
+      "title": "Benefits",
+      "highlight": "concrete",
       "items": [
-        { "title": "Speed and simplicity", "desc": "No more studies that take 6 months and cost tens of thousands of dollars. With AfricanCities IA, get your complete diagnosis in minutes, at a cost accessible even to smaller municipalities." },
-        { "title": "Preparation of funded projects", "desc": "Funders require solid dossiers with indicators, scenarios, and projections. Our platform automatically generates all necessary elements to build convincing proposals and increase your chances of obtaining funding." },
-        { "title": "Capacity building", "desc": "No need to systematically call on external consultants. Your municipal team develops autonomy and understanding of urban issues through integrated diagnostic, simulation, and training tools." },
-        { "title": "Monitoring over time", "desc": "Compare your city's evolution year by year. Measure the real impact of your investments. Demonstrate progress to citizens and partners. Adjust your strategy continuously." }
+        { "title": "Speed and simplicity", "desc": "Gone are the studies that take 6 months and cost tens of thousands of dollars. With AfricanCities AI, get your complete diagnosis in minutes, at a cost accessible even to the smallest municipalities." },
+        { "title": "Preparation of funded projects", "desc": "Donors require solid dossiers with indicators, scenarios and projections. Our platform automatically generates all the necessary elements to build convincing proposals and increase your chances of obtaining funding." },
+        { "title": "Capacity building", "desc": "No need to systematically call on external consultants. Your municipal team develops its autonomy and understanding of urban issues thanks to integrated diagnostic, simulation and training tools." },
+        { "title": "Monitoring over time", "desc": "Compare your city's evolution year after year. Measure the real impact of your investments. Demonstrate progress to citizens and partners. Adjust your strategy continuously." }
       ]
     }
   },
@@ -74,18 +82,16 @@
     "parcours": {
       "title": "Our",
       "highlight": "journey",
-      "p1": "<0>AfricanCities AI</0> aims to revive and evolve urban culture: designing engaging human-centered experiences through technology, empathy, and creativity.",
-      "p2": "As design thinkers, we believe in the mantra of creating frictionless and joyful human interactions for the public. As humans, we also believe in building a sustainable world for future generations.",
-      "p3": "In 2016, the United Nations reported that more than half of the world's population lived in cities, and this number continues to grow. Increasing human density in urban areas leads to more frequent use of public urban services and products, and more interactions with urban infrastructure.",
-      "p4": "The multidisciplinary team at AfricanCities AI works hard to mitigate the problems of massive urbanization, reinforcing the crucial role of embedded technologies and smart infrastructure in building our lives in the cities of the future."
+      "p1": "<0>AI</0> at the service of African resilience AfricanCities AI Services transforms the complexity of massive urbanization into opportunities for sustainable development. By combining expertise in data science, AI and a human-centered approach, we design technological solutions that eliminate friction in the management of public infrastructures. Our mission is to provide decision-makers with the intelligent tools needed to build resilient, inclusive African cities ready for future generations.",
+      "p2": "The multidisciplinary team of AfricanCities AI works hard to mitigate the problems of massive urbanization, reinforcing the crucial role of embedded technologies and smart infrastructures in building our lives in the cities of the future."
     },
     "expertise": {
       "title": "World-class multidisciplinary expertise",
-      "description": "AfricanCities IA Services is powered by the Center for Urban Systems (CUS) at UM6P, a center of excellence dedicated to urban innovation in Africa.",
+      "description": "AfricanCities AI Services is powered by the Center for Urban Systems (CUS) of UM6P, a center of excellence dedicated to urban innovation in Africa.",
       "pillars_title": "Impact pillars",
       "pillar1": {
         "title": "+20 high-level experts",
-        "desc": "A multinational team combining AI, statistics, spatial data science, architecture, mobility, digital twin, and geomatics."
+        "desc": "A multinational team combining AI, statistics, spatial data science, architecture, mobility, digital twin and geomatics."
       },
       "pillar2": {
         "title": "Scientific rigor",
@@ -93,72 +99,285 @@
       },
       "pillar3": {
         "title": "Continental impact",
-        "desc": "45 case studies and more than 16 strategic projects in Africa carried out in collaboration with the World Bank, OCP Foundation, and EPFL."
+        "desc": "45 case studies and more than 16 strategic projects in Africa carried out in collaboration with the World Bank, OCP Foundation and EPFL."
       }
     },
     "summary": {
       "title": "Project",
       "highlight": "Summary",
-      "subtitle": "AfricanCities IA Services: AI for urban diagnostics in African cities",
-      "p1": "Africa's rapid urbanization demands smart solutions. Many cities face major challenges in housing, infrastructure, and climate, and lack accessible tools to plan effectively.",
-      "p2": "AfricanCities IA Services offers an innovative AI assistant that provides fast and confidential urban diagnostics. In just 5 minutes, cities can assess their \"smart city\" potential, receive personalized impact-focused recommendations, and compare themselves to similar cities. Our platform includes an interactive dashboard, detailed PDF reports, and an urban AI chatbot for strategic analysis and \"what-if\" scenarios.",
-      "p3": "This tool provides municipalities with fast, affordable, and reliable data, helping them prioritize investments in housing, water, transportation, and energy. It strengthens local capacity, improves their visibility for funding, and enables tracking progress over time.",
+      "subtitle": "AfricanCities AI Services: AI at the service of urban diagnosis for African cities",
+      "p1": "Africa's rapid urbanization demands smart solutions. Many cities face major challenges in housing, infrastructure and climate, and lack accessible tools to plan effectively.",
+      "p2": "AfricanCities AI Services offers an innovative AI assistant that provides fast and confidential urban diagnoses. In just 5 minutes, cities can assess their \"smart city\" potential, receive personalized impact-focused recommendations and compare themselves with similar cities. Our platform includes an interactive dashboard, detailed PDF reports and an urban AI chatbot for strategic analysis and \"what-if\" scenarios.",
+      "p3": "This tool provides municipalities with fast, affordable and reliable data, helping them prioritize investments in housing, water, transport and energy. It builds local capacity, improves their visibility for funding and enables progress to be tracked over time.",
       "p4": "Our vision is to expand across the continent, creating a unique database of smart African cities and contributing to a continental index of sustainable and inclusive urban development.",
-      "p5": "AfricanCities IA Services is transforming how African cities plan and grow, fostering data-driven decisions for a better urban future."
+      "p5": "AfricanCities AI Services is transforming the way African cities plan and develop, fostering data-driven decisions for a better urban future."
     }
   },
   "diagnostic": {
-    "title": "Smart Urban Diagnostic",
+    "title": "Smart Urban Diagnosis",
     "subtitle": "Assess your city in 5 minutes",
-    "steps": {
-      "step1": "Enter basic information",
-      "step2": "Answer targeted questions",
-      "step3": "Get your personalized report"
+    "stats": {
+      "indicators_count": "80+ indicators"
+    },
+    "tabs": {
+      "form": "Indicators entry",
+      "result": "Full report"
+    },
+    "dimensions": {
+      "choose": "Choose a dimension to fill"
+    },
+    "indicators_one": "{{count}} indicator",
+    "indicators_other": "{{count}} indicators",
+    "general": {
+      "title": "General information"
     },
     "form": {
       "city_name": "City name",
       "country": "Country",
+      "region": "Region/Province",
+      "diagnostic_date": "Diagnosis date",
       "population": "Population",
       "area": "Area (km²)",
+      "population_density": "Population density (inhabitants/km²)",
       "start_button": "Start assessment"
     },
     "results": {
-      "title": "Your diagnostic",
+      "title": "Your diagnosis",
       "download": "Download PDF report",
-      "compare": "Compare to similar cities"
+      "compare": "Compare with similar cities"
+    },
+    "objectives": {
+      "title": "Diagnostic objectives",
+      "type": "Diagnostic type",
+      "options": {
+        "complete": "Complete diagnosis 80+ indicators",
+        "accelerated": "Accelerated diagnosis",
+        "thematic": "Thematic diagnosis",
+        "update": "Diagnostic update"
+      },
+      "specific": "Specific objective",
+      "specific_placeholder": "Objectives pursued, intended uses of the diagnosis...",
+      "comments": "Additional comments",
+      "comments_placeholder": "Particular context, specific challenges, ongoing projects..."
+    },
+    "sources": {
+      "title": "Integrated external sources",
+      "worldBank": "World Bank",
+      "sdg": "SDG",
+      "wikipedia": "Wikipedia",
+       "integrated_message": "World Bank and SDG data integrated",
+      "worldBankData": "World Bank data available: {{count}} indicators",
+      "wikipediaData": "Wikipedia data available for {{city}}",
+      "sdgData": "SDG data integrated: 17 goals available"
+    },
+    "upload": {
+      "title": "Document import",
+      "acceptedFormats": "Accepted formats: PDF, Images, Excel, CSV, GeoJSON",
+      "clickToBrowse": "Click to browse",
+      "fileTypes": "PDF, JPEG, PNG, XLSX, CSV, GeoJSON",
+      "documentsLoaded": "Documents loaded ({{count}})",
+      "images": "Images",
+       "pdf_one": "{{count}} PDF",
+      "pdf_other": "{{count}} PDFs",
+      "images_one": "{{count}} Image",
+      "images_other": "{{count}} Images",
+      "excel_one": "{{count}} Excel",
+      "excel_other": "{{count}} Excel files",
+      "geojson_one": "{{count}} GeoJSON",
+      "geojson_other": "{{count}} GeoJSON files"
+    },
+    "report": {
+      "title": "Complete Urban Diagnosis",
+      "subtitle": "80+ indicators · 7 dimensions",
+      "preparing": "PDF preparation",
+      "generate": "Generate full diagnosis",
+      "generating": "Generating document...",
+      "success": "PDF generated successfully.",
+      "error": "Unable to generate PDF.",
+      "noResults": "No results available. Please fill in the indicators and generate the diagnosis first."
+    }
+  },
+  "dimensions": {
+    "society": {
+      "title": "Society",
+      "description": "20 indicators · Education, health, safety, social inclusion",
+      "fields": {
+        "primary_school_enrollment": "Primary school enrollment rate (%)",
+        "secondary_school_enrollment": "Secondary school enrollment rate (%)",
+        "tertiary_enrollment": "Tertiary education enrollment rate (%)",
+        "adult_literacy_rate": "Adult literacy rate (%)",
+        "youth_literacy_rate": "Youth literacy rate (%)",
+        "gender_parity_index": "Gender parity index",
+        "crime_rate": "Crime rate (per 1000 inhabitants)",
+        "safety_perception": "Safety perception (%)",
+        "healthcare_access": "Access to basic healthcare (%)",
+        "doctors_per_10000": "Doctors per 10,000 inhabitants",
+        "hospital_beds_per_10000": "Hospital beds per 10,000 inhabitants",
+        "life_expectancy": "Life expectancy (years)",
+        "infant_mortality": "Infant mortality (‰)",
+        "maternal_mortality": "Maternal mortality (per 100k)",
+        "vaccination_rate": "DTP3 vaccination rate (%)",
+        "malnutrition_rate": "Child malnutrition rate (%)",
+        "urban_poverty_rate": "Urban poverty rate (%)",
+        "social_inclusion_index": "Social inclusion index (%)",
+        "community_participation_rate": "Community participation rate (%)",
+        "social_protection_coverage": "Social protection coverage (%)"
+      }
+    },
+    "habitat": {
+      "title": "Habitat",
+      "description": "Housing, basic services, housing quality",
+      "fields": {
+        "water_access": "Access to drinking water (%)",
+        "water_quality": "Water quality (%)",
+        "electricity_access": "Access to electricity (%)",
+        "clean_cooking_fuels": "Access to clean cooking fuels (%)",
+        "housing_overcrowding": "Overcrowding index (persons/room)",
+        "informal_housing_percentage": "Informal housing (%)",
+        "housing_cost_per_m2": "Housing cost (USD/m²)",
+        "home_ownership_rate": "Home ownership rate (%)",
+        "sanitation_access": "Access to improved sanitation (%)",
+        "wastewater_treatment": "Wastewater treatment (%)",
+        "homelessness_rate": "Homelessness rate (%)",
+        "housing_satisfaction_rate": "Housing satisfaction rate (%)",
+        "housing_affordability_index": "Housing affordability index",
+        "slum_population_percentage": "Slum population (%)"
+      }
+    },
+    "spatial": {
+      "title": "Spatial Development",
+      "description": "Density, green spaces, mobility, planning",
+      "fields": {
+        "urban_density": "Urban density (inhabitants/km²)",
+        "green_space_per_capita": "Green spaces (m²/inhabitant)",
+        "public_transport_access": "Access to public transport (%)",
+        "home_work_distance": "Home-work distance (km)",
+        "urbanization_rate": "Annual urbanization rate (%)",
+        "planned_vs_informal_ratio": "Planned neighborhoods (%)",
+        "functional_mix_index": "Functional mix index (%)",
+        "sports_cultural_access": "Access to sports/cultural facilities (%)",
+        "walkability_score": "Walkability score",
+        "bike_lane_density": "Bike lane density (km/km²)",
+        "public_space_access": "Access to public spaces (%)"
+      }
+    },
+    "infrastructure": {
+      "title": "Infrastructure",
+      "description": "Roads, digital, service reliability",
+      "fields": {
+        "road_quality_percentage": "Road quality (% paved)",
+        "road_length_per_capita": "Road length per capita (km/1000 inhab.)",
+        "internet_access": "High-speed internet access (%)",
+        "broadband_speed": "Average internet speed (Mbps)",
+        "mobile_penetration": "Mobile penetration rate (%)",
+        "water_reliability": "Water reliability (hours of interruption/week)",
+        "electricity_reliability": "Electricity reliability (hours of interruption/week)",
+        "public_transport_capacity": "Public transport capacity (seats/km/day)",
+        "motorization_rate": "Motorization rate (vehicles/1000 inhab.)",
+        "accessibility_pmr": "Accessibility for people with reduced mobility (%)",
+        "drainage_coverage": "Drainage coverage (%)",
+        "street_lighting_coverage": "Street lighting coverage (%)",
+        "digital_services_index": "Digital services index"
+      }
+    },
+    "environment": {
+      "title": "Environment",
+      "description": "Air quality, waste, climate, energy",
+      "fields": {
+        "air_quality_pm25": "Air quality (annual PM2.5)",
+        "air_quality_pm10": "Air quality (annual PM10)",
+        "waste_collection_rate": "Waste collection rate (%)",
+        "waste_recycling_rate": "Waste recycling rate (%)",
+        "waste_to_energy_rate": "Waste-to-energy rate (%)",
+        "sanitation_coverage": "Access to sanitation (%)",
+        "climate_vulnerability_index": "Climate vulnerability index",
+        "heatwave_days_per_year": "Heatwave days per year",
+        "flood_risk_areas": "Flood risk areas (%)",
+        "renewable_energy_share": "Renewable energy share (%)",
+        "urban_deforestation_rate": "Urban deforestation rate (%)",
+        "climate_adaptation_plan": "Climate adaptation plan",
+        "biodiversity_index": "Biodiversity index",
+        "carbon_footprint_per_capita": "Carbon footprint (tCO2/inhabitant)"
+      }
+    },
+    "governance": {
+      "title": "Governance",
+      "description": "Transparency, participation, citizen satisfaction",
+      "fields": {
+        "corruption_index": "Corruption perception index",
+        "voter_turnout": "Voter turnout (%)",
+        "women_in_council": "Women in municipal council (%)",
+        "youth_in_council": "Youth in municipal council (%)",
+        "elected_council_exists": "Elected municipal council",
+        "public_service_satisfaction": "Public service satisfaction (%)",
+        "open_data_access": "Open data access (%)",
+        "political_stability_index": "Political stability index",
+        "citizen_initiatives_supported": "Citizen initiatives supported (per year)",
+        "budget_transparency": "Budget transparency (%)",
+        "participatory_budgeting": "Participatory budgeting",
+        "digital_governance_index": "Digital governance index"
+      }
+    },
+    "economy": {
+      "title": "Economy",
+      "description": "Employment, growth, investments, income",
+      "fields": {
+        "unemployment_rate": "Urban unemployment rate (%)",
+        "youth_unemployment": "Youth unemployment rate (%)",
+        "female_labor_participation": "Female labor participation (%)",
+        "formal_employment_rate": "Formal employment rate (%)",
+        "gdp_per_capita": "GDP per capita (USD)",
+        "gdp_growth_rate": "Local GDP growth rate (%)",
+        "fdi_attractiveness": "FDI attractiveness (number of FDI projects)",
+        "business_creation_rate": "Business creation rate",
+        "income_per_capita": "Average income per capita (USD)",
+        "microcredit_access_rate": "Access to microcredit (%)",
+        "cost_of_living_index": "Cost of living index",
+        "monetary_poverty_rate": "Urban monetary poverty rate (%)",
+        "green_digital_economy_share": "Green/digital economy share (%)",
+        "informal_economy_share": "Informal economy share (%)",
+        "tourism_revenue": "Tourism revenue (million USD)"
+      }
     }
   },
   "contact": {
     "title": "Contact",
-    "subtitle": "Opportunities now exist to apply digital technologies into everyday environments and to transform urban infrastructures into interactive platforms.",
+    "subtitle": "Opportunities now exist to apply digital technologies in everyday environments and transform urban infrastructures into interactive platforms.",
     "form": {
       "title": "Your message",
       "name": "Your name",
       "name_placeholder": "John Doe",
-      "firstName": "First Name",
-      "firstName_placeholder": "Jean",
-      "lastName": "Last Name",
-      "lastName_placeholder": "Dupont",
+      "firstName": "First name",
+      "firstName_placeholder": "John",
+      "lastName": "Last name",
+      "lastName_placeholder": "Doe",
       "email": "Email address",
-      "email_placeholder": "jean@example.com",
+      "email_placeholder": "john@example.com",
       "message": "Message",
       "message_placeholder": "Your message...",
       "send": "Send",
       "success": "Message sent successfully!"
     },
     "info": {
-      "title": "Get in touch",
+      "title": "Contact us",
       "address_title": "Our office",
-      "address": "Center of Urban Systems ( CUS )\nMohammed VI Polytechnic University\nBenguerir, Morocco",
+      "address": "Center for Urban Systems (CUS)\nMohammed VI Polytechnic University\nBenguerir, Morocco",
       "email_title": "Email us",
       "email": "contact.cus@um6p.ma"
     }
   },
   "chat": {
-    "title": "Urban AI Assistant",
-    "subtitle": "Ask your questions about urban diagnostics",
-    "input_placeholder": "Type your message...",
-    "send": "Send",
-    "welcome_message": "Hello! I am your urban AI assistant. How can I help you today?"
+     "title": "Urban AI Assistant",
+  "subtitle": "Expert in territorial development",
+  "welcome_message": "Hello. I am your assistant specialized in African urban development. How can I help you analyze your data or plan your projects today?",
+  "suggestions_title": "Suggestions",
+  "suggestion_urban_planning": "Sustainable urban planning",
+  "suggestion_transport": "Informal transport in Dakar",
+  "suggestion_waste": "Waste management",
+  "suggestion_housing": "Affordable social housing",
+  "input_placeholder": "Ask a question about your city...",
+  "disclaimer": "AI can make mistakes. Check important information.",
+  "open_aria": "Open chat",
+  "close_aria": "Close"
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../component/ui/card";
 import { Button } from "../../../component/ui/button";
 import { Download, AlertCircle } from "lucide-react";
@@ -12,6 +13,7 @@ interface ReportViewerProps {
 }
 
 export function ReportViewer({ generatedContent, city }: ReportViewerProps) {
+  const { t } = useTranslation();
   const reportContentRef = useRef<HTMLDivElement>(null);
 
   const downloadPDF = async () => {
@@ -19,8 +21,8 @@ export function ReportViewer({ generatedContent, city }: ReportViewerProps) {
     
     try {
       toast({
-        title: "Préparation du PDF",
-        description: "Génération du document en cours...",
+        title: t('diagnostic.report.preparing', 'Préparation du PDF'),
+        description: t('diagnostic.report.generating', 'Génération du document en cours...'),
       });
       
       const pdf = new jsPDF({
@@ -114,14 +116,14 @@ export function ReportViewer({ generatedContent, city }: ReportViewerProps) {
       pdf.save(`Diagnostic_${city?.replace(/\s+/g, '_') || 'ville'}_${new Date().toISOString().split('T')[0]}.pdf`);
       
       toast({
-        title: "Succès !",
-        description: "Le PDF a été généré avec succès.",
+        title: t('common.success', 'Succès !'),
+        description: t('diagnostic.report.success', 'Le PDF a été généré avec succès.'),
       });
     } catch (error) {
       console.error('Erreur lors de la génération du PDF:', error);
       toast({
-        title: "Erreur",
-        description: "Impossible de générer le PDF.",
+        title: t('common.error', 'Erreur'),
+        description: t('diagnostic.report.error', 'Impossible de générer le PDF.'),
         variant: "destructive",
       });
     }
@@ -133,16 +135,16 @@ export function ReportViewer({ generatedContent, city }: ReportViewerProps) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="font-serif text-2xl text-primary">
-              Diagnostic Urbain Complet: {city}
+              {t('diagnostic.report.title', 'Diagnostic Urbain Complet')}: {city}
             </CardTitle>
             <CardDescription>
-              80+ indicateurs · 7 dimensions
+              {t('diagnostic.report.subtitle', '80+ indicateurs · 7 dimensions')}
             </CardDescription>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={downloadPDF}>
               <Download className="w-4 h-4 mr-2" />
-              Télécharger PDF
+              {t('diagnostic.results.download', 'Télécharger le rapport PDF')}
             </Button>
           </div>
         </div>
@@ -157,7 +159,7 @@ export function ReportViewer({ generatedContent, city }: ReportViewerProps) {
         ) : (
           <div className="text-center py-12">
             <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p>Aucun résultat disponible. Veuillez d'abord renseigner les indicateurs et générer le diagnostic.</p>
+            <p>{t('diagnostic.report.noResults', 'Aucun résultat disponible. Veuillez d\'abord renseigner les indicateurs et générer le diagnostic.')}</p>
           </div>
         )}
       </CardContent>

@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { ChatInterface } from "../component/chat-interface";
+import { useTranslation } from 'react-i18next';
+import { ChatInterface } from "./ChatInterface"; // Assurez-vous que le chemin est correct
 
 export default function ChatWidget() {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleChat = () => setIsOpen(!isOpen);
@@ -12,7 +14,7 @@ export default function ChatWidget() {
       <button
         onClick={toggleChat}
         className="fixed bottom-6 right-6 bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-full shadow-lg transition-colors z-50 focus:outline-none focus:ring-2 focus:ring-amber-400"
-        aria-label="Ouvrir le chat"
+        aria-label={t('chat.open_aria')}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -34,11 +36,11 @@ export default function ChatWidget() {
       {isOpen && (
         <div className="fixed bottom-24 right-6 w-96 h-[32rem] bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col z-50 overflow-hidden">
           <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-            <h2 className="font-semibold text-gray-800">Assistant Urbain</h2>
+            <h2 className="font-semibold text-gray-800">{t('chat.title')}</h2>
             <button
               onClick={toggleChat}
               className="text-gray-500 hover:text-gray-700 focus:outline-none"
-              aria-label="Fermer"
+              aria-label={t('chat.close_aria')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

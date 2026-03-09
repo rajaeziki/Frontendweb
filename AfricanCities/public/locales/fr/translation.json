@@ -9,12 +9,20 @@
     },
     "footer": {
       "thank_you": "Merci de votre intérêt. Nos sites dérivés seront bientôt lancés, restez à l'écoute !",
-      "pilot": "Vous ne voulez pas attendre ? <1>Mettez en place un programme pilote</1>.",
+      "pilot": "Vous ne voulez pas attendre ? Mettez en place un programme pilote.",
       "location": "Benguerir",
       "email": "contact.cus@um6p.ma",
       "privacy": "Politique de confidentialité",
       "contact_button": "CONTACT"
-    }
+    },
+    "enabled": "Activée",
+    "disabled": "Désactivée",
+    "success": "Succès !",
+    "error": "Erreur",
+    "yes": "Oui",
+    "no": "Non",
+    "partly": "En partie",
+    "testing": "En test"
   },
   "home": {
     "hero": {
@@ -74,10 +82,8 @@
     "parcours": {
       "title": "Notre",
       "highlight": "parcours",
-      "p1": "<0>AfricanCities AI</0> vise à faire revivre et à faire évoluer la culture urbaine : concevoir des expériences engageantes centrées sur l'humain grâce à la technologie, l'empathie et la créativité.",
-      "p2": "En tant que design thinkers, nous croyons au mantra de la création d'interactions humaines sans friction et joyeuses pour le public. En tant qu'humains, nous croyons aussi à la construction d'un monde durable pour les générations futures.",
-      "p3": "En 2016, les Nations Unies rapportaient que plus de la moitié de la population mondiale vivait dans des villes, et ce chiffre ne cesse de croître. La densité humaine croissante dans les zones urbaines entraîne une utilisation plus fréquente des services et produits urbains publics et davantage d'interactions avec les infrastructures urbaines.",
-      "p4": "L'équipe multidisciplinaire d'AfricanCities AI travaille dur pour atténuer les problèmes d'urbanisation massive, renforçant le rôle crucial des technologies embarquées et des infrastructures intelligentes dans la construction de nos vies dans les villes du futur."
+      "p1": "<0>AI</0> au service de la résilience africaine AfricanCities IA Services transforme la complexité de l'urbanisation massive en opportunités de développement durable. En combinant l'expertise en science des données, l'IA et une approche centrée sur l'humain, nous concevons des solutions technologiques qui éliminent les frictions dans la gestion des infrastructures publiques. Notre mission est de fournir aux décideurs les outils intelligents nécessaires pour bâtir des villes africaines résilientes, inclusives et prêtes pour les générations futures.",
+      "p2": "L'équipe multidisciplinaire d'AfricanCities AI travaille dur pour atténuer les problèmes d'urbanisation massive, renforçant le rôle crucial des technologies embarquées et des infrastructures intelligentes dans la construction de nos vies dans les villes du futur."
     },
     "expertise": {
       "title": "Une expertise multidisciplinaire de classe mondiale",
@@ -110,22 +116,228 @@
   "diagnostic": {
     "title": "Diagnostic urbain intelligent",
     "subtitle": "Évaluez votre ville en 5 minutes",
-    "steps": {
-      "step1": "Renseignez les informations de base",
-      "step2": "Répondez aux questions ciblées",
-      "step3": "Obtenez votre rapport personnalisé"
+    "stats": {
+      "indicators_count": "80+ indicators"},
+    "tabs": {
+      "form": "Saisie des indicateurs",
+      "result": "Rapport complet"
+    },
+    "dimensions": {
+      "choose": "Choisissez une dimension à renseigner"
+    },
+    "indicators_one": "{{count}} indicateur",
+    "indicators_other": "{{count}} indicateurs",
+    "general": {
+      "title": "Informations générales"
     },
     "form": {
-      "city_name": "Nom de la ville",
+       "city_name": "Nom de la ville",
       "country": "Pays",
+      "region": "Région/Province",
+      "diagnostic_date": "Date du diagnostic",
       "population": "Population",
       "area": "Superficie (km²)",
+      "population_density": "Densité (hab/km²)",
       "start_button": "Commencer l'évaluation"
     },
     "results": {
       "title": "Votre diagnostic",
       "download": "Télécharger le rapport PDF",
       "compare": "Comparer à des villes similaires"
+    },
+    "objectives": {
+      "title": "Objectifs du diagnostic",
+      "type": "Type de diagnostic",
+      "options": {
+        "complete": "Diagnostic complet 80+ indicateurs",
+        "accelerated": "Diagnostic accéléré",
+        "thematic": "Diagnostic thématique",
+        "update": "Mise à jour diagnostique"
+      },
+      "specific": "Objectif spécifique",
+      "specific_placeholder": "Objectifs poursuivis, utilisations prévues du diagnostic...",
+      "comments": "Commentaires additionnels",
+      "comments_placeholder": "Contexte particulier, défis spécifiques, projets en cours..."
+    },
+    "sources": {
+      "title": "Sources externes intégrées",
+      "worldBank": "Banque Mondiale",
+      "sdg": "SDG",
+      "wikipedia": "Wikipedia",
+      "worldBankData": "Données Banque Mondiale disponibles : {{count}} indicateurs",
+      "wikipediaData": "Données Wikipedia disponibles pour {{city}}",
+      "integrated_message": "Données Banque Mondiale et SDG intégrées",
+      "sdgData": "Données SDG intégrées : 17 objectifs disponibles"
+    },
+    "upload": {
+      "title": "Import de documents",
+      "acceptedFormats": "Formats acceptés : PDF, Images, Excel, CSV, GeoJSON",
+      "clickToBrowse": "Cliquez pour parcourir",
+      "fileTypes": "PDF, JPEG, PNG, XLSX, CSV, GeoJSON",
+      "documentsLoaded": "Documents chargés ({{count}})",
+      "images": "Images",
+      "pdf_one": "{{count}} PDF",
+      "pdf_other": "{{count}} PDFs",
+      "images_one": "{{count}} Image",
+      "images_other": "{{count}} Images",
+      "excel_one": "{{count}} Excel",
+      "excel_other": "{{count}} Excel files",
+      "geojson_one": "{{count}} GeoJSON",
+      "geojson_other": "{{count}} GeoJSON files"
+    },
+    "report": {
+      "title": "Diagnostic Urbain Complet",
+      "subtitle": "80+ indicateurs · 7 dimensions",
+      "preparing": "Préparation du PDF",
+      "generate": "Générer le diagnostic complet",
+      
+      "generating": "Génération du document en cours...",
+      "success": "Le PDF a été généré avec succès.",
+      "error": "Impossible de générer le PDF.",
+      "noResults": "Aucun résultat disponible. Veuillez d'abord renseigner les indicateurs et générer le diagnostic."
+    }
+  },
+  "dimensions": {
+    "society": {
+      "title": "Société",
+      "description": "20 indicateurs · Éducation, santé, sécurité, inclusion sociale",
+      "fields": {
+        "primary_school_enrollment": "Taux scolarisation primaire (%)",
+        "secondary_school_enrollment": "Taux scolarisation secondaire (%)",
+        "tertiary_enrollment": "Taux scolarisation supérieure (%)",
+        "adult_literacy_rate": "Taux alphabétisation adultes (%)",
+        "youth_literacy_rate": "Taux alphabétisation jeunes (%)",
+        "gender_parity_index": "Indice de parité des genres",
+        "crime_rate": "Taux criminalité (pour 1000 hab.)",
+        "safety_perception": "Perception sécurité (%)",
+        "healthcare_access": "Accès soins de base (%)",
+        "doctors_per_10000": "Médecins pour 10 000 hab.",
+        "hospital_beds_per_10000": "Lits d'hôpital pour 10 000 hab.",
+        "life_expectancy": "Espérance de vie (ans)",
+        "infant_mortality": "Mortalité infantile (‰)",
+        "maternal_mortality": "Mortalité maternelle (pour 100k)",
+        "vaccination_rate": "Taux vaccination DTP3 (%)",
+        "malnutrition_rate": "Taux malnutrition infantile (%)",
+        "urban_poverty_rate": "Taux pauvreté urbaine (%)",
+        "social_inclusion_index": "Indice inclusion sociale (%)",
+        "community_participation_rate": "Participation communautaire (%)",
+        "social_protection_coverage": "Couverture protection sociale (%)"
+      }
+    },
+    "habitat": {
+      "title": "Habitat",
+      "description": "Logement, services de base, qualité de l'habitat",
+      "fields": {
+        "water_access": "Accès eau potable (%)",
+        "water_quality": "Qualité de l'eau (%)",
+        "electricity_access": "Accès électricité (%)",
+        "clean_cooking_fuels": "Accès combustibles propres (%)",
+        "housing_overcrowding": "Indice surpeuplement (pers/pièce)",
+        "informal_housing_percentage": "Habitat informel (%)",
+        "housing_cost_per_m2": "Coût logement (USD/m²)",
+        "home_ownership_rate": "Taux accession propriété (%)",
+        "sanitation_access": "Accès assainissement amélioré (%)",
+        "wastewater_treatment": "Traitement eaux usées (%)",
+        "homelessness_rate": "Taux sans-abrisme (%)",
+        "housing_satisfaction_rate": "Satisfaction logement (%)",
+        "housing_affordability_index": "Indice abordabilité logement",
+        "slum_population_percentage": "Population en bidonville (%)"
+      }
+    },
+    "spatial": {
+      "title": "Développement Spatial",
+      "description": "Densité, espaces verts, mobilité, planification",
+      "fields": {
+        "urban_density": "Densité urbaine (hab/km²)",
+        "green_space_per_capita": "Espaces verts (m²/hab)",
+        "public_transport_access": "Accès transport public (%)",
+        "home_work_distance": "Distance domicile-travail (km)",
+        "urbanization_rate": "Taux d'urbanisation annuel (%)",
+        "planned_vs_informal_ratio": "Quartiers planifiés (%)",
+        "functional_mix_index": "Indice mixité fonctionnelle (%)",
+        "sports_cultural_access": "Accès équipements sportifs/culturels (%)",
+        "walkability_score": "Score de marchabilité",
+        "bike_lane_density": "Densité pistes cyclables (km/km²)",
+        "public_space_access": "Accès espaces publics (%)"
+      }
+    },
+    "infrastructure": {
+      "title": "Infrastructures",
+      "description": "Routes, numérique, fiabilité des services",
+      "fields": {
+        "road_quality_percentage": "Qualité des routes (% pavées)",
+        "road_length_per_capita": "Longueur routes par habitant (km/1000 hab.)",
+        "internet_access": "Accès Internet haut-débit (%)",
+        "broadband_speed": "Vitesse Internet moyenne (Mbps)",
+        "mobile_penetration": "Taux pénétration mobile (%)",
+        "water_reliability": "Fiabilité eau (heures coupure/semaine)",
+        "electricity_reliability": "Fiabilité électricité (heures coupure/semaine)",
+        "public_transport_capacity": "Capacité transport public (places/km/jour)",
+        "motorization_rate": "Taux motorisation (véhicules/1000 hab.)",
+        "accessibility_pmr": "Accessibilité PMR (%)",
+        "drainage_coverage": "Couverture drainage (%)",
+        "street_lighting_coverage": "Éclairage public (%)",
+        "digital_services_index": "Indice services numériques"
+      }
+    },
+    "environment": {
+      "title": "Environnement",
+      "description": "Qualité de l'air, déchets, climat, énergie",
+      "fields": {
+        "air_quality_pm25": "Qualité de l'air (PM2.5 annuel)",
+        "air_quality_pm10": "Qualité de l'air (PM10 annuel)",
+        "waste_collection_rate": "Taux collecte des déchets (%)",
+        "waste_recycling_rate": "Taux recyclage des déchets (%)",
+        "waste_to_energy_rate": "Taux valorisation énergétique (%)",
+        "sanitation_coverage": "Accès à l'assainissement (%)",
+        "climate_vulnerability_index": "Indice vulnérabilité climatique",
+        "heatwave_days_per_year": "Jours de canicule par an",
+        "flood_risk_areas": "Zones inondables (%)",
+        "renewable_energy_share": "Part énergies renouvelables (%)",
+        "urban_deforestation_rate": "Taux déforestation urbaine (%)",
+        "climate_adaptation_plan": "Plan d'adaptation climatique",
+        "biodiversity_index": "Indice biodiversité",
+        "carbon_footprint_per_capita": "Empreinte carbone (tCO2/hab)"
+      }
+    },
+    "governance": {
+      "title": "Gouvernance",
+      "description": "Transparence, participation, satisfaction citoyenne",
+      "fields": {
+        "corruption_index": "Indice perception corruption",
+        "voter_turnout": "Taux participation électorale (%)",
+        "women_in_council": "Femmes au conseil municipal (%)",
+        "youth_in_council": "Jeunes au conseil municipal (%)",
+        "elected_council_exists": "Conseil municipal élu",
+        "public_service_satisfaction": "Satisfaction services publics (%)",
+        "open_data_access": "Accès données ouvertes (%)",
+        "political_stability_index": "Indice stabilité politique",
+        "citizen_initiatives_supported": "Initiatives citoyennes soutenues (nb/an)",
+        "budget_transparency": "Transparence budgétaire (%)",
+        "participatory_budgeting": "Budget participatif",
+        "digital_governance_index": "Indice gouvernance numérique"
+      }
+    },
+    "economy": {
+      "title": "Économie",
+      "description": "Emploi, croissance, investissements, revenus",
+      "fields": {
+        "unemployment_rate": "Taux chômage urbain (%)",
+        "youth_unemployment": "Taux chômage jeunes (%)",
+        "female_labor_participation": "Participation féminine (%)",
+        "formal_employment_rate": "Taux emploi formel (%)",
+        "gdp_per_capita": "PIB par habitant (USD)",
+        "gdp_growth_rate": "Croissance PIB local (%)",
+        "fdi_attractiveness": "Attractivité investissements (nb projets FDI)",
+        "business_creation_rate": "Taux création d'entreprises",
+        "income_per_capita": "Revenu moyen par habitant (USD)",
+        "microcredit_access_rate": "Accès au microcrédit (%)",
+        "cost_of_living_index": "Indice coût de la vie",
+        "monetary_poverty_rate": "Taux pauvreté monétaire urbain (%)",
+        "green_digital_economy_share": "Part économie verte/digitale (%)",
+        "informal_economy_share": "Part économie informelle (%)",
+        "tourism_revenue": "Revenus touristiques (millions USD)"
+      }
     }
   },
   "contact": {
@@ -155,10 +367,17 @@
     }
   },
   "chat": {
-    "title": "Assistant IA Urbain",
-    "subtitle": "Posez vos questions sur le diagnostic urbain",
-    "input_placeholder": "Tapez votre message...",
-    "send": "Envoyer",
-    "welcome_message": "Bonjour ! Je suis votre assistant IA urbain. Comment puis-je vous aider aujourd'hui ?"
+     "title": "Assistant IA Urbain",
+  "subtitle": "Expert en développement territorial",
+  "welcome_message": "Bonjour. Je suis votre assistant spécialisé en développement urbain africain. Comment puis-je vous aider à analyser vos données ou planifier vos projets aujourd'hui ?",
+  "suggestions_title": "Suggestions",
+  "suggestion_urban_planning": "Planification urbaine durable",
+  "suggestion_transport": "Transport informel à Dakar",
+  "suggestion_waste": "Gestion des déchets",
+  "suggestion_housing": "Logement social abordable",
+  "input_placeholder": "Posez une question sur votre ville...",
+  "disclaimer": "L'IA peut faire des erreurs. Vérifiez les informations importantes.",
+  "open_aria": "Ouvrir le chat",
+  "close_aria": "Fermer"
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button } from "../../../component/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../component/ui/card";
 import { Label } from "../../../component/ui/label";
@@ -18,6 +19,7 @@ export function DocumentUploader({
   onFileUpload,
   onRemoveDocument
 }: DocumentUploaderProps) {
+  const { t } = useTranslation();
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -26,10 +28,10 @@ export function DocumentUploader({
     <Card className="sticky top-4 border border-gray-200 shadow-sm">
       <CardHeader>
         <CardTitle className="text-base font-medium text-gray-800">
-          Import de documents
+          {t('diagnostic.upload.title', 'Import de documents')}
         </CardTitle>
         <CardDescription className="text-xs text-gray-500">
-          Formats acceptés : PDF, Images, Excel, CSV, GeoJSON
+          {t('diagnostic.upload.acceptedFormats', 'Formats acceptés : PDF, Images, Excel, CSV, GeoJSON')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -46,9 +48,9 @@ export function DocumentUploader({
               onChange={onFileUpload}
               className="hidden"
             />
-            <p className="text-sm font-medium text-gray-700">Cliquez pour parcourir</p>
+            <p className="text-sm font-medium text-gray-700">{t('diagnostic.upload.clickToBrowse', 'Cliquez pour parcourir')}</p>
             <p className="text-xs text-gray-500 mt-1">
-              PDF, JPEG, PNG, XLSX, CSV, GeoJSON
+              {t('diagnostic.upload.fileTypes', 'PDF, JPEG, PNG, XLSX, CSV, GeoJSON')}
             </p>
           </div>
 
@@ -74,7 +76,7 @@ export function DocumentUploader({
           {documents.length > 0 && (
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
               <Label className="text-xs font-medium text-gray-700">
-                Documents chargés ({documents.length})
+                {t('diagnostic.upload.documentsLoaded', { count: documents.length })}
               </Label>
               {documents.map((doc) => (
                 <div
@@ -107,7 +109,7 @@ export function DocumentUploader({
               PDF: {documents.filter(d => d.type === 'pdf').length}
             </div>
             <div className="text-xs text-center p-2 bg-gray-100 rounded text-gray-700">
-              Images: {documents.filter(d => d.type === 'image').length}
+              {t('diagnostic.upload.images', 'Images')}: {documents.filter(d => d.type === 'image').length}
             </div>
             <div className="text-xs text-center p-2 bg-gray-100 rounded text-gray-700">
               Excel: {documents.filter(d => d.type === 'excel').length}

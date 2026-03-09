@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../component/ui/tabs";
 import ChatWidget from "../Chat";
+import { useTranslation } from 'react-i18next';
 import {
   FileText, BarChart3, Users, Home, Map, Building2,
-  Trees, Landmark, Briefcase
+  Trees, Landmark, Briefcase, Menu, X
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "./schemas";
 import type { FormData } from "./types";
-import { Link } from "wouter";
+import { Link, useRoute } from "wouter";
 import logo from "../../assets/logo.jpeg";
+import LanguageSwitcher from '../../component/LanguageSwitcher'; // Import du sélecteur de langue
 
 // Hooks
 import { useWebData } from "./hooks/useWebData";
@@ -35,15 +37,15 @@ import { ReportViewer } from "./components/ReportViewer";
 // Types pour les dimensions
 type DimensionKey = 'society' | 'habitat' | 'spatial' | 'infrastructure' | 'environment' | 'governance' | 'economy';
 
-// Métadonnées des dimensions
-const dimensionMeta: Record<DimensionKey, { label: string; count: number }> = {
-  society: { label: 'Société', count: 20 },
-  habitat: { label: 'Habitat', count: 14 },
-  spatial: { label: 'Développement Spatial', count: 11 },
-  infrastructure: { label: 'Infrastructures', count: 13 },
-  environment: { label: 'Environnement', count: 14 },
-  governance: { label: 'Gouvernance', count: 12 },
-  economy: { label: 'Économie', count: 15 },
+// Métadonnées des dimensions (avec clés de traduction)
+const dimensionMeta: Record<DimensionKey, { labelKey: string; count: number }> = {
+  society: { labelKey: 'dimensions.society.title', count: 20 },
+  habitat: { labelKey: 'dimensions.habitat.title', count: 14 },
+  spatial: { labelKey: 'dimensions.spatial.title', count: 11 },
+  infrastructure: { labelKey: 'dimensions.infrastructure.title', count: 13 },
+  environment: { labelKey: 'dimensions.environment.title', count: 14 },
+  governance: { labelKey: 'dimensions.governance.title', count: 12 },
+  economy: { labelKey: 'dimensions.economy.title', count: 15 },
 };
 
 // Icônes pour chaque dimension
@@ -69,6 +71,7 @@ const dimensionColors: Record<DimensionKey, string> = {
 };
 
 export default function Diagnosis() {
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState("form");
   const [activeDimension, setActiveDimension] = useState<DimensionKey>('society');
   const [enableWebSearch, setEnableWebSearch] = useState(true);
@@ -77,6 +80,25 @@ export default function Diagnosis() {
 
   // État pour la détection du scroll
   const [isScrolled, setIsScrolled] = useState(false);
+  // État pour le menu mobile
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Détection des routes actives
+  const [isHome] = useRoute('/');
+  const [isAbout] = useRoute('/about');
+  const [isDiagnosis] = useRoute('/diagnosis');
+  const [isContact] = useRoute('/contact');
+
+  // Ferme le menu mobile si on redimensionne au-dessus de md
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -117,9 +139,23 @@ export default function Diagnosis() {
     }
   };
 
+  // Fonction pour déterminer la classe d'un lien en fonction de l'état actif
+  const linkClass = (isActive: boolean) => {
+    const baseClasses = 'transition-colors';
+    const colorClasses = isScrolled
+      ? 'text-gray-800 hover:text-amber-500'
+      : 'text-white hover:text-amber-400';
+    const activeClasses = isActive
+      ? (isScrolled
+          ? 'text-amber-500 font-semibold border-b-2 border-amber-500 pb-1'
+          : 'text-amber-400 font-semibold border-b-2 border-amber-300 pb-1')
+      : '';
+    return `${baseClasses} ${colorClasses} ${activeClasses}`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white font-sans text-gray-800">
-      {/* Header sticky avec changement de style au scroll */}
+      {/* Header sticky avec changement de style au scroll et menu responsive */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/90 backdrop-blur-md shadow-lg py-2' 
@@ -144,52 +180,95 @@ export default function Diagnosis() {
               </div>
             </Link>
 
-            {/* Navigation */}
-            <ul className="flex space-x-8 text-sm font-medium tracking-wider">
-              <li>
-                <Link 
-                  href="/" 
-                  className={`transition-colors ${
-                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
-                  }`}
-                >
-                  HOME
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  href="/about" 
-                  className={`transition-colors ${
-                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
-                  }`}
-                >
-                  ABOUT
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  href="/diagnosis" 
-                  className={`transition-colors ${
-                    isScrolled 
-                      ? 'text-gray-800 hover:text-amber-500 font-semibold border-b-2 border-amber-500 pb-1' 
-                      : 'text-white hover:text-amber-400 font-semibold border-b-2 border-amber-300 pb-1'
-                  }`}
-                >
-                  DIAGNOSTIC
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  href="/contact" 
-                  className={`transition-colors ${
-                    isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400'
-                  }`}
-                >
-                  CONTACT
-                </Link>
-              </li>
-            </ul>
+            {/* Partie droite : menu desktop, sélecteur et burger */}
+            <div className="flex items-center">
+              {/* Menu desktop (visible à partir de md) */}
+              <ul className="hidden md:flex space-x-8 text-sm font-medium tracking-wider">
+                <li>
+                  <Link href="/" className={linkClass(isHome)}>
+                    {t('common.header.home')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className={linkClass(isAbout)}>
+                    {t('common.header.about')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/diagnosis" className={linkClass(isDiagnosis)}>
+                    {t('common.header.diagnostic')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className={linkClass(isContact)}>
+                    {t('common.header.contact')}
+                  </Link>
+                </li>
+              </ul>
+
+              {/* Sélecteur de langue (réutilisable) */}
+              <div className="ml-4">
+                <LanguageSwitcher />
+              </div>
+
+              {/* Bouton burger pour mobile */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden ml-4 p-2 focus:outline-none"
+                aria-label="Toggle menu"
+              >
+                {isMenuOpen ? (
+                  <X className={`w-6 h-6 ${isScrolled ? 'text-gray-800' : 'text-white'}`} />
+                ) : (
+                  <Menu className={`w-6 h-6 ${isScrolled ? 'text-gray-800' : 'text-white'}`} />
+                )}
+              </button>
+            </div>
           </div>
+
+          {/* Menu mobile déroulant */}
+          {isMenuOpen && (
+            <div className="md:hidden absolute top-full left-0 right-0 bg-white/90 backdrop-blur-md shadow-lg py-4 px-6 mt-2">
+              <ul className="flex flex-col space-y-4 text-sm font-medium">
+                <li>
+                  <Link 
+                    href="/" 
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`block transition-colors ${isHome ? 'text-amber-500 font-semibold' : 'text-gray-800'} hover:text-amber-500`}
+                  >
+                    {t('common.header.home')}
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    href="/about" 
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`block transition-colors ${isAbout ? 'text-amber-500 font-semibold' : 'text-gray-800'} hover:text-amber-500`}
+                  >
+                    {t('common.header.about')}
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    href="/diagnosis" 
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`block transition-colors ${isDiagnosis ? 'text-amber-500 font-semibold' : 'text-gray-800'} hover:text-amber-500`}
+                  >
+                    {t('common.header.diagnostic')}
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    href="/contact" 
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`block transition-colors ${isContact ? 'text-amber-500 font-semibold' : 'text-gray-800'} hover:text-amber-500`}
+                  >
+                    {t('common.header.contact')}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          )}
         </nav>
       </header>
 
@@ -204,13 +283,13 @@ export default function Diagnosis() {
           />
         </div>
         <div className="relative z-20 text-white max-w-4xl mx-auto px-6">
-  <h1 className="text-4xl md:text-6xl font-bold mb-4 text-center">
-    <span className="text-amber-400">Diagnostic</span>
-  </h1>
-  <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-white font-normal text-center">
-    Diagnostic Urbain Complet 80+ indicateurs avec intégration Banque Mondiale et SDG
-  </p>
-</div>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-center">
+            <span className="text-amber-400">{t('diagnostic.title')}</span>
+          </h1>
+          <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-white font-normal text-center">
+            {t('diagnostic.subtitle')}
+          </p>
+        </div>
       </section>
 
       {/* Contenu principal avec padding-top pour éviter le chevauchement */}
@@ -239,7 +318,7 @@ export default function Diagnosis() {
                   className="flex items-center gap-2 rounded-full px-6 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-amber-600"
                 >
                   <FileText className="w-4 h-4" />
-                  Saisie des indicateurs
+                  {t('diagnostic.tabs.form')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="result"
@@ -247,7 +326,7 @@ export default function Diagnosis() {
                   className="flex items-center gap-2 rounded-full px-6 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-amber-600 disabled:opacity-50"
                 >
                   <BarChart3 className="w-4 h-4" />
-                  Rapport complet
+                  {t('diagnostic.tabs.result')}
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -256,7 +335,7 @@ export default function Diagnosis() {
               {/* Sélection des dimensions */}
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                  Choisissez une dimension à renseigner
+                  {t('diagnostic.dimensions.choose')}
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
                   {(Object.keys(dimensionMeta) as DimensionKey[]).map((key) => (
@@ -273,9 +352,11 @@ export default function Diagnosis() {
                         {React.createElement(dimensionIcons[key], { className: "w-5 h-5" })}
                       </div>
                       <span className="text-xs font-medium text-gray-700 text-center">
-                        {dimensionMeta[key].label}
+                        {t(dimensionMeta[key].labelKey)}
                       </span>
-                      <span className="text-[10px] text-gray-500">{dimensionMeta[key].count} indicateurs</span>
+                      <span className="text-[10px] text-gray-500">
+                        {t('diagnostic.indicators', { count: dimensionMeta[key].count })}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -301,7 +382,9 @@ export default function Diagnosis() {
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     {/* Informations générales */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Informations générales</h3>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                        {t('diagnostic.general.title')}
+                      </h3>
                       <GeneralInfoForm register={register} />
                     </div>
 
@@ -312,7 +395,7 @@ export default function Diagnosis() {
                           className: `w-5 h-5 ${dimensionColors[activeDimension].split(' ')[1]}`
                         })}
                         <h3 className="text-lg font-semibold text-gray-800">
-                          {dimensionMeta[activeDimension].label}
+                          {t(dimensionMeta[activeDimension].labelKey)}
                         </h3>
                       </div>
                       {renderDimensionForm()}
@@ -358,26 +441,23 @@ export default function Diagnosis() {
         <div className="relative z-20 container mx-auto px-6">
           <div className="flex flex-col items-center text-center gap-4 text-white">
             <p className="text-lg">
-              Thank you for your interest in us. Our derivative websites will be launched soon, stay tuned!
+              {t('common.footer.thank_you')}
             </p>
             <p className="text-lg">
-              Can't wait? to set up a pilot program.
+              {t('common.footer.pilot')}
             </p>
             <div className="flex items-center justify-center gap-4 mt-2 text-sm text-white/80">
-              <span>Benguerir</span>
+              <span>{t('common.footer.location')}</span>
               <span>|</span>
-              <span>contact.cus@um6p.ma</span>
-              <span>|</span>
-              <Link href="/privacy" className="hover:text-amber-300 transition-colors">
-                Privacy Policy
-              </Link>
+              <span>{t('common.footer.email')}</span>
+              
             </div>
             <div className="mt-4 flex items-center gap-4">
               <Link
                 href="/contact"
                 className="bg-amber-500 hover:bg-amber-600 text-white font-medium px-8 py-3 rounded-full shadow-md hover:shadow-lg transition duration-300 inline-block"
               >
-                CONTACT
+                {t('common.footer.contact_button')}
               </Link>
             </div>
           </div>

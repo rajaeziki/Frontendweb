@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button } from "../../../component/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../component/ui/card";
 import type { WebData } from "../types";
@@ -23,18 +24,19 @@ export function ExternalSourcesBar({
   webData,
   city
 }: ExternalSourcesBarProps) {
+  const { t } = useTranslation();
   return (
     <Card className="border border-gray-200 shadow-sm">
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-medium text-gray-800">
-          Sources externes intégrées
+          {t('diagnostic.sources.title', 'Sources externes intégrées')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-4">
           {/* Banque Mondiale */}
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-700">Banque Mondiale</span>
+            <span className="text-sm text-gray-700">{t('diagnostic.sources.worldBank', 'Banque Mondiale')}</span>
             <Button
               variant={enableWorldBank ? "default" : "outline"}
               size="sm"
@@ -43,13 +45,13 @@ export function ExternalSourcesBar({
                 enableWorldBank ? "bg-amber-500 text-white hover:bg-amber-600" : ""
               }`}
             >
-              {enableWorldBank ? "Activée" : "Désactivée"}
+              {enableWorldBank ? t('common.enabled', 'Activée') : t('common.disabled', 'Désactivée')}
             </Button>
           </div>
 
           {/* SDG */}
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-700">SDG</span>
+            <span className="text-sm text-gray-700">{t('diagnostic.sources.sdg', 'SDG')}</span>
             <Button
               variant={enableSDG ? "default" : "outline"}
               size="sm"
@@ -58,13 +60,13 @@ export function ExternalSourcesBar({
                 enableSDG ? "bg-amber-500 text-white hover:bg-amber-600" : ""
               }`}
             >
-              {enableSDG ? "Activés" : "Désactivés"}
+              {enableSDG ? t('common.enabled', 'Activés') : t('common.disabled', 'Désactivés')}
             </Button>
           </div>
 
           {/* Wikipedia */}
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-700">Wikipedia</span>
+            <span className="text-sm text-gray-700">{t('diagnostic.sources.wikipedia', 'Wikipedia')}</span>
             <Button
               variant={enableWebSearch ? "default" : "outline"}
               size="sm"
@@ -73,25 +75,25 @@ export function ExternalSourcesBar({
                 enableWebSearch ? "bg-amber-500 text-white hover:bg-amber-600" : ""
               }`}
             >
-              {enableWebSearch ? "Activée" : "Désactivée"}
+              {enableWebSearch ? t('common.enabled', 'Activée') : t('common.disabled', 'Désactivée')}
             </Button>
           </div>
         </div>
 
-        {/* Informations supplémentaires - unifiées en gris */}
+        {/* Informations supplémentaires */}
         {webData?.world_bank_data && (
           <div className="mt-4 text-xs bg-gray-100 text-gray-700 px-3 py-2 rounded-md">
-            Données Banque Mondiale disponibles : {webData.world_bank_data.country_data.length} indicateurs
+            {t('diagnostic.sources.worldBankData', { count: webData.world_bank_data.country_data.length })}
           </div>
         )}
         {webData?.wikipedia_info?.found && (
           <div className="mt-2 text-xs bg-gray-100 text-gray-700 px-3 py-2 rounded-md">
-            Données Wikipedia disponibles pour {city}
+            {t('diagnostic.sources.wikipediaData', { city })}
           </div>
         )}
         {enableSDG && (
           <div className="mt-2 text-xs bg-gray-100 text-gray-700 px-3 py-2 rounded-md">
-            Données SDG intégrées : 17 objectifs disponibles
+            {t('diagnostic.sources.sdgData')}
           </div>
         )}
       </CardContent>
