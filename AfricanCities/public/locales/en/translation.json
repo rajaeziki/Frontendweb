@@ -10,7 +10,8 @@
       "title": "Register",
       "description": "Create a new account",
       "tab": "Register",
-      "submit": "Register"
+      "submit": "Register",
+      "success": "Registration successful! You can now log in."
     },
     "email": "Email",
     "password": "Password",

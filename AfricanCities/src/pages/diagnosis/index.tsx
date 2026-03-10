@@ -36,6 +36,9 @@ import { DiagnosticObjectivesForm } from "./components/DiagnosticObjectivesForm"
 import { FormActions } from "./components/FormActions";
 import { ReportViewer } from "./components/ReportViewer";
 
+// Importer le composant AuthModal depuis son fichier
+import AuthModal from '../../component/AuthModal';   // <-- AJOUTER CETTE LIGNE
+
 // Types pour les dimensions
 type DimensionKey = 'society' | 'habitat' | 'spatial' | 'infrastructure' | 'environment' | 'governance' | 'economy';
 
@@ -72,190 +75,6 @@ const dimensionColors: Record<DimensionKey, string> = {
   economy: "bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100",
 };
 
-// --- NOUVEAU COMPOSANT : AuthModal avec onglets Connexion / Inscription ---
-const AuthModal = ({ isOpen, onClose, onLogin, onRegister }: {
-  isOpen: boolean;
-  onClose: () => void;
-  onLogin: (email: string, password: string) => void;
-  onRegister: (name: string, email: string, password: string) => void;
-}) => {
-  const { t } = useTranslation();
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-
-  // États pour le formulaire de connexion
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-
-  // États pour le formulaire d'inscription
-  const [registerName, setRegisterName] = useState('');
-  const [registerEmail, setRegisterEmail] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!loginEmail || !loginPassword) {
-      alert(t('auth.alert.fill_fields'));
-      return;
-    }
-    onLogin(loginEmail, loginPassword);
-  };
-
-  const handleRegisterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!registerName || !registerEmail || !registerPassword || !confirmPassword) {
-      alert(t('auth.alert.fill_fields'));
-      return;
-    }
-    if (registerPassword !== confirmPassword) {
-      alert(t('auth.alert.password_mismatch'));
-      return;
-    }
-    onRegister(registerName, registerEmail, registerPassword);
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            {mode === 'login' ? t('auth.login.title') : t('auth.register.title')}
-          </DialogTitle>
-          <DialogDescription>
-            {mode === 'login' ? t('auth.login.description') : t('auth.register.description')}
-          </DialogDescription>
-        </DialogHeader>
-
-        <Tabs value={mode} onValueChange={(v) => setMode(v as 'login' | 'register')} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">{t('auth.login.tab')}</TabsTrigger>
-            <TabsTrigger value="register">{t('auth.register.tab')}</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="login">
-            <form onSubmit={handleLoginSubmit} className="space-y-4 mt-4">
-              <div>
-                <label htmlFor="login-email" className="block text-sm font-medium text-gray-700">
-                  {t('auth.email')}
-                </label>
-                <input
-                  type="email"
-                  id="login-email"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="login-password" className="block text-sm font-medium text-gray-700">
-                  {t('auth.password')}
-                </label>
-                <input
-                  type="password"
-                  id="login-password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
-                  required
-                />
-              </div>
-              <div className="flex justify-end space-x-2 pt-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                >
-                  {t('auth.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700"
-                >
-                  {t('auth.login.submit')}
-                </button>
-              </div>
-            </form>
-          </TabsContent>
-
-          <TabsContent value="register">
-            <form onSubmit={handleRegisterSubmit} className="space-y-4 mt-4">
-              <div>
-                <label htmlFor="register-name" className="block text-sm font-medium text-gray-700">
-                  {t('auth.name')}
-                </label>
-                <input
-                  type="text"
-                  id="register-name"
-                  value={registerName}
-                  onChange={(e) => setRegisterName(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="register-email" className="block text-sm font-medium text-gray-700">
-                  {t('auth.email')}
-                </label>
-                <input
-                  type="email"
-                  id="register-email"
-                  value={registerEmail}
-                  onChange={(e) => setRegisterEmail(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="register-password" className="block text-sm font-medium text-gray-700">
-                  {t('auth.password')}
-                </label>
-                <input
-                  type="password"
-                  id="register-password"
-                  value={registerPassword}
-                  onChange={(e) => setRegisterPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
-                  {t('auth.confirm_password')}
-                </label>
-                <input
-                  type="password"
-                  id="confirm-password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
-                  required
-                />
-              </div>
-              <div className="flex justify-end space-x-2 pt-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                >
-                  {t('auth.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700"
-                >
-                  {t('auth.register.submit')}
-                </button>
-              </div>
-            </form>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
-  );
-};
-// --- FIN DU NOUVEAU COMPOSANT ---
-
 export default function Diagnosis() {
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState("form");
@@ -281,26 +100,15 @@ export default function Diagnosis() {
 
   // Fonction de connexion
   const handleLogin = (email: string, password: string) => {
+    // Dans un cas réel, vous valideriez les identifiants
     if (email && password) {
       localStorage.setItem('auth', 'true');
-      // Optionnel : stocker l'email ou un token
       localStorage.setItem('userEmail', email);
       setIsAuthenticated(true);
       setShowLoginModal(false);
     } else {
       alert(t('login.alert.fill_fields'));
     }
-  };
-
-  // --- NOUVELLE FONCTION : Inscription ---
-  const handleRegister = (name: string, email: string, password: string) => {
-    // Ici vous pouvez ajouter un appel API réel
-    // Simulation : on considère l'inscription réussie et on connecte l'utilisateur
-    localStorage.setItem('auth', 'true');
-    localStorage.setItem('userName', name);
-    localStorage.setItem('userEmail', email);
-    setIsAuthenticated(true);
-    setShowLoginModal(false);
   };
 
   // Fonction de déconnexion
@@ -511,13 +319,12 @@ export default function Diagnosis() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white font-sans text-gray-800">
-      {/* Modale d'authentification avec onglets */}
+      {/* Modale d'authentification importée */}
       <AuthModal
         key={i18n.language}
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onLogin={handleLogin}
-        onRegister={handleRegister}
       />
 
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -526,14 +333,14 @@ export default function Diagnosis() {
         <nav className="container mx-auto px-6">
           <div className="flex items-center justify-between">
              <Link href="/" className="block">
-  <div className="p-3">  {/* transparent by default */}
-    <img
-      src={UM6PCUS}
-      alt="AfricanCities AI Logo"
-      className="h-12 w-auto object-contain drop-shadow-md"
-    />
-  </div>
-</Link>
+              <div className="p-3">
+                <img
+                  src={UM6PCUS}
+                  alt="AfricanCities AI Logo"
+                  className="h-12 w-auto object-contain drop-shadow-md"
+                />
+              </div>
+            </Link>
 
             <div className="flex items-center">
               <ul className="hidden md:flex space-x-8 text-sm font-medium tracking-wider">

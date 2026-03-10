@@ -6,11 +6,12 @@
       "tab": "Se connecter",
       "submit": "Se connecter"
     },
-    "register": {
+   "register": {
       "title": "Inscription",
       "description": "Créez un nouveau compte",
       "tab": "S'inscrire",
-      "submit": "S'inscrire"
+      "submit": "S'inscrire",
+      "success": "Inscription réussie ! Vous pouvez maintenant vous connecter."
     },
     "email": "Email",
     "password": "Mot de passe",
