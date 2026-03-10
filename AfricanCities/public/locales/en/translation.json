@@ -1,4 +1,27 @@
 {
+"auth": {
+    "login": {
+      "title": "Login",
+      "description": "Sign in to your account",
+      "tab": "Login",
+      "submit": "Login"
+    },
+    "register": {
+      "title": "Register",
+      "description": "Create a new account",
+      "tab": "Register",
+      "submit": "Register"
+    },
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "name": "Full Name",
+    "cancel": "Cancel",
+    "alert": {
+      "fill_fields": "Please fill in all fields",
+      "password_mismatch": "Passwords do not match"
+    }
+  },
 
  "login": {
     "title": "Login required",

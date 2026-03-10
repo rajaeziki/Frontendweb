@@ -1,4 +1,27 @@
 {
+ "auth": {
+    "login": {
+      "title": "Connexion",
+      "description": "Connectez-vous à votre compte",
+      "tab": "Se connecter",
+      "submit": "Se connecter"
+    },
+    "register": {
+      "title": "Inscription",
+      "description": "Créez un nouveau compte",
+      "tab": "S'inscrire",
+      "submit": "S'inscrire"
+    },
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "name": "Nom complet",
+    "cancel": "Annuler",
+    "alert": {
+      "fill_fields": "Veuillez remplir tous les champs",
+      "password_mismatch": "Les mots de passe ne correspondent pas"
+    }
+  },
 
 "login": {
     "title": "Connexion requise",
