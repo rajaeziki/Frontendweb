@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { useTranslation, Trans } from 'react-i18next';
 import { Menu, X } from 'lucide-react';
 import logo from "../assets/logo.jpeg";
+import UM6PCUS from '../assets/UM6PCUS.svg';
 import LanguageSwitcher from '../component/LanguageSwitcher';
 
 const About: React.FC = () => {
@@ -41,21 +42,15 @@ const About: React.FC = () => {
         <nav className="container mx-auto px-6">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="group relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-200/50 to-amber-200/50 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 to-amber-100/30 rounded-2xl blur-md" />
-              <div className={`relative p-3 rounded-2xl shadow-xl border transition-all duration-300 ${
-                isScrolled 
-                  ? 'bg-white border-gray-200' 
-                  : 'bg-white/90 backdrop-blur-sm border-white/60'
-              } group-hover:shadow-2xl`}>
-                <img
-                  src={logo}
-                  alt="AfricanCities AI Logo"
-                  className="h-12 w-auto object-contain drop-shadow-md"
-                />
-              </div>
-            </Link>
+            <Link href="/" className="block">
+  <div className="p-3">  {/* transparent by default */}
+    <img
+      src={UM6PCUS}
+      alt="AfricanCities AI Logo"
+      className="h-12 w-auto object-contain drop-shadow-md"
+    />
+  </div>
+</Link>
 
             {/* Partie droite : menu desktop, sélecteur et burger */}
             <div className="flex items-center">
