@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../component/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../component/ui/dialog";
 import ChatWidget from "../Chat";
 import { useTranslation } from 'react-i18next';
 import UM6PCUS from '../../assets/UM6PCUS.svg';
@@ -13,8 +12,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "./schemas";
 import type { FormData } from "./types";
 import { Link, useRoute } from "wouter";
-import logo from "../../assets/logo.jpeg";
 import LanguageSwitcher from '../../component/LanguageSwitcher';
+import html2pdf from 'html2pdf.js';
 
 // Hooks
 import { useWebData } from "./hooks/useWebData";
@@ -34,11 +33,8 @@ import { GovernanceForm } from "./components/GovernanceForm";
 import { EconomyForm } from "./components/EconomyForm";
 import { DiagnosticObjectivesForm } from "./components/DiagnosticObjectivesForm";
 import { FormActions } from "./components/FormActions";
-// Remplacer l'import précédent de ReportViewer
 import ReportViewer from "./hooks/ReportViewer";
-
-// Importer le composant AuthModal depuis son fichier
-import AuthModal from '../../component/AuthModal';   // <-- AJOUTER CETTE LIGNE
+import AuthModal from '../../component/AuthModal';
 
 // Types pour les dimensions
 type DimensionKey = 'society' | 'habitat' | 'spatial' | 'infrastructure' | 'environment' | 'governance' | 'economy';
@@ -101,7 +97,6 @@ export default function Diagnosis() {
 
   // Fonction de connexion
   const handleLogin = (email: string, password: string) => {
-    // Dans un cas réel, vous valideriez les identifiants
     if (email && password) {
       localStorage.setItem('auth', 'true');
       localStorage.setItem('userEmail', email);
@@ -283,8 +278,9 @@ export default function Diagnosis() {
 
   const { webData } = useWebData(enableWebSearch, watchCity, watchCountry);
   const { documents, uploadProgress, fileInputRef, handleFileUpload, removeDocument } = useDocumentUpload();
-  // Récupérer reportData du hook
   const { isGenerating, generatedContent, generateReportContent, reportData } = useReportGeneration();
+
+  const reportContainerRef = useRef<HTMLDivElement>(null);
 
   const handleFileUploadWithAuth = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (requireAuth()) handleFileUpload(e);
@@ -292,9 +288,21 @@ export default function Diagnosis() {
 
   const onSubmit = async (data: FormData) => {
     if (!requireAuth()) return;
-    // On passe la langue choisie pour le rapport
     await generateReportContent(data, documents, webData, enableWorldBank, enableSDG, reportLanguage);
     setActiveTab("result");
+  };
+
+  // Fonction de téléchargement PDF
+  const downloadPDF = () => {
+    if (!reportContainerRef.current) return;
+    const opt = {
+      margin:       0.5,
+      filename:     `diagnostic_${new Date().toISOString().slice(0,10)}.pdf`,
+      image:        { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas:  { scale: 2, letterRendering: true, useCORS: true },
+      jsPDF:        { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const }
+    };
+    html2pdf().set(opt).from(reportContainerRef.current).save();
   };
 
   const renderDimensionForm = () => {
@@ -313,15 +321,17 @@ export default function Diagnosis() {
   const linkClass = (isActive: boolean) => {
     const baseClasses = 'transition-colors';
     const colorClasses = isScrolled ? 'text-gray-800 hover:text-amber-500' : 'text-white hover:text-amber-400';
-    const activeClasses = isActive
-      ? (isScrolled ? 'text-amber-500 font-semibold border-b-2 border-amber-500 pb-1' : 'text-amber-400 font-semibold border-b-2 border-amber-300 pb-1')
-      : '';
+    let activeClasses = '';
+    if (isActive) {
+      activeClasses = isScrolled 
+        ? 'text-amber-500 font-semibold border-b-2 border-amber-500 pb-1'
+        : 'text-amber-400 font-semibold border-b-2 border-amber-300 pb-1';
+    }
     return `${baseClasses} ${colorClasses} ${activeClasses}`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white font-sans text-gray-800">
-      {/* Modale d'authentification importée */}
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-white font-sans text-gray-800">
       <AuthModal
         key={i18n.language}
         isOpen={showLoginModal}
@@ -497,10 +507,24 @@ export default function Diagnosis() {
             </TabsContent>
 
             <TabsContent value="result">
-              <ReportViewer 
-                reportHTML={generatedContent || ''} 
-                chartData={reportData?.chartData} 
-              />
+              <div className="mb-4 flex justify-end">
+                <button
+                  onClick={downloadPDF}
+                  disabled={!generatedContent}
+                  className="bg-amber-500 hover:bg-amber-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium px-6 py-2 rounded-full shadow-md transition duration-300 flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                  Télécharger le rapport (PDF)
+                </button>
+              </div>
+              <div ref={reportContainerRef}>
+                <ReportViewer 
+                  reportHTML={generatedContent || ''} 
+                  chartData={reportData?.chartData} 
+                />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
