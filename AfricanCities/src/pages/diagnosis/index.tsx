@@ -34,7 +34,8 @@ import { GovernanceForm } from "./components/GovernanceForm";
 import { EconomyForm } from "./components/EconomyForm";
 import { DiagnosticObjectivesForm } from "./components/DiagnosticObjectivesForm";
 import { FormActions } from "./components/FormActions";
-import { ReportViewer } from "./components/ReportViewer";
+// Remplacer l'import précédent de ReportViewer
+import ReportViewer from "./hooks/ReportViewer";
 
 // Importer le composant AuthModal depuis son fichier
 import AuthModal from '../../component/AuthModal';   // <-- AJOUTER CETTE LIGNE
@@ -282,7 +283,8 @@ export default function Diagnosis() {
 
   const { webData } = useWebData(enableWebSearch, watchCity, watchCountry);
   const { documents, uploadProgress, fileInputRef, handleFileUpload, removeDocument } = useDocumentUpload();
-  const { isGenerating, generatedContent, generateReportContent } = useReportGeneration();
+  // Récupérer reportData du hook
+  const { isGenerating, generatedContent, generateReportContent, reportData } = useReportGeneration();
 
   const handleFileUploadWithAuth = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (requireAuth()) handleFileUpload(e);
@@ -495,7 +497,10 @@ export default function Diagnosis() {
             </TabsContent>
 
             <TabsContent value="result">
-              <ReportViewer generatedContent={generatedContent} city={watchCity} />
+              <ReportViewer 
+                reportHTML={generatedContent || ''} 
+                chartData={reportData?.chartData} 
+              />
             </TabsContent>
           </Tabs>
         </div>
